@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CreditAppBMG.CustomAttributes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,11 @@ namespace CreditAppBMG
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().AddViewOptions(options => options.HtmlHelperOptions.ClientValidationEnabled = false);
+            services.AddMvc().AddMvcOptions(opts => {
+
+                opts.ModelMetadataDetailsProviders.Add(new CustomMetadataProvider());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

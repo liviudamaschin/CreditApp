@@ -1,6 +1,6 @@
 using System;
 
-namespace CreditAppBMG.Models
+namespace CreditAppBMG.ViewModels
 {
     public class ErrorViewModel
     {
