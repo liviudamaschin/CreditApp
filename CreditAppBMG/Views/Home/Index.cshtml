@@ -26,8 +26,9 @@
                     <div class="panel-body">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
-                            <label asp-for="Retailer.BusinessName" class="control-label"></label>
+                            <label asp-for="@Model.Retailer.BusinessName" class="control-label"></label>
                             <input asp-for="Retailer.BusinessName" class="form-control" />
+                            @*@Html.TextBoxFor(m => m.Retailer.BusinessName, new { @id = "Retailer_BusinessName2", @class = "form-control" })*@
                             <span asp-validation-for="Retailer.BusinessName" class="text-danger"></span>
                         </div>
                         <div class="form-group">
@@ -46,9 +47,10 @@
 
                             <div class="col-md-6" style="padding-top: 10px;">
                                 <div class="form-group">
+                                    <input class="datepicker" data-date-format="mm/dd/yyyy">
                                     <label asp-for="Retailer.LicenseExpirationDate" class="control-label"></label>
                                     <div class="input-group date">
-                                        <input asp-for="Retailer.LicenseExpirationDate" class="form-control" />
+                                        <input asp-for="Retailer.LicenseExpirationDate" class="datepicker" data-date-format="mm/dd/yyyy" />
                                         @*<span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>*@
                                     </div>
                                     <span asp-validation-for="Retailer.LicenseExpirationDate" class="text-danger"></span>
@@ -213,8 +215,8 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <input type="checkbox" asp-for="Retailer.PropertyOwned" class="checkbox-inline" data-toggle="collapse" data-target="#PropertyOwned" />
                             <label asp-for="Retailer.PropertyOwned" class="control-label"></label>
-                            <input type="checkbox" asp-for="Retailer.PropertyOwned" class="form-control" data-toggle="collapse" data-target="#PropertyOwned" />
                         </div>
                         <div id="PropertyOwned" class="panel panel-default collapse">
                             <div class="panel-heading">
@@ -265,8 +267,8 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <input type="checkbox" asp-for="Retailer.PriorBusiness" class="checkbox-inline" data-toggle="collapse" data-target="#PriorBusiness" />
                             <label asp-for="Retailer.PriorBusiness" class="control-label"></label>
-                            <input type="checkbox" asp-for="Retailer.PriorBusiness" class="form-control" data-toggle="collapse" data-target="#PriorBusiness" />
                         </div>
                         <div id="PriorBusiness" class="panel panel-default collapse">
                             <div class="panel-heading">
@@ -658,48 +660,24 @@
         $('#Retailer_Phone').mask('(999) 999-9999');
         $('#Retailer_BusinessName').change(function () {
            //Content to send
-              var yourText = $(this).val();
-            var distributor = $("#_mDistributorName");
-            var formData = $(this).serialize();
-            var model = { DistributorName :'zzz', DistributorState :'ss' };
-            var frmModel = $('#frmCreditApp').serialize();
-            alert(model);
-            //var url = '@Url.Action("UpdateAction", "Home")';
-            //alert(url);
-            //Post the content of your Textbox to your "YourAction" action in "YourController"
+            var yourText = $(this).val();
+            var jsonModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
 
+            //alert('@Model.Retailer.BusinessName');
             $.ajax({
                 url:'@Url.Action("UpdateAction", "Home")',
                 type: "POST",
                 dataType: "json",
                 contentType: 'application/json; charset=utf-8',
-                data: '{model: ' + JSON.stringify(frmModel) + '}',
+                data: JSON.stringify(jsonModel),
                 success: function (response) {
                     alert(response);
                 }
             });
-            @*$.post('@Url.Action("UpdateAction", "Home")', { "model": frmModel},function (data) {
-                  //Do something with the results here
-                  alert(data);
-              });*@
         });
-
-        $('#DistributorState').change(function () {
-           //Content to send
-            var formData = $(this).serialize();
-            //Post the content of your Textbox to your "YourAction" action in "YourController"
-            @*$.post('@Url.Action("UpdateAction", "Home")', { "model": formData},function (data) {
-                  //Do something with the results here
-                  alert(data);
-              });*@
-            //var model = { DistributorName='zzz', DistributorState='ss' };
-            //alert(formData);
-            $.ajax({
-                type: "POST",
-                data: formData,
-                success: function (response) {
-                }
-            });
+        $('.datepicker').datepicker({
+            format: 'mm/dd/yyyy',
+            startDate: '-3d'
         });
     });
 </script>

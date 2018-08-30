@@ -1,4 +1,9 @@
-﻿.body {
+﻿.form-group.required .control-label:after {
+    content: "*";
+    color: red;
+}
+
+.body {
     color: #333;
     background-color: #dadada;
     padding: 5px 10px 20px;

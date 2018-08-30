@@ -31,6 +31,8 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData = new CreditData();
             viewModel.Distributor = new Distributor();
             viewModel.Retailer = new Retailer();
+
+            //load data from database or webservice
             viewModel.Retailer.BusinessName = "test1";
             return View(viewModel);
         }
@@ -60,12 +62,12 @@ namespace CreditAppBMG.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateAction([FromForm]Distributor model)
+        public string UpdateAction([FromBody] CreditAppModel model)
         {
             //JsonConvert.DeserializeObject<>
             //Handle your logic here
             //return $"You typed : {model}." ;
-            return Ok("zzz");
+            return "zzz";
         }
 
 
