@@ -2,7 +2,12 @@
     content: "*";
     color: red;
 }
-
+.required {
+    position: absolute;
+    margin-left: -10px;
+    color: #FB0000;
+    font-size: 15px;
+}
 .body {
     color: #333;
     background-color: #dadada;

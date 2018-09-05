@@ -23,6 +23,8 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "License expiration date:*")]
+        //[DisplayFormat(DataFormatString = "mm/dd/yyyy", ApplyFormatInEditMode = true)]
+        [DataType(DataType.Date)]
         public DateTime LicenseExpirationDate { get; set; }
 
         [Required(ErrorMessage = "Required field")]

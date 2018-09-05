@@ -1,26 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace CreditAppBMG.ViewModels
+namespace CreditAppBMG.Entities
 {
-    public class Distributor
+    [Table("Distributors")]
+    public class DistributorEntity
     {
+        [Key]
+        [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int? Id { get; set; }
-        
         public int DistributorId { get; set; }
-
-        [Required(ErrorMessage = "Required field")]
         public string DistributorName { get; set; }
-
-        [Required(ErrorMessage = "Required field")]
         public string DistributorAddress { get; set; }
-
-        [Required(ErrorMessage = "Required field")]
         public string DistributorCity { get; set; }
-
-        [Required(ErrorMessage = "Required field")]
         public string DistributorState { get; set; }
-
-        [Required(ErrorMessage = "Required field")]
         public string DistributorZip { get; set; }
         public string DistributorPhone { get; set; }
         public string DistributorWebSiteURL { get; set; }

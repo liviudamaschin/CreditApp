@@ -6,7 +6,7 @@
       "~/Scripts/Inputmask/jquery.inputmask.js",
       "~/Scripts/Inputmask/inputmask.extensions.js",
       "~/Scripts/Inputmask/inputmask.date.extensions.js",
-      "\"~/Scripts/Inputmask/inputmask.numeric.extensions.js"
+      "~/Scripts/Inputmask/inputmask.numeric.extensions.js"
 
     ],
     "minify": {
