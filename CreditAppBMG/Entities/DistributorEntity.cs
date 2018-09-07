@@ -21,5 +21,6 @@ namespace CreditAppBMG.Entities
         public string DistributorZip { get; set; }
         public string DistributorPhone { get; set; }
         public string DistributorWebSiteURL { get; set; }
+        public string DistributorLogoURL { get; set; }
     }
 }

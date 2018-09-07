@@ -14,17 +14,24 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CreditAppBMG.Pdf;
+using System.Net;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using System.Reflection;
 
 namespace CreditAppBMG.Controllers
 {
 
     public class HomeController : Controller
     {
+        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IMapper _mapper;
 
-        public HomeController(IMapper mapper)
+        public HomeController(IMapper mapper, IHostingEnvironment hostingEnvironment)
         {
             _mapper = mapper;
+            _hostingEnvironment = hostingEnvironment;
         }
        
         public IActionResult Index(string token)
@@ -55,7 +62,7 @@ namespace CreditAppBMG.Controllers
                     }
                     var distributorEntity = context.Distributors.SingleOrDefault(x => x.DistributorId == int.Parse(tokenInfo.DistribuitorID));
                     if (distributorEntity != null)
-                        distributorId = distributorEntity.Id;
+                        viewModel.Distributor =_mapper.Map<Distributor>(distributorEntity);
                 }
 
                 if (viewModel.CreditData == null)
@@ -75,7 +82,9 @@ namespace CreditAppBMG.Controllers
 
         private void FillDistributorFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo, TokenInfo tokenInfo)
         {
-            viewModel.Distributor = new Distributor();
+            //viewModel.Distributor = new Distributor();
+            if (viewModel.Distributor == null)
+                viewModel.Distributor = new Distributor();
             viewModel.Distributor.DistributorId = retailerInfo.DistributorId;
             viewModel.Distributor.DistributorName = retailerInfo.DistributorName;
             viewModel.Distributor.DistributorAddress = retailerInfo.DistributorAddress;
@@ -84,6 +93,25 @@ namespace CreditAppBMG.Controllers
             viewModel.Distributor.DistributorZip = retailerInfo.DistributorZip;
             viewModel.Distributor.DistributorPhone = retailerInfo.DistributorPhone;
             viewModel.Distributor.DistributorWebSiteURL = retailerInfo.DistributorWebSiteURL;
+
+            string localFileName;
+            // download logo:
+            if (!string.IsNullOrEmpty(retailerInfo.DistributorLogoURL))
+            {
+                try
+                {
+                    localFileName = Path.GetFileName(retailerInfo.DistributorLogoURL);
+                    var localFileLocation = Path.Combine(this._hostingEnvironment.WebRootPath, $"images/Logos/{localFileName}");
+                    WebClient client = new WebClient();
+                    client.Headers.Add("user-agent", "CreditApp");
+                    client.DownloadFile(retailerInfo.DistributorLogoURL, localFileLocation);
+                    viewModel.LocalLogo = localFileLocation;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
         }
 
         private void FillCreditDataFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo, TokenInfo tokenInfo)
@@ -376,9 +404,10 @@ namespace CreditAppBMG.Controllers
         }
         
         [HttpPost]
-        public ActionResult GeneratePDF(CreditAppModel model)
+        public async Task<IActionResult> GeneratePDF(CreditAppModel model, IFormFile fileUploadCertificate, IFormFile fileUploadLicense)
         {
             CreditDataEntity creditDataEntity = null;
+            UpdateWithNulls(model);
             //update DB
             using (var context = new CreditAppContext())
             {
@@ -401,49 +430,80 @@ namespace CreditAppBMG.Controllers
                 {
                     context.Add(distributorEntity);
                 }
-                //context.SaveChangesAsync();
                 context.SaveChanges();
+
+                model.CreditData.Id = creditDataEntity.Id;
+                model.Distributor.Id = distributorEntity.Id;
+                var hasUploadedFiles = false;
+                byte[] licenseFileContent = null;
+                string licenseFileName = null;
+
+                var licenseCreditDataFilesEntity = context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id.Value);
+                licenseCreditDataFilesEntity.CreditDataId = creditDataEntity.Id.Value;
+                if (fileUploadLicense != null)
+                {
+                    hasUploadedFiles = true;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await fileUploadLicense.CopyToAsync(memoryStream);
+                        licenseFileContent = memoryStream.ToArray();
+                        licenseFileName = fileUploadLicense.FileName;
+                        licenseCreditDataFilesEntity.LicenseFile = licenseFileContent;
+                        licenseCreditDataFilesEntity.LicenseFileName = licenseFileName;
+                    }
+                }
+
+                byte[] certificateFileContent = null;
+                string certificateFileName = null;
+                if (fileUploadCertificate != null)
+                {
+                    hasUploadedFiles = true;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await fileUploadCertificate.CopyToAsync(memoryStream);
+                        certificateFileContent = memoryStream.ToArray();
+                        certificateFileName = fileUploadCertificate.FileName;
+                        licenseCreditDataFilesEntity.TaxCertificateFile = certificateFileContent;
+                        licenseCreditDataFilesEntity.TaxCertificateFileName = certificateFileName;
+                    }
+                }
+
+                if (hasUploadedFiles)
+                {
+                    if (!licenseCreditDataFilesEntity.Id.HasValue)
+                        context.Add(licenseCreditDataFilesEntity);
+                    else
+                        context.Update(licenseCreditDataFilesEntity);
+                    context.SaveChanges();
+                }
+               
             }
             this.ValidateModel(model.CreditData);
             if (ModelState.IsValid)
             {
+                var templateLocation = Path.Combine(this._hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
+                var outputPath = Path.Combine(this._hostingEnvironment.WebRootPath, $"Pdfs/D{model.CreditData.DistributorId}_R{model.CreditData.RetailerId}_Document.pdf");
                 PdfGenerator pdfGenerator = new PdfGenerator(model);
-                pdfGenerator.GeneratePdf();
-                ////generate pdf
-                //using (var reader = new PdfReader(@"C:\Liviu\Dev\SORINAKE\testApps\BMG_Credit_Application_Form_BLANK_2.pdf"))
-                //{
-                //    using (var fileStream = new FileStream(@"C:\Liviu\Dev\SORINAKE\testApps\Output.pdf", FileMode.Create, FileAccess.Write))
-                //    {
-                //        var document = new Document(reader.GetPageSizeWithRotation(1));
-                //        var writer = PdfWriter.GetInstance(document, fileStream);
-
-                //        document.Open();
-
-                //        for (var i = 1; i <= reader.NumberOfPages; i++)
-                //        {
-                //            document.NewPage();
-
-                //            var baseFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                //            var importedPage = writer.GetImportedPage(reader, i);
-
-                //            var contentByte = writer.DirectContent;
-                //            contentByte.BeginText();
-                //            contentByte.SetFontAndSize(baseFont, 8);
-
-                //            var firststring = "guguta";
-                //            contentByte.ShowTextAligned(PdfContentByte.ALIGN_LEFT, firststring, 88, 665, 0);
-                //            contentByte.EndText();
-                //            contentByte.AddTemplate(importedPage, 0, 0);
-                //        }
-
-                //        document.Close();
-                //        writer.Close();
-                //    }
-                //}
+                pdfGenerator.GeneratePdf(templateLocation, outputPath);
+            
             }
 
             model.StatesListItems = this.GetStatesListItems();
             return View("Index", model);
+
+            //return Ok();
+        }
+
+        private void UpdateWithNulls(CreditAppModel model)
+        {
+            foreach (var propertyInfo in model.CreditData.GetType().GetProperties().Where(p => !p.GetGetMethod().GetParameters().Any()))
+                {
+                if (propertyInfo.GetValue(model.CreditData)!=null && propertyInfo.GetValue(model.CreditData).ToString() == "--")
+                {
+                    propertyInfo.SetValue(model.CreditData, null);
+                }
+            }
+
         }
 
         private TokenInfo VerifyToken(string token, out string errorMessage)
@@ -534,6 +594,86 @@ namespace CreditAppBMG.Controllers
                 }
             }
             return retVal ? string.Empty : "Incorrect zip code";
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Content("file not selected");
+
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FileName);
+
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return RedirectToAction("Files");
+        }
+
+        public async Task<IActionResult> Download(string filename)
+        {
+            if (filename == null)
+                return Content("filename not present");
+
+            var path = Path.Combine(
+                           Directory.GetCurrentDirectory(),
+                           "wwwroot", filename);
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+            return File(memory, GetContentType(path), Path.GetFileName(path));
+        }
+
+        private string GetContentType(string path)
+        {
+            var types = GetMimeTypes();
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            return types[ext];
+        }
+
+        private Dictionary<string, string> GetMimeTypes()
+        {
+            return new Dictionary<string, string>
+            {
+                {".txt", "text/plain"},
+                {".pdf", "application/pdf"},
+                {".doc", "application/vnd.ms-word"},
+                {".docx", "application/vnd.ms-word"},
+                {".xls", "application/vnd.ms-excel"},
+                {".xlsx", "application/vnd.openxmlformats officedocument.spreadsheetml.sheet"},
+                {".png", "image/png"},
+                {".jpg", "image/jpeg"},
+                {".jpeg", "image/jpeg"},
+                {".gif", "image/gif"},
+                {".csv", "text/csv"}
+            };
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> GeneratePDF2(IFormFile file)
+        {
+            // full path to file in temp location
+            var filePath = Path.GetTempFileName();
+
+            if (file.Length > 0)
+            {
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+            }
+
+            // process uploaded files
+            // Don't rely on or trust the FileName property without validation.
+
+            return Ok();
         }
     }
 }

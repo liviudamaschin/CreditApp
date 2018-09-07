@@ -6,10 +6,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CreditAppBMG.Entities
 {
     [Table("CreditDataFiles")]
-    public partial class CreditDataFiles
+    public partial class CreditDataFilesEntity
     {
         [Key]
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public int CreditDataId { get; set; }
         public string LicenseFileName { get; set; }
         public byte[] LicenseFile { get; set; }
@@ -18,6 +18,6 @@ namespace CreditAppBMG.Entities
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastUpdate { get; set; }
 
-        public virtual CreditDataEntity CreditData { get; set; }
+        //public virtual CreditDataEntity CreditData { get; set; }
     }
 }

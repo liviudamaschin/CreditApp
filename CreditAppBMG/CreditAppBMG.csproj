@@ -5,6 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\NewFolder1\**" />
+    <Content Remove="wwwroot\NewFolder1\**" />
+    <EmbeddedResource Remove="wwwroot\NewFolder1\**" />
+    <None Remove="wwwroot\NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="PdfTemplate\BMG_Credit_Application_Form_BLANK.pdf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="PdfTemplate\BMG_Credit_Application_Form_BLANK.pdf">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="bootstrap" Version="4.1.3" />
@@ -28,6 +45,9 @@
     <None Include="wwwroot\css\CreditApp.css" />
     <None Include="wwwroot\images\distributor_logo_placeholder.png" />
     <None Include="wwwroot\images\header-object.png" />
+    <None Include="wwwroot\PdfTemplate\BMG_Credit_Application_Form_BLANK.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet">
@@ -36,16 +56,15 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Images\" />
-    <Folder Include="PdfTemplate\" />
+    <Folder Include="wwwroot\images\Logos\" />
+    <Folder Include="wwwroot\PDFs\" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="PdfTemplate\BMG_Credit_Application_Form_BLANK.pdf">
+    <Content Update="Pdfs\json.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
 </Project>

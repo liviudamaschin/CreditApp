@@ -58,9 +58,13 @@ namespace CreditAppBMG
                 cfg.CreateMap<USZipCodes, ZipCodesUSEntity>().ReverseMap();
 
                 cfg.CreateMap<Distributor, DistributorEntity>()
-                //.ForMember(x=>x.Id, opt=>opt.Ignore())
-                .ReverseMap();
-                
+                .ForSourceMember(x => x.DistributorLogoURL, opt => opt.Ignore());
+                //.ReverseMap();
+
+                cfg.CreateMap<DistributorEntity, Distributor>()
+                .ForMember(x => x.DistributorLogoURL, opt => opt.Ignore());
+
+
             });
 
             var mapper = config.CreateMapper();

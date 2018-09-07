@@ -1,5 +1,6 @@
 ﻿@model CreditAppBMG.ViewModels.CreditAppModel
-<form id="frmCreditApp" asp-action="GeneratePDF" asp-controller="Home" method="POST" data-ajax="true" data-ajax-update="divEmp">
+@*<form asp-controller="Home" asp-action="GeneratePDF" id="frmCreditApp" method="POST" enctype="multipart/form-data" data-ajax="true" role="form">*@
+<form asp-controller="Home" asp-action="GeneratePDF" enctype="multipart/form-data" id="frmCreditApp" method="post" class="form-label-left" role="form">
     @*<div class="form-group">
             <label asp-for="DistributorName" class="control-label"></label>
             <input asp-for="DistributorName" class="form-control" />
@@ -635,35 +636,43 @@
                         <h2 class="panel-title">Files</h2>
                     </div>
                     <div class="panel-body">
-                        <div class="input-group">
-                            <span class="input-group-btn">
-                                <span class="btn btn-primary" onclick="$(this).parent().find('input[type=file]').click();">Browse...</span>
-                                <input name="uploaded_file" onchange="$(this).parent().parent().find('.form-control').html($(this).val().split(/[\\|/]/).pop());" style="display: none" type="file">
-                            </span>
-                            <span class="form-control"></span>
+                      
+                        <div class="form-group">
+                            <div class="input-group input-file" name="fileUploadLicense">
+                                <input type="text" class="form-control" placeholder='Click Browse to upload a file.' />
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default btn-choose" type="button">Browse...</button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-6" style="padding-top: 10px;">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h2 class="panel-title">Files</h2>
                     </div>
                     <div class="panel-body">
-                        <div class="input-group">
-                            <span class="input-group-btn">
-                                <span class="btn btn-primary" onclick="$(this).parent().find('input[type=file]').click();">Browse...</span>
-                                <input id="fileUplead1" name="uploaded_file" value="Click Browse to upload a file." onchange="$(this).parent().parent().find('.form-control').html($(this).val().split(/[\\|/]/).pop());" style="display:none;" type="file">
-                            </span>
-                            <span class="form-control"></span>
+                        <div class="form-group">
+                            <div class="input-group input-file" name="fileUploadCertificate">
+                                <input type="text" class="form-control" placeholder='Click Browse to upload a file.' />
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default btn-choose" type="button">Browse...</button>
+                                </span>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <input type="submit" value="Create" id="createPDF" formnovalidate="formnovalidate" class="btn btn-default" />
+            <div class="input-group">
+
+                <input type="submit" value="GeneratePDF" id="GeneratePDF" formnovalidate="formnovalidate" class="btn btn-default" />
+            </div>
         </div>
     </div>
     @*@Html.HiddenFor(m => m.DistributorName, new { @id = "_mDistributorName" })*@
@@ -672,7 +681,9 @@
     @Html.HiddenFor(m => m.CreditData.Token)
     @Html.HiddenFor(m => m.CreditData.Id)
 
+    @Html.HiddenFor(m => m.LocalLogo)
 
+    @Html.HiddenFor(m => m.Distributor.Id)
     @Html.HiddenFor(m => m.Distributor.DistributorId)
     @Html.HiddenFor(m => m.Distributor.DistributorName)
     @Html.HiddenFor(m => m.Distributor.DistributorAddress)
@@ -681,14 +692,46 @@
     @Html.HiddenFor(m => m.Distributor.DistributorZip)
     @Html.HiddenFor(m => m.Distributor.DistributorPhone)
     @Html.HiddenFor(m => m.Distributor.DistributorWebSiteURL)
-    
+
+
 </form>
+
 <script src="https://code.jquery.com/jquery-latest.js"></script>
 
 <script type="text/javascript">
+    function bs_input_file() {
+        $(".input-file").before(
+            function () {
+                if (!$(this).prev().hasClass('input-ghost')) {
+                    var element = $("<input type='file' class='input-ghost' style='visibility:hidden; height:0'>");
+                    element.attr("name", $(this).attr("name"));
+                    element.change(function () {
+                        element.next(element).find('input').val((element.val()).split('\\').pop());
+                    });
+                    $(this).find("button.btn-choose").click(function () {
+                        element.click();
+                    });
+                    $(this).find("button.btn-reset").click(function () {
+                        element.val(null);
+                        $(this).parents(".input-file").find('input').val('');
+                    });
+                    $(this).find('input').css("cursor", "pointer");
+                    $(this).find('input').mousedown(function () {
+                        $(this).parents('.input-file').prev().click();
+                        return false;
+                    });
+                    return element;
+                }
+            }
+        );
+    }
 
+    //$(document).on('change', ':file', function () {
+    //    var input = $(this)
+    //    var label = $('#BrowseInput').val(input.val().replace(/\\/g, '/').replace(/.*\//, ''));
+    //});
     $(function () {
-
+        bs_input_file();
         jQuery(document).ready(function () {
             jQuery("[required]").after("<span class='required'>*</span>");
         });

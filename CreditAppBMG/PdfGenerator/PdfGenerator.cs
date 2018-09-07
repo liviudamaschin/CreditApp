@@ -17,15 +17,17 @@ namespace CreditAppBMG.Pdf
         public PdfGenerator(CreditAppModel creditAppModel)
         {
             this.obj = creditAppModel;
+            
         }
-        public bool GeneratePdf()
+        public bool GeneratePdf(string templatePath, string outputFile)
         {
             //generate pdf
-            var fileTemplatePath = @"D:\_GIT\CreditApp\CreditAppBMG\PdfTemplate\BMG_Credit_Application_Form_BLANK.pdf";
+            var fileTemplatePath = templatePath;
 
             using (var reader = new PdfReader(fileTemplatePath))
             {
-                using (var fileStream = new FileStream(@"D:\Output.pdf", FileMode.Create, FileAccess.Write))
+                using (Stream inputImageStream = new FileStream(this.obj.LocalLogo, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var fileStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
                 {
                     var document = new Document(reader.GetPageSizeWithRotation(1));
                     var writer = PdfWriter.GetInstance(document, fileStream);
@@ -40,6 +42,17 @@ namespace CreditAppBMG.Pdf
                         //var baseFont = BaseFont.CreateFont("Arial", BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                         var importedPage = writer.GetImportedPage(reader, i);
                         var contentByte = writer.DirectContent;
+
+                        
+                        //var stamper = new PdfStamper(reader, fileStream);
+                        //var pdfContentByte = stamper.GetOverContent(1);
+
+                        Image image = Image.GetInstance(inputImageStream);
+                        image.ScaleAbsoluteHeight(image.Height / 3);
+                        image.ScaleAbsoluteWidth(image.Width / 3);
+                        image.SetAbsolutePosition(20, 740);
+                        contentByte.AddImage(image);
+                        //stamper.Close();
 
                         //contentByte.BeginText();
                         //contentByte.SetFontAndSize(baseFont, 8);

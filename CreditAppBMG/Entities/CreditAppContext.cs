@@ -20,7 +20,7 @@ namespace CreditAppBMG.Entities
         }
 
         public DbSet<CreditDataEntity> CreditData { get; set; }
-        public DbSet<CreditDataFiles> CreditDataFiles { get; set; }
+        public DbSet<CreditDataFilesEntity> CreditDataFiles { get; set; }
         public DbSet<DbVersion> DbVersion { get; set; }
         public DbSet<StatesEntity> States { get; set; }
         public DbSet<ZipCodesEntity> ZipCodes { get; set; }
