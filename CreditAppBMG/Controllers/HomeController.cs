@@ -104,7 +104,16 @@ namespace CreditAppBMG.Controllers
                     var localFileLocation = Path.Combine(this._hostingEnvironment.WebRootPath, $"images/Logos/{localFileName}");
                     WebClient client = new WebClient();
                     client.Headers.Add("user-agent", "CreditApp");
-                    client.DownloadFile(retailerInfo.DistributorLogoURL, localFileLocation);
+                    // in debug mode sometymes index is called twice gets an error thet file is in use 
+                    try
+                    {
+                        client.DownloadFile(retailerInfo.DistributorLogoURL, localFileLocation);
+                    }
+                    catch (Exception)
+                    {
+                        //throw;
+                    }
+                    
                     viewModel.LocalLogo = localFileLocation;
                 }
                 catch (Exception)
@@ -422,7 +431,10 @@ namespace CreditAppBMG.Controllers
                 }
 
                 var distributorEntity = _mapper.Map<DistributorEntity>(model.Distributor);
-                if (distributorEntity.Id.HasValue)
+                // additional check 
+                var existingDistributor = context.Distributors.Any(x => x.DistributorId == model.CreditData.DistributorId);
+                
+                if (existingDistributor)
                 {
                     context.Update(distributorEntity);
                 }
@@ -482,10 +494,18 @@ namespace CreditAppBMG.Controllers
             if (ModelState.IsValid)
             {
                 var templateLocation = Path.Combine(this._hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
-                var outputPath = Path.Combine(this._hostingEnvironment.WebRootPath, $"Pdfs/D{model.CreditData.DistributorId}_R{model.CreditData.RetailerId}_Document.pdf");
+                var fileName = $"D{model.CreditData.DistributorId}_R{model.CreditData.RetailerId}_Document.pdf";
+                var outputPath = Path.Combine(this._hostingEnvironment.WebRootPath, $"Pdfs/{fileName}");
                 PdfGenerator pdfGenerator = new PdfGenerator(model);
-                pdfGenerator.GeneratePdf(templateLocation, outputPath);
-            
+                var fileGenerated = pdfGenerator.GeneratePdf(templateLocation, outputPath);
+
+                if (fileGenerated)
+                {
+                    //var fileName = $"{V9.Version}.exe";
+                    //var filepath = $"Downloads/{fileName}";
+                    byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
+                    return File(fileBytes, "application/octet-stream", fileName);
+                }
             }
 
             model.StatesListItems = this.GetStatesListItems();
@@ -581,6 +601,15 @@ namespace CreditAppBMG.Controllers
         private void ValidateModel(CreditData creditDataModel)
         {
             ModelState.AddModelError("CreditData.ZipCode", ValidateZipCode(creditDataModel.ZipCode, creditDataModel.State));
+
+            ModelState.AddModelError("CreditData.ZipCode", ValidateZipCode(creditDataModel.ZipCode, creditDataModel.State));
+            ModelState.AddModelError("CreditData.BankReferenceZipCode", ValidateZipCode(creditDataModel.BankReferenceZipCode, creditDataModel.BankReferenceState));
+            ModelState.AddModelError("CreditData.BillingContactZipCode", ValidateZipCode(creditDataModel.BillingContactZipCode, creditDataModel.BillingContactState));
+            ModelState.AddModelError("CreditData.PrincipalZipCode", ValidateZipCode(creditDataModel.PrincipalZipCode, creditDataModel.PrincipalState));
+            ModelState.AddModelError("CreditData.PriorBusinessZipCode", ValidateZipCode(creditDataModel.PriorBusinessZipCode, creditDataModel.PriorBusinessState));
+            ModelState.AddModelError("CreditData.PropertyZipCode", ValidateZipCode(creditDataModel.PropertyZipCode, creditDataModel.PropertyState));
+            ModelState.AddModelError("CreditData.TradeReference1ZipCode", ValidateZipCode(creditDataModel.TradeReference1ZipCode, creditDataModel.TradeReference1State));
+            ModelState.AddModelError("CreditData.TradeReference2ZipCode", ValidateZipCode(creditDataModel.TradeReference2ZipCode, creditDataModel.TradeReference2State));
         }
 
         private string ValidateZipCode(string zipCode, string state)
@@ -597,64 +626,9 @@ namespace CreditAppBMG.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        public void ValidateZipCodeServer(string model)
         {
-            if (file == null || file.Length == 0)
-                return Content("file not selected");
-
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FileName);
-
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return RedirectToAction("Files");
         }
-
-        public async Task<IActionResult> Download(string filename)
-        {
-            if (filename == null)
-                return Content("filename not present");
-
-            var path = Path.Combine(
-                           Directory.GetCurrentDirectory(),
-                           "wwwroot", filename);
-
-            var memory = new MemoryStream();
-            using (var stream = new FileStream(path, FileMode.Open))
-            {
-                await stream.CopyToAsync(memory);
-            }
-            memory.Position = 0;
-            return File(memory, GetContentType(path), Path.GetFileName(path));
-        }
-
-        private string GetContentType(string path)
-        {
-            var types = GetMimeTypes();
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            return types[ext];
-        }
-
-        private Dictionary<string, string> GetMimeTypes()
-        {
-            return new Dictionary<string, string>
-            {
-                {".txt", "text/plain"},
-                {".pdf", "application/pdf"},
-                {".doc", "application/vnd.ms-word"},
-                {".docx", "application/vnd.ms-word"},
-                {".xls", "application/vnd.ms-excel"},
-                {".xlsx", "application/vnd.openxmlformats officedocument.spreadsheetml.sheet"},
-                {".png", "image/png"},
-                {".jpg", "image/jpeg"},
-                {".jpeg", "image/jpeg"},
-                {".gif", "image/gif"},
-                {".csv", "text/csv"}
-            };
-        }
-
 
         [HttpPost]
         public async Task<IActionResult> GeneratePDF2(IFormFile file)
