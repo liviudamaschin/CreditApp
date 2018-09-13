@@ -179,7 +179,7 @@
                             <div class="col-md-6" style="padding-top: 10px;">
                                 <div class="form-group">
                                     <label asp-for="CreditData.PrincipalSSN" class="control-label"></label>
-                                    <input asp-for="CreditData.PrincipalSSN" class="form-control" mask="999-99-9999" />
+                                    <input asp-for="CreditData.PrincipalSSN" class="form-control ssn-mask" />
                                     <span asp-validation-for="CreditData.PrincipalSSN" class="text-danger"></span>
                                 </div>
                             </div>
@@ -225,7 +225,7 @@
                             <input type="checkbox" asp-for="CreditData.PropertyOwned" class="checkbox-inline" data-toggle="collapse" data-target="#PropertyOwned" />
                             <label asp-for="CreditData.PropertyOwned" class="control-label"></label>
                         </div>
-                        <div id="PropertyOwned" class="panel panel-default collapse collapsing">
+                        <div id="PropertyOwned" class="panel panel-default collapse">
                             <div class="panel-heading">
                                 <h2 class="panel-title">Property Location</h2>
                             </div>
@@ -626,15 +626,19 @@
                         <h2 class="panel-title">Files</h2>
                     </div>
                     <div class="panel-body">
-                      
+
                         <div class="form-group">
+                            <label asp-for="CreditDataFiles.LicenseFileName" class="control-label"></label>
                             <div class="input-group input-file" name="fileUploadLicense">
-                                <input type="text" class="form-control" placeholder='Click Browse to upload a file.' />
+                                <input type="text" class="form-control" placeholder='Click Browse to upload Licence file.' />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                 </span>
                             </div>
+                            <span asp-validation-for="CreditDataFiles.LicenseFileName" class="text-danger"></span>
                         </div>
+                        <div style=" font-size :10px">Allowed file extensions: pdf, jpg, jpeg, png</div>
+                        <div style=" font-size :10px">Maximum file size: 10 MB.</div>
                     </div>
                 </div>
             </div>
@@ -646,24 +650,34 @@
                     </div>
                     <div class="panel-body">
                         <div class="form-group">
+                            <label asp-for="CreditDataFiles.TaxCertificateFileName" class="control-label"></label>
                             <div class="input-group input-file" name="fileUploadCertificate">
-                                <input type="text" class="form-control" placeholder='Click Browse to upload a file.' />
+                                <input type="text" class="form-control" placeholder='Click Browse to upload Certificate file.' />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                 </span>
                             </div>
+                            <span asp-validation-for="CreditDataFiles.LicenseFileName" class="text-danger"></span>
                         </div>
-
+                        <div style=" font-size :10px">Allowed file extensions: pdf, jpg, jpeg, png</div>
+                        <div style=" font-size :10px">Maximum file size: 10 MB.</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <div class="input-group">
-
-                <input type="submit" value="GeneratePDF" id="GeneratePDF" formnovalidate="formnovalidate" class="btn btn-default" />
+        <div class="row">
+            <div class="col-md-4 col-md-push-4" style="padding-top: 10px;">
+                <div class="alert-info text-center">
+                    Please fill all required fields on this form.
+                </div>
+            </div>
+            <div class="col-md-12" style="padding-top: 10px;">
+                <div class="text-center">
+                    <input type="submit" value="GeneratePDF" id="GeneratePDF" formnovalidate="formnovalidate" class="btn btn-default" />
+                </div>
             </div>
         </div>
+
     </div>
     @*@Html.HiddenFor(m => m.DistributorName, new { @id = "_mDistributorName" })*@
     @Html.HiddenFor(m => m.CreditData.DistributorId)
@@ -687,7 +701,6 @@
 </form>
 
 <script src="https://code.jquery.com/jquery-latest.js"></script>
-
 <script type="text/javascript">
     function bs_input_file() {
         $(".input-file").before(
@@ -726,14 +739,21 @@
             jQuery("[required]").after("<span class='required'>*</span>");
         });
 
-        //$('#fileUplead1').val('Click Browse to upload a file.');
-        var priorBusinnesCollapse = '@Model.CreditData.PriorBusiness' != 'True';
-        var propertyOwnedCollapse = '@Model.CreditData.PropertyOwned' != 'True';
-        $('#PriorBusiness').collapse(priorBusinnesCollapse);
-        $('#PropertyOwned').collapse(propertyOwnedCollapse);
-        
+        $('#PriorBusiness').collapse("hide");
+        $('#PropertyOwned').collapse("hide");
+        var priorBusinnesCollapse = '@Model.CreditData.PriorBusiness' == 'True';
+        var propertyOwnedCollapse = '@Model.CreditData.PropertyOwned' == 'True';
+        if (priorBusinnesCollapse) {
+            $('#PriorBusiness').collapse("show");
+        }
+        if (propertyOwnedCollapse) {
+            $('#PropertyOwned').collapse("show");
+        }
+
+
         $('.phone-mask').mask('?(999) 999-9999');
         $('.account-number-mask').mask('?999-99-9999');
+        $('.ssn-mask').mask('?999-99-9999');
         $('.ein-mask').mask('?99-9999999')
         $('.validate-zip').mask('?99999')
         $('#CreditData_BusinessName2').change(function () {
@@ -752,19 +772,29 @@
             });
         });
 
-        $('.validate-zip2').change(function () {
+        $('.validate-zip').change(function () {
             var propName = $(this).attr('name');
             //var zipCode = $(this).val();
             //alert(state);
             //alert(zipCode);
             var jsonModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+            var formModel = $('#frmCreditApp').serializeArray();
+
+            var data = {
+                model: jsonModel,
+                propName: propName
+            };
             $.ajax({
-                url:'@Url.Action("ValidateZipCodeServer", "Home")',
+                //url: '@Url.Action("ValidateZipCodeServer", "Home")',
+                url: '/Home/ValidateZipCodeServer/?propName=' + propName,
                 type: "POST",
-                //dataType: "json",
-                contentType: 'application/json',
+                dataType: "JSON",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(formModel.toString),
+                //data: JSON.stringify($('#frmCreditApp').serializeArray()),
                 //data: JSON.stringify(jsonModel),
-                data:  jsonModel,
+                //data: { model: JSON.stringify(jsonModel).toString(), propName: propName },
+                //data: JSON.stringify( { 'propName': propName }),
                 success: function (response) {
                     alert(response);
                 }

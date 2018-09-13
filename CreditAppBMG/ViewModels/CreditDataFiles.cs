@@ -13,10 +13,12 @@ namespace CreditAppBMG.ViewModels
         [Required(ErrorMessage = "Required field")]
         public int CreditDataId { get; set; }
 
+        [Display(Name = "NYS Liquor License:")]
         public string LicenseFileName { get; set; }
 
         public byte[] LicenseFile { get; set; }
 
+        [Display(Name = "NYS Sales Tax Certificate:")]
         public string TaxCertificateFileName { get; set; }
 
         public byte[] TaxCertificateFile { get; set; }

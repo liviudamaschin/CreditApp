@@ -15,7 +15,7 @@ namespace CreditAppBMG.Entities
         [Key]
         public int? Id { get; set; }
         public int? DistributorId { get; set; }
-        public int? RetailerId { get; set; }
+        public string RetailerId { get; set; }
         public string Token { get; set; }
         public string BusinessName { get; set; }
         public string TradeName { get; set; }

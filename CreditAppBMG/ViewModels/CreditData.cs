@@ -13,7 +13,7 @@ namespace CreditAppBMG.ViewModels
         public int DistributorId { get; set; }
 
         [Required(ErrorMessage = "Required field")]
-        public int RetailerId { get; set; }
+        public string RetailerId { get; set; }
 
         [Required(ErrorMessage = "Required field")]
         public string Token { get; set; }

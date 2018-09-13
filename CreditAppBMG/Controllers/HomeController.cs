@@ -44,6 +44,9 @@ namespace CreditAppBMG.Controllers
             //read data from database
             //CreditData creditData = null;
             int? distributorId = null;
+            viewModel.Distributor = new Distributor();
+            viewModel.CreditData = new CreditData();
+            viewModel.CreditDataFiles = new CreditDataFiles();
             if (!string.IsNullOrWhiteSpace(token))
             {
                 TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
@@ -51,16 +54,20 @@ namespace CreditAppBMG.Controllers
 
                 using (var context = new CreditAppContext())
                 {
-                    var creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == int.Parse(tokenInfo.UserID) && x.DistributorId==int.Parse(tokenInfo.DistribuitorID));
+                    var creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID && x.DistributorId.ToString()==tokenInfo.DistribuitorID);
                     if (creditDataEntity == null)
                     {
-                        creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == int.Parse(tokenInfo.UserID));
+                        creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID);
+                        var creditDataFiles = context.CreditDataFiles.SingleOrDefault(x => x.CreditDataId == creditDataEntity.Id);
+                        if (creditDataFiles != null)
+                            viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
                         //this.FillRetailerInfoOnly();
                     }
                     else {
                         viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
                     }
-                    var distributorEntity = context.Distributors.SingleOrDefault(x => x.DistributorId == int.Parse(tokenInfo.DistribuitorID));
+                    
+                    var distributorEntity = context.Distributors.SingleOrDefault(x => x.DistributorId.ToString() == tokenInfo.DistribuitorID);
                     if (distributorEntity != null)
                         viewModel.Distributor =_mapper.Map<Distributor>(distributorEntity);
                 }
@@ -131,7 +138,7 @@ namespace CreditAppBMG.Controllers
             //retailerInfo.DistributorId
             viewModel.CreditData = new CreditData();
             viewModel.CreditData.DistributorId = retailerInfo.DistributorId;
-            viewModel.CreditData.RetailerId = int.Parse(tokenInfo.UserID);
+            viewModel.CreditData.RetailerId = tokenInfo.UserID;
             viewModel.CreditData.Token = tokenInfo.Token;
             viewModel.CreditData.BusinessName = retailerInfo.Business_Information_BusinessName;
             viewModel.CreditData.TradeName = retailerInfo.Business_Information_TradeName;
@@ -272,7 +279,7 @@ namespace CreditAppBMG.Controllers
             //RetailerBo retailer = new RetailerBo();
             // business
             //retailerInfo.DistributorId
-            viewModel.CreditData.RetailerId = int.Parse(userId);
+            viewModel.CreditData.RetailerId = userId;
             viewModel.CreditData.BusinessName = retailerInfo.Business_Information_BusinessName;
             viewModel.CreditData.TradeName = retailerInfo.Business_Information_TradeName;
             viewModel.CreditData.LicenseNumber = retailerInfo.Business_Information_LicenseNumber;
@@ -451,7 +458,14 @@ namespace CreditAppBMG.Controllers
                 string licenseFileName = null;
 
                 var licenseCreditDataFilesEntity = context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id.Value);
-                licenseCreditDataFilesEntity.CreditDataId = creditDataEntity.Id.Value;
+                if (licenseCreditDataFilesEntity == null)
+                {
+                    licenseCreditDataFilesEntity = new CreditDataFilesEntity();
+                }
+                if (creditDataEntity.Id.HasValue)
+                {
+                    licenseCreditDataFilesEntity.CreditDataId = creditDataEntity.Id.Value;
+                }
                 if (fileUploadLicense != null)
                 {
                     hasUploadedFiles = true;
@@ -487,10 +501,13 @@ namespace CreditAppBMG.Controllers
                     else
                         context.Update(licenseCreditDataFilesEntity);
                     context.SaveChanges();
+                    model.CreditDataFiles = _mapper.Map<CreditDataFiles>(licenseCreditDataFilesEntity);
                 }
-               
+               // check files
+              
             }
-            this.ValidateModel(model.CreditData);
+            this.ValidateCreditData(model.CreditData);
+            this.ValidateCreditDataFiles(model.CreditDataFiles);
             if (ModelState.IsValid)
             {
                 var templateLocation = Path.Combine(this._hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
@@ -501,8 +518,6 @@ namespace CreditAppBMG.Controllers
 
                 if (fileGenerated)
                 {
-                    //var fileName = $"{V9.Version}.exe";
-                    //var filepath = $"Downloads/{fileName}";
                     byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
                     return File(fileBytes, "application/octet-stream", fileName);
                 }
@@ -598,38 +613,82 @@ namespace CreditAppBMG.Controllers
             return states;
         }
 
-        private void ValidateModel(CreditData creditDataModel)
+        private void ValidateCreditDataFiles(CreditDataFiles creditDataFilesModel)
         {
-            ModelState.AddModelError("CreditData.ZipCode", ValidateZipCode(creditDataModel.ZipCode, creditDataModel.State));
+            if (creditDataFilesModel==null || String.IsNullOrWhiteSpace(creditDataFilesModel.LicenseFileName))
+            {
+                ModelState.AddModelError("CreditDataFiles.LicenseFileName", "Missing Licence File");
+            }
 
-            ModelState.AddModelError("CreditData.ZipCode", ValidateZipCode(creditDataModel.ZipCode, creditDataModel.State));
-            ModelState.AddModelError("CreditData.BankReferenceZipCode", ValidateZipCode(creditDataModel.BankReferenceZipCode, creditDataModel.BankReferenceState));
-            ModelState.AddModelError("CreditData.BillingContactZipCode", ValidateZipCode(creditDataModel.BillingContactZipCode, creditDataModel.BillingContactState));
-            ModelState.AddModelError("CreditData.PrincipalZipCode", ValidateZipCode(creditDataModel.PrincipalZipCode, creditDataModel.PrincipalState));
-            ModelState.AddModelError("CreditData.PriorBusinessZipCode", ValidateZipCode(creditDataModel.PriorBusinessZipCode, creditDataModel.PriorBusinessState));
-            ModelState.AddModelError("CreditData.PropertyZipCode", ValidateZipCode(creditDataModel.PropertyZipCode, creditDataModel.PropertyState));
-            ModelState.AddModelError("CreditData.TradeReference1ZipCode", ValidateZipCode(creditDataModel.TradeReference1ZipCode, creditDataModel.TradeReference1State));
-            ModelState.AddModelError("CreditData.TradeReference2ZipCode", ValidateZipCode(creditDataModel.TradeReference2ZipCode, creditDataModel.TradeReference2State));
+            if (creditDataFilesModel == null || String.IsNullOrWhiteSpace(creditDataFilesModel.TaxCertificateFileName))
+            {
+                ModelState.AddModelError("CreditDataFiles.TaxCertificateFileName", "Missing Certificate File");
+            }
+
+        }
+        private void ValidateCreditData(CreditData creditDataModel)
+        {
+            string errorMessage;
+            errorMessage = ValidateZipCode(creditDataModel.ZipCode, creditDataModel.State);
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+                ModelState.AddModelError("CreditData.ZipCode",errorMessage );
+
+            errorMessage = ValidateZipCode(creditDataModel.BankReferenceZipCode, creditDataModel.BankReferenceState);
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+                ModelState.AddModelError("CreditData.BankReferenceZipCode", errorMessage);
+
+            errorMessage = ValidateZipCode(creditDataModel.BillingContactZipCode, creditDataModel.BillingContactState);
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+                ModelState.AddModelError("CreditData.BillingContactZipCode", errorMessage);
+
+            errorMessage = ValidateZipCode(creditDataModel.PrincipalZipCode, creditDataModel.PrincipalState);
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+                ModelState.AddModelError("CreditData.PrincipalZipCode", errorMessage);
+            if (creditDataModel.PriorBusiness)
+            {
+                errorMessage = ValidateZipCode(creditDataModel.PriorBusinessZipCode, creditDataModel.PriorBusinessState);
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                    ModelState.AddModelError("CreditData.PriorBusinessZipCode", errorMessage);
+            }
+
+            if (creditDataModel.PropertyOwned)
+            {
+                errorMessage = ValidateZipCode(creditDataModel.PropertyZipCode, creditDataModel.PropertyState);
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                    ModelState.AddModelError("CreditData.PropertyZipCode", errorMessage);
+            }
+
+            errorMessage = ValidateZipCode(creditDataModel.TradeReference1ZipCode, creditDataModel.TradeReference1State);
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+                ModelState.AddModelError("CreditData.TradeReference1ZipCode", errorMessage);
+
+            errorMessage = ValidateZipCode(creditDataModel.TradeReference2ZipCode, creditDataModel.TradeReference2State);
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+                ModelState.AddModelError("CreditData.TradeReference2ZipCode", errorMessage);
         }
 
         private string ValidateZipCode(string zipCode, string state)
         {
             bool retVal = true;
-            if (!string.IsNullOrEmpty(zipCode))
+            if (!string.IsNullOrEmpty(zipCode) && !string.IsNullOrEmpty(state))
             {
                 using (var context = new CreditAppContext())
                 {
                     retVal = context.USZipCodes.Any(x => x.State == state && x.ZipCode == int.Parse(zipCode));
                 }
             }
-            return retVal ? string.Empty : "Incorrect zip code";
+            return retVal ? null : "Wrong ZIP for state";
         }
 
         [HttpPost]
-        public void ValidateZipCodeServer(string model)
+        public void ValidateZipCodeServer2([FromBody]string model, [FromBody] string propName)
         {
         }
 
+        [HttpPost]
+        public void ValidateZipCodeServer([FromQuery]string propName, [FromBody]CreditAppModel model )
+        {
+        }
         [HttpPost]
         public async Task<IActionResult> GeneratePDF2(IFormFile file)
         {
