@@ -35,5 +35,16 @@ namespace CreditAppBMG.ViewModels
             new SelectListItem { Value = "8pm - 8am", Text = "8pm - 8am"  }
         };
 
+        public List<SelectListItem> PropertyType { get; } = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "Residential", Text = "Residential" },
+            new SelectListItem { Value = "Commercial", Text = "Commercial" }
+        };
+
+        public List<SelectListItem> AccountType { get; } = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "Checking", Text = "Checking" },
+            new SelectListItem { Value = "Savings", Text = "Savings" }
+        };
     }
 }

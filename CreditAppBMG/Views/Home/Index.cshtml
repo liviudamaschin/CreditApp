@@ -85,7 +85,6 @@
                                     <label asp-for="CreditData.CompanyType" class="control-label"></label>
                                     <select asp-for="CreditData.CompanyType" asp-items="Model.CompanyTypes" class="form-control">
                                         <option value="--">Please select...</option>
-
                                     </select>
                                     <span asp-validation-for="CreditData.CompanyType" class="text-danger"></span>
                                 </div>
@@ -233,6 +232,15 @@
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.PropertyType" class="control-label"></label>
+                                    @*<input asp-for="CreditData.PropertyType" class="form-control" />*@
+                                    <select asp-for="CreditData.PropertyType" asp-items="Model.PropertyType" class="form-control">
+                                        <option value="--">Please select...</option>
+                                    </select>
+                                    <span asp-validation-for="CreditData.PropertyType" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="CreditData.PrincipalName" class="control-label"></label>
                                     <input asp-for="CreditData.PrincipalName" class="form-control" />
                                     <span asp-validation-for="CreditData.PrincipalName" class="text-danger"></span>
                                 </div>
@@ -418,7 +426,10 @@
                         </div>
                         <div class="form-group">
                             <label asp-for="CreditData.BankReferenceAccountType" class="control-label"></label>
-                            <input asp-for="CreditData.BankReferenceAccountType" class="form-control" />
+                            @*<input asp-for="CreditData.BankReferenceAccountType" class="form-control" />*@
+                            <select asp-for="CreditData.BankReferenceAccountType" asp-items="Model.AccountType" class="form-control">
+                                <option value="--">Please select...</option>
+                            </select>
                             <span asp-validation-for="CreditData.BankReferenceAccountType" class="text-danger"></span>
                         </div>
                         <div class="form-group">
@@ -657,7 +668,7 @@
                                     <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                 </span>
                             </div>
-                            <span asp-validation-for="CreditDataFiles.LicenseFileName" class="text-danger"></span>
+                            <span asp-validation-for="CreditDataFiles.TaxCertificateFileName" class="text-danger"></span>
                         </div>
                         <div style=" font-size :10px">Allowed file extensions: pdf, jpg, jpeg, png</div>
                         <div style=" font-size :10px">Maximum file size: 10 MB.</div>
@@ -733,12 +744,18 @@
     //    var input = $(this)
     //    var label = $('#BrowseInput').val(input.val().replace(/\\/g, '/').replace(/.*\//, ''));
     //});
+    $(document).ready(function () {
+        $('#frmCreditApp').on('focus', ':input', function () {
+            $(this).attr('autocomplete', 'off');
+        });
+    });
     $(function () {
         bs_input_file();
         jQuery(document).ready(function () {
             jQuery("[required]").after("<span class='required'>*</span>");
         });
-
+        //$('#frmCreditApp').ajaxForm({ beforeSubmit: validate }); 
+        //$('#frmCreditApp').vaidate();
         $('#PriorBusiness').collapse("hide");
         $('#PropertyOwned').collapse("hide");
         var priorBusinnesCollapse = '@Model.CreditData.PriorBusiness' == 'True';
@@ -752,7 +769,7 @@
 
 
         $('.phone-mask').mask('?(999) 999-9999');
-        $('.account-number-mask').mask('?999-99-9999');
+        //$('.account-number-mask').mask('?999-99-9999'); //- no mask for now
         $('.ssn-mask').mask('?999-99-9999');
         $('.ein-mask').mask('?99-9999999')
         $('.validate-zip').mask('?99999')

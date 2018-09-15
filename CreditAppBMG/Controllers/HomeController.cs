@@ -626,6 +626,7 @@ namespace CreditAppBMG.Controllers
             }
 
         }
+
         private void ValidateCreditData(CreditData creditDataModel)
         {
             string errorMessage;
@@ -665,6 +666,18 @@ namespace CreditAppBMG.Controllers
             errorMessage = ValidateZipCode(creditDataModel.TradeReference2ZipCode, creditDataModel.TradeReference2State);
             if (!string.IsNullOrWhiteSpace(errorMessage))
                 ModelState.AddModelError("CreditData.TradeReference2ZipCode", errorMessage);
+
+
+            //-----------------
+            if (creditDataModel.CompanyType == "--")
+            {
+                ModelState.AddModelError("CreditData.CompanyType", "Please select company type");
+            }
+
+            if (creditDataModel.PropertyType == "--")
+            {
+                ModelState.AddModelError("CreditData.PropertyType", "Please select property type");
+            }
         }
 
         private string ValidateZipCode(string zipCode, string state)

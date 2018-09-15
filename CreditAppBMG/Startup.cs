@@ -41,35 +41,43 @@ namespace CreditAppBMG
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            var config = new MapperConfiguration(cfg =>
+            //var config = new MapperConfiguration(cfg =>
+            //{
+            //    //cfg.ValidateInlineMaps = false;// .ConfigurationProvider.AssertConfigurationIsValid();
+            //    //cfg.
+            //    cfg.CreateMap<States, StatesEntity>();
+
+            //    cfg.CreateMap<CreditDataEntity, CreditData>()
+            //    .ForMember(x => x.CompanyTypeName, opt => opt.Ignore());
+            //    //.ForSourceMember(x => x.CreditDataFiles, opt => opt.Ignore())
+            //    //.IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    //.IgnoreAllSourcePropertiesWithAnInaccessibleSetter();
+
+            //    cfg.CreateMap<CreditData, CreditDataEntity>()
+            //    .ForSourceMember(x => x.CompanyTypeName, opt => opt.Ignore());
+
+            //    cfg.AddGlobalIgnore("CreditDataFiles");
+
+            //    cfg.CreateMap<USZipCodes, ZipCodesUSEntity>().ReverseMap();
+
+            //    cfg.CreateMap<Distributor, DistributorEntity>()
+            //    .ForSourceMember(x => x.DistributorLogoURL, opt => opt.Ignore());
+            //    //.ReverseMap();
+
+            //    cfg.CreateMap<DistributorEntity, Distributor>()
+            //    .ForMember(x => x.DistributorLogoURL, opt => opt.Ignore());
+
+
+            //});
+
+            var config = new AutoMapper.MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<States, StatesEntity>();
-
-                cfg.CreateMap<CreditDataEntity, CreditData>();
-                //.ForSourceMember(x => x.CreditDataFiles, opt => opt.Ignore())
-                //.IgnoreAllPropertiesWithAnInaccessibleSetter()
-                //.IgnoreAllSourcePropertiesWithAnInaccessibleSetter();
-
-                cfg.CreateMap<CreditData, CreditDataEntity>();
-                //.ForMember(x => x.CreditDataFiles, opt => opt.Ignore())
-                
-                cfg.AddGlobalIgnore("CreditDataFiles");
-
-                cfg.CreateMap<USZipCodes, ZipCodesUSEntity>().ReverseMap();
-
-                cfg.CreateMap<Distributor, DistributorEntity>()
-                .ForSourceMember(x => x.DistributorLogoURL, opt => opt.Ignore());
-                //.ReverseMap();
-
-                cfg.CreateMap<DistributorEntity, Distributor>()
-                .ForMember(x => x.DistributorLogoURL, opt => opt.Ignore());
-
-
+                cfg.AddProfile(new CreditDataProfile());
             });
 
             var mapper = config.CreateMapper();
+            services.AddSingleton(mapper);
 
-            services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddMvc().AddViewOptions(options => options.HtmlHelperOptions.ClientValidationEnabled = true);
             services.AddMvc().AddMvcOptions(opts => {

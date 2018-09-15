@@ -58,6 +58,8 @@ namespace CreditAppBMG.ViewModels
         [Display(Name = "Company type:*")]
         public string CompanyType { get; set; }
 
+        public string CompanyTypeName { get; set; }
+
         [Required(ErrorMessage = "Required field")]
         [Phone]
         [HTMLMaskAttribute("mask", "(999) 999-9999")] //phone format
@@ -93,6 +95,7 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "Email:*")]
+        [EmailAddress]
         public string PrincipalEmail { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -169,6 +172,7 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "Email:*")]
+        [EmailAddress]
         public string BillingContactEmail { get; set; }
 
         [Required(ErrorMessage = "Required field")]
