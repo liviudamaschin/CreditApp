@@ -1,5 +1,6 @@
 ﻿using CreditAppBMG.CustomAttributes;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CreditAppBMG.ViewModels
@@ -17,7 +18,7 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         public string Token { get; set; }
-        
+
         [ScaffoldColumn(false)]
         public DateTime? CreatedDate { get; set; }
 
@@ -37,9 +38,9 @@ namespace CreditAppBMG.ViewModels
         public string LicenseNumber { get; set; }
 
         [Required(ErrorMessage = "Required field")]
+        [DataType(DataType.Date)]
         [Display(Name = "License expiration date:*")]
         //[DisplayFormat(DataFormatString = "mm/dd/yyyy", ApplyFormatInEditMode = true)]
-        [DataType(DataType.Date)]
         public DateTime LicenseExpirationDate { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -58,7 +59,14 @@ namespace CreditAppBMG.ViewModels
         [Display(Name = "Company type:*")]
         public string CompanyType { get; set; }
 
-        public string CompanyTypeName { get; set; }
+        public string CompanyTypeName
+        {
+            get
+            {
+                return this.GetCompanyTypeName(this.CompanyType);
+            }
+        }
+        
 
         [Required(ErrorMessage = "Required field")]
         [Phone]
@@ -284,5 +292,22 @@ namespace CreditAppBMG.ViewModels
 
         [Display(Name = "Zip:")]
         public string TradeReference2ZipCode { get; set; }
+
+        public Dictionary<string, string> CompanyTypes = new Dictionary<string, string> {
+            { "MX", "Limited liability company" },
+            { "CA", "S Corporation" },
+            { "US", "Sole proprietor" },
+            { "PS", "Partnership" }
+        };
+
+        public string GetCompanyTypeName(string companyType)
+        {
+            string companyTypeName = string.Empty;
+            if (!String.IsNullOrEmpty(companyType) && CompanyTypes.ContainsKey(companyType))
+            {
+                companyTypeName = CompanyTypes[companyType];
+            }
+            return companyTypeName;
+        }
     }
 }

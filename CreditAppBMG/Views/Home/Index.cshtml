@@ -48,7 +48,13 @@
                             <div class="col-md-6" style="padding-top: 10px;">
                                 <div class="form-group">
                                     <label asp-for="CreditData.LicenseExpirationDate" class="control-label"></label>
-                                    <input asp-for="CreditData.LicenseExpirationDate" class="datepicker" />
+                                    @*<input asp-for="CreditData.LicenseExpirationDate" class="datepicker" />*@
+                                    <div class="input-group date" data-provide="datepicker">
+                                        <input asp-for="CreditData.LicenseExpirationDate" type="text" class="form-control datepicker" id="LicenseExpirationDate">
+                                        <div class="input-group-addon">
+                                            <span class="glyphicon glyphicon-th"></span>
+                                        </div>
+                                    </div>
                                     <span asp-validation-for="CreditData.LicenseExpirationDate" class="text-danger"></span>
                                 </div>
                             </div>
@@ -641,12 +647,13 @@
                         <div class="form-group">
                             <label asp-for="CreditDataFiles.LicenseFileName" class="control-label"></label>
                             <div class="input-group input-file" name="fileUploadLicense">
-                                <input type="text" class="form-control" placeholder='Click Browse to upload Licence file.' />
+                                <input type="text" class="form-control" placeholder='Click Browse to upload Licence file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                 </span>
                             </div>
                             <span asp-validation-for="CreditDataFiles.LicenseFileName" class="text-danger"></span>
+                            @Html.DisplayTextFor(x => x.CreditDataFiles.LicenceFileMessage)
                         </div>
                         <div style=" font-size :10px">Allowed file extensions: pdf, jpg, jpeg, png</div>
                         <div style=" font-size :10px">Maximum file size: 10 MB.</div>
@@ -663,12 +670,13 @@
                         <div class="form-group">
                             <label asp-for="CreditDataFiles.TaxCertificateFileName" class="control-label"></label>
                             <div class="input-group input-file" name="fileUploadCertificate">
-                                <input type="text" class="form-control" placeholder='Click Browse to upload Certificate file.' />
+                                <input type="text" class="form-control" placeholder='Click Browse to upload Certificate file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                 </span>
                             </div>
                             <span asp-validation-for="CreditDataFiles.TaxCertificateFileName" class="text-danger"></span>
+                            @Html.DisplayTextFor(x => x.CreditDataFiles.CertificateFileMessage)
                         </div>
                         <div style=" font-size :10px">Allowed file extensions: pdf, jpg, jpeg, png</div>
                         <div style=" font-size :10px">Maximum file size: 10 MB.</div>
@@ -697,6 +705,12 @@
     @Html.HiddenFor(m => m.CreditData.Id)
 
     @Html.HiddenFor(m => m.LocalLogo)
+    @Html.HiddenFor(m => m.Token)
+
+    @Html.HiddenFor(m => m.CreditDataFiles.Id)
+    @Html.HiddenFor(m => m.CreditDataFiles.LicenseFileName)
+    @Html.HiddenFor(m => m.CreditDataFiles.TaxCertificateFileName)
+
 
     @Html.HiddenFor(m => m.Distributor.Id)
     @Html.HiddenFor(m => m.Distributor.DistributorId)
@@ -712,7 +726,14 @@
 </form>
 
 <script src="https://code.jquery.com/jquery-latest.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+
+
 <script type="text/javascript">
+   
     function bs_input_file() {
         $(".input-file").before(
             function () {
@@ -745,16 +766,37 @@
     //    var label = $('#BrowseInput').val(input.val().replace(/\\/g, '/').replace(/.*\//, ''));
     //});
     $(document).ready(function () {
+        $('#LicenseExpirationDate').datepicker({
+            format: 'yyyy-mm-dd',
+            //startDate: '-3d',
+            assumeNearbyYear: 20
+        });
         $('#frmCreditApp').on('focus', ':input', function () {
             $(this).attr('autocomplete', 'off');
         });
+
+        //$('.datepicker').datepicker({
+        //    startDate: "01/01/1900",
+        //    endDate: "12/31/1999",// you may omit
+        //    startView: 3,
+        //    maxViewMode: 3,
+        //    assumeNearbyYear: 15
+        //});
     });
     $(function () {
         bs_input_file();
         jQuery(document).ready(function () {
             jQuery("[required]").after("<span class='required'>*</span>");
         });
-        //$('#frmCreditApp').ajaxForm({ beforeSubmit: validate }); 
+        var a = 0;
+        $('#LicenseExpirationDate').datepicker({
+            format: 'yyyy-mm-dd',
+            //startDate: '-3d',
+            assumeNearbyYear: 20
+        });
+
+
+        //$('#frmCreditApp').ajaxForm({ beforeSubmit: validate });
         //$('#frmCreditApp').vaidate();
         $('#PriorBusiness').collapse("hide");
         $('#PropertyOwned').collapse("hide");
@@ -831,6 +873,22 @@
             $.ajax({
                 type: "POST",
                 data: formData,
+                success: function (response) {
+                }
+            });
+        });
+
+        $('#btnClearForm').click(function () {
+            var formModel = $('#frmCreditApp').serializeArray();
+            var jsonModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+            //var formModel = $('#frmCreditApp').serializeArray();
+
+            $.ajax({
+                url: '@Url.Action("ClearForm", "Home")',
+                type: "POST",
+                dataType: "JSON",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(jsonModel),
                 success: function (response) {
                 }
             });

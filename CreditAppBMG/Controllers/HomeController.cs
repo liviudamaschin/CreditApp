@@ -36,53 +36,55 @@ namespace CreditAppBMG.Controllers
        
         public IActionResult Index(string token)
         {
-            
-            CreditAppModel viewModel = new CreditAppModel();
-            //viewModel.CreditData = new CreditData();
+
+            //CreditAppModel viewModel = new CreditAppModel();
+            ////viewModel.CreditData = new CreditData();
+            ////viewModel.Distributor = new Distributor();
+            //viewModel.Retailer = new Retailer();
+            ////read data from database
+            ////CreditData creditData = null;
+            //int? distributorId = null;
             //viewModel.Distributor = new Distributor();
-            viewModel.Retailer = new Retailer();
-            //read data from database
-            //CreditData creditData = null;
-            int? distributorId = null;
-            viewModel.Distributor = new Distributor();
-            viewModel.CreditData = new CreditData();
-            viewModel.CreditDataFiles = new CreditDataFiles();
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-                TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
-                RetailerInfo retailerInfo = GetRetailerInfo(tokenInfo, out string retailerErrorMessage);
+            //viewModel.CreditData = new CreditData();
+            //viewModel.CreditDataFiles = new CreditDataFiles();
+            //if (!string.IsNullOrWhiteSpace(token))
+            //{
+            //    TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
+            //    RetailerInfo retailerInfo = GetRetailerInfo(tokenInfo, out string retailerErrorMessage);
 
-                using (var context = new CreditAppContext())
-                {
-                    var creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID && x.DistributorId.ToString()==tokenInfo.DistribuitorID);
-                    if (creditDataEntity == null)
-                    {
-                        creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID);
-                        var creditDataFiles = context.CreditDataFiles.SingleOrDefault(x => x.CreditDataId == creditDataEntity.Id);
-                        if (creditDataFiles != null)
-                            viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
-                        //this.FillRetailerInfoOnly();
-                    }
-                    else {
-                        viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
-                    }
-                    
-                    var distributorEntity = context.Distributors.SingleOrDefault(x => x.DistributorId.ToString() == tokenInfo.DistribuitorID);
-                    if (distributorEntity != null)
-                        viewModel.Distributor =_mapper.Map<Distributor>(distributorEntity);
-                }
+            //    using (var context = new CreditAppContext())
+            //    {
+            //        var creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID && x.DistributorId.ToString()==tokenInfo.DistribuitorID);
+            //        if (creditDataEntity == null)
+            //        {
+            //            creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID);
+            //            var creditDataFiles = context.CreditDataFiles.SingleOrDefault(x => x.CreditDataId == creditDataEntity.Id);
+            //            if (creditDataFiles != null)
+            //                viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
+            //            //this.FillRetailerInfoOnly();
+            //        }
+            //        else {
+            //            viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
+            //        }
 
-                if (viewModel.CreditData == null)
-                {
-                    FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-                }
+            //        var distributorEntity = context.Distributors.SingleOrDefault(x => x.DistributorId.ToString() == tokenInfo.DistribuitorID);
+            //        if (distributorEntity != null)
+            //            viewModel.Distributor =_mapper.Map<Distributor>(distributorEntity);
+            //    }
 
-                
-                FillDistributorFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-            }
-            
-            viewModel.StatesListItems = this.GetStatesListItems();
-            viewModel.States = this.GetStates();
+            //    if (viewModel.CreditData == null)
+            //    {
+            //        FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
+            //    }
+
+
+            //    FillDistributorFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
+            //}
+
+            //viewModel.StatesListItems = this.GetStatesListItems();
+            //viewModel.States = this.GetStates();
+
+            var viewModel = this.GetInitialValues(token);
 
             return View(viewModel);
         }
@@ -476,6 +478,7 @@ namespace CreditAppBMG.Controllers
                         licenseFileName = fileUploadLicense.FileName;
                         licenseCreditDataFilesEntity.LicenseFile = licenseFileContent;
                         licenseCreditDataFilesEntity.LicenseFileName = licenseFileName;
+                        licenseCreditDataFilesEntity.LastUpdateLicence = DateTime.Now;
                     }
                 }
 
@@ -491,6 +494,7 @@ namespace CreditAppBMG.Controllers
                         certificateFileName = fileUploadCertificate.FileName;
                         licenseCreditDataFilesEntity.TaxCertificateFile = certificateFileContent;
                         licenseCreditDataFilesEntity.TaxCertificateFileName = certificateFileName;
+                        licenseCreditDataFilesEntity.LastUpdateCertificate = DateTime.Now;
                     }
                 }
 
@@ -501,10 +505,11 @@ namespace CreditAppBMG.Controllers
                     else
                         context.Update(licenseCreditDataFilesEntity);
                     context.SaveChanges();
-                    model.CreditDataFiles = _mapper.Map<CreditDataFiles>(licenseCreditDataFilesEntity);
+                    
                 }
-               // check files
-              
+                model.CreditDataFiles = _mapper.Map<CreditDataFiles>(licenseCreditDataFilesEntity);
+                // check files
+
             }
             this.ValidateCreditData(model.CreditData);
             this.ValidateCreditDataFiles(model.CreditDataFiles);
@@ -645,6 +650,7 @@ namespace CreditAppBMG.Controllers
             errorMessage = ValidateZipCode(creditDataModel.PrincipalZipCode, creditDataModel.PrincipalState);
             if (!string.IsNullOrWhiteSpace(errorMessage))
                 ModelState.AddModelError("CreditData.PrincipalZipCode", errorMessage);
+
             if (creditDataModel.PriorBusiness)
             {
                 errorMessage = ValidateZipCode(creditDataModel.PriorBusinessZipCode, creditDataModel.PriorBusinessState);
@@ -702,6 +708,7 @@ namespace CreditAppBMG.Controllers
         public void ValidateZipCodeServer([FromQuery]string propName, [FromBody]CreditAppModel model )
         {
         }
+
         [HttpPost]
         public async Task<IActionResult> GeneratePDF2(IFormFile file)
         {
@@ -720,6 +727,86 @@ namespace CreditAppBMG.Controllers
             // Don't rely on or trust the FileName property without validation.
 
             return Ok();
+        }
+
+        private CreditAppModel GetInitialValues(string token)
+        {
+            CreditAppModel viewModel = new CreditAppModel();
+            viewModel.Token = token;
+            //viewModel.CreditData = new CreditData();
+            //viewModel.Distributor = new Distributor();
+            viewModel.Retailer = new Retailer();
+            //read data from database
+            //CreditData creditData = null;
+            //int? distributorId = null;
+            viewModel.Distributor = new Distributor();
+            viewModel.CreditData = new CreditData();
+            viewModel.CreditDataFiles = new CreditDataFiles();
+
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
+                RetailerInfo retailerInfo = GetRetailerInfo(tokenInfo, out string retailerErrorMessage);
+
+                using (var context = new CreditAppContext())
+                {
+                    var creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID && x.DistributorId.ToString() == tokenInfo.DistribuitorID);
+                    if (creditDataEntity == null)
+                    {
+                        creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID);
+                        if (creditDataEntity != null)
+                        {
+                            var creditDataFiles = context.CreditDataFiles.SingleOrDefault(x => x.CreditDataId == creditDataEntity.Id);
+                            if (creditDataFiles != null)
+                                viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
+                        }
+                        //this.FillRetailerInfoOnly();
+                    }
+                    else
+                    {
+                        viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
+                        var creditDataFiles = context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id);
+                        if (creditDataFiles != null)
+                        {
+                            viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
+                        }
+                    }
+
+                    var distributorEntity = context.Distributors.SingleOrDefault(x => x.DistributorId.ToString() == tokenInfo.DistribuitorID);
+                    if (distributorEntity != null)
+                        viewModel.Distributor = _mapper.Map<Distributor>(distributorEntity);
+
+                    if (creditDataEntity == null)
+                    {
+                        FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
+                       
+                    }
+                }
+
+                FillDistributorFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
+            }
+
+            viewModel.StatesListItems = this.GetStatesListItems();
+            viewModel.States = this.GetStates();
+            return viewModel;
+        }
+
+        [HttpPost]
+        public IActionResult ClearForm([FromBody]CreditAppModel model)
+        {
+            //delete reccord
+            using (var context = new CreditAppContext())
+            {
+                CreditDataEntity creditDataEntity = new CreditDataEntity() { Id = model.CreditData.Id };
+                context.CreditData.Attach(creditDataEntity);
+                context.CreditData.Remove(creditDataEntity);
+                context.SaveChanges();
+            }
+
+            
+            var viewModel = this.GetInitialValues(model.Token);
+
+            return View("Index", viewModel);
         }
     }
 }

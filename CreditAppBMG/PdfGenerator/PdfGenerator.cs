@@ -83,7 +83,7 @@ namespace CreditAppBMG.Pdf
                     CreateTexBox("LicenseExpirationDate", 530, 665, 60, obj.CreditData.LicenseExpirationDate.ToString("MM/dd/yyyy"), contentByte);
 
                     CreateTexBox("TradeName", 72, 646, 125, obj.CreditData.TradeName, contentByte);
-                    CreateTexBox("CompanyType", 265, 646, 180, obj.CreditData.CompanyType, contentByte);
+                    CreateTexBox("CompanyType", 265, 646, 180, obj.CreditData.CompanyTypeName, contentByte);
                     CreateTexBox("DeliveryTime", 510, 646, 80, obj.CreditData.DeliveryTime, contentByte);
 
                     CreateTexBox("Address1", 55, 628, 220, obj.CreditData.Address1, contentByte);

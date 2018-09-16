@@ -10,7 +10,7 @@ namespace CreditAppBMG.Entities
     {
         public CreditDataEntity()
         {
-            //CreditDataFiles = new HashSet<CreditDataFiles>();
+            CreditDataFiles = new HashSet<CreditDataFilesEntity>();
         }
         [Key]
         public int? Id { get; set; }
@@ -90,7 +90,8 @@ namespace CreditAppBMG.Entities
         public string TradeReference2ZipCode { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastUpdate { get; set; }
+        public string Status { get; set; }
 
-        //public virtual ICollection<CreditDataFiles> CreditDataFiles { get; set; }
+        public virtual ICollection<CreditDataFilesEntity> CreditDataFiles { get; set; }
     }
 }
