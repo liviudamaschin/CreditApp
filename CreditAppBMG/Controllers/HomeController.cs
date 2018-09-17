@@ -808,5 +808,34 @@ namespace CreditAppBMG.Controllers
 
             return View("Index", viewModel);
         }
+
+        //[HttpPost]
+        //public FileResult DownloadFile(int? fileId)
+        //{
+        //    byte[] bytes;
+        //    string fileName, contentType;
+        //    string constr = ConfigurationManager.ConnectionStrings["ConString"].ConnectionString;
+        //    using (SqlConnection con = new SqlConnection(constr))
+        //    {
+        //        using (SqlCommand cmd = new SqlCommand())
+        //        {
+        //            cmd.CommandText = "SELECT Name, Data, ContentType FROM tblFiles WHERE Id=@Id";
+        //            cmd.Parameters.AddWithValue("@Id", fileId);
+        //            cmd.Connection = con;
+        //            con.Open();
+        //            using (SqlDataReader sdr = cmd.ExecuteReader())
+        //            {
+        //                sdr.Read();
+        //                bytes = (byte[])sdr["Data"];
+        //                contentType = sdr["ContentType"].ToString();
+        //                fileName = sdr["Name"].ToString();
+        //            }
+        //            con.Close();
+        //        }
+        //    }
+
+        //   return File(bytes, contentType, fileName);
+        //return new File();
+        //}
     }
 }
