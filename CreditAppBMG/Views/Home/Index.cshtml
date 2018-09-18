@@ -49,8 +49,8 @@
                                 <div class="form-group">
                                     <label asp-for="CreditData.LicenseExpirationDate" class="control-label"></label>
                                     @*<input asp-for="CreditData.LicenseExpirationDate" class="datepicker" />*@
-                                    <div class="input-group date" data-provide="datepicker">
-                                        <input asp-for="CreditData.LicenseExpirationDate" type="text" class="form-control datepicker" id="LicenseExpirationDate">
+                                    <div class="input-group date datepicker-me" data-provide="datepicker">
+                                        <input asp-for="CreditData.LicenseExpirationDate" type="text" class="form-control" id="LicenseExpirationDate" asp-format="{0:MM/dd/yyyy}">
                                         <div class="input-group-addon">
                                             <span class="glyphicon glyphicon-th"></span>
                                         </div>
@@ -725,29 +725,11 @@
 
 </form>
 
-<script src="https://code.jquery.com/jquery-latest.js"></script>
-@*<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
-            asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-            asp-fallback-test="window.jQuery"
-            crossorigin="anonymous"
-            integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
-    </script>*@
-<script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-        asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-        asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-        crossorigin="anonymous"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-</script>
-
-<script src="~/js/site.js" asp-append-version="true"></script>
-<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 
 @*<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>*@
 
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+@*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>*@
 
 
 
@@ -808,7 +790,7 @@
             jQuery("[required]").after("<span class='required'>*</span>");
         });
         var a = 0;
-        $('#LicenseExpirationDate').datepicker({
+        $('.datepicker-me').datepicker({
             format: 'yyyy-mm-dd',
             //startDate: '-3d',
             assumeNearbyYear: 20
