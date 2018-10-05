@@ -5,9 +5,7 @@ using CreditAppBMG.ViewModels;
 using Newtonsoft.Json;
 using CreditAppBMG.Models;
 using RestSharp;
-using iTextSharp.text.pdf;
 using System.IO;
-using iTextSharp.text;
 using CreditAppBMG.Entities;
 using AutoMapper;
 using System.Linq;
@@ -18,7 +16,6 @@ using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
-using System.Reflection;
 
 namespace CreditAppBMG.Controllers
 {
@@ -37,59 +34,12 @@ namespace CreditAppBMG.Controllers
         public IActionResult Index(string token)
         {
 
-            //CreditAppModel viewModel = new CreditAppModel();
-            ////viewModel.CreditData = new CreditData();
-            ////viewModel.Distributor = new Distributor();
-            //viewModel.Retailer = new Retailer();
-            ////read data from database
-            ////CreditData creditData = null;
-            //int? distributorId = null;
-            //viewModel.Distributor = new Distributor();
-            //viewModel.CreditData = new CreditData();
-            //viewModel.CreditDataFiles = new CreditDataFiles();
-            //if (!string.IsNullOrWhiteSpace(token))
-            //{
-            //    TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
-            //    RetailerInfo retailerInfo = GetRetailerInfo(tokenInfo, out string retailerErrorMessage);
-
-            //    using (var context = new CreditAppContext())
-            //    {
-            //        var creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID && x.DistributorId.ToString()==tokenInfo.DistribuitorID);
-            //        if (creditDataEntity == null)
-            //        {
-            //            creditDataEntity = context.CreditData.SingleOrDefault(x => x.RetailerId == tokenInfo.UserID);
-            //            var creditDataFiles = context.CreditDataFiles.SingleOrDefault(x => x.CreditDataId == creditDataEntity.Id);
-            //            if (creditDataFiles != null)
-            //                viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
-            //            //this.FillRetailerInfoOnly();
-            //        }
-            //        else {
-            //            viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
-            //        }
-
-            //        var distributorEntity = context.Distributors.SingleOrDefault(x => x.DistributorId.ToString() == tokenInfo.DistribuitorID);
-            //        if (distributorEntity != null)
-            //            viewModel.Distributor =_mapper.Map<Distributor>(distributorEntity);
-            //    }
-
-            //    if (viewModel.CreditData == null)
-            //    {
-            //        FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-            //    }
-
-
-            //    FillDistributorFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-            //}
-
-            //viewModel.StatesListItems = this.GetStatesListItems();
-            //viewModel.States = this.GetStates();
-
-            var viewModel = this.GetInitialValues(token);
+            var viewModel = GetInitialValues(token);
 
             return View(viewModel);
         }
 
-        private void FillDistributorFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo, TokenInfo tokenInfo)
+        private void FillDistributorFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo)
         {
             //viewModel.Distributor = new Distributor();
             if (viewModel.Distributor == null)
@@ -103,32 +53,24 @@ namespace CreditAppBMG.Controllers
             viewModel.Distributor.DistributorPhone = retailerInfo.DistributorPhone;
             viewModel.Distributor.DistributorWebSiteURL = retailerInfo.DistributorWebSiteURL;
 
-            string localFileName;
             // download logo:
             if (!string.IsNullOrEmpty(retailerInfo.DistributorLogoURL))
             {
+                var localFileName = Path.GetFileName(retailerInfo.DistributorLogoURL);
+                var localFileLocation = Path.Combine(_hostingEnvironment.WebRootPath, $"images/Logos/{localFileName}");
+                WebClient client = new WebClient();
+                client.Headers.Add("user-agent", "CreditApp");
+                // in debug mode sometimes index is called twice gets an error that file is in use 
                 try
                 {
-                    localFileName = Path.GetFileName(retailerInfo.DistributorLogoURL);
-                    var localFileLocation = Path.Combine(this._hostingEnvironment.WebRootPath, $"images/Logos/{localFileName}");
-                    WebClient client = new WebClient();
-                    client.Headers.Add("user-agent", "CreditApp");
-                    // in debug mode sometymes index is called twice gets an error thet file is in use 
-                    try
-                    {
-                        client.DownloadFile(retailerInfo.DistributorLogoURL, localFileLocation);
-                    }
-                    catch (Exception)
-                    {
-                        //throw;
-                    }
-                    
-                    viewModel.LocalLogo = localFileLocation;
+                    client.DownloadFile(retailerInfo.DistributorLogoURL, localFileLocation);
                 }
                 catch (Exception)
                 {
-                    throw;
+                    //throw;
                 }
+                    
+                viewModel.LocalLogo = localFileLocation;
             }
         }
 
@@ -178,8 +120,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PrincipalState = retailerInfo.Principal_Contact_State;
             viewModel.CreditData.PrincipalZipCode = retailerInfo.Principal_Contact_Zip;
             // property owned
-            bool propOwned = false;
-            bool.TryParse(retailerInfo.Property_Location_Do_You_Own_The_Property, out propOwned);
+            bool.TryParse(retailerInfo.Property_Location_Do_You_Own_The_Property, out var propOwned);
             viewModel.CreditData.PropertyOwned = propOwned;
             viewModel.CreditData.PropertyType = retailerInfo.Property_Location_Property_Type;
             viewModel.CreditData.PropertyAddress1 = retailerInfo.Property_Location_Contact_Address1;
@@ -193,8 +134,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PropertyState = retailerInfo.Property_Location_Contact_State;
             viewModel.CreditData.PropertyZipCode = retailerInfo.Property_Location_Contact_Zip;
             // prior business
-            bool businessBefore = false;
-            bool.TryParse(retailerInfo.Prior_Business_Location_Have_You_Done_Business_With, out businessBefore);
+            bool.TryParse(retailerInfo.Prior_Business_Location_Have_You_Done_Business_With, out var businessBefore);
             viewModel.CreditData.PriorBusiness = businessBefore;
             viewModel.CreditData.PriorBusinessAddress1 = retailerInfo.Prior_Business_Location_Contact_Address1;
             viewModel.CreditData.PriorBusinessAddress2 = retailerInfo.Prior_Business_Location_Contact_Address2;
@@ -318,8 +258,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PrincipalState = retailerInfo.Principal_Contact_State;
             viewModel.CreditData.PrincipalZipCode = retailerInfo.Principal_Contact_Zip;
             // property owned
-            bool propOwned = false;
-            bool.TryParse(retailerInfo.Property_Location_Do_You_Own_The_Property, out propOwned);
+            bool.TryParse(retailerInfo.Property_Location_Do_You_Own_The_Property, out var propOwned);
             viewModel.CreditData.PropertyOwned = propOwned;
             viewModel.CreditData.PropertyType = retailerInfo.Property_Location_Property_Type;
             viewModel.CreditData.PropertyAddress1 = retailerInfo.Property_Location_Contact_Address1;
@@ -333,8 +272,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PropertyState = retailerInfo.Property_Location_Contact_State;
             viewModel.CreditData.PropertyZipCode = retailerInfo.Property_Location_Contact_Zip;
             // prior business
-            bool businessBefore = false;
-            bool.TryParse(retailerInfo.Prior_Business_Location_Have_You_Done_Business_With, out businessBefore);
+            bool.TryParse(retailerInfo.Prior_Business_Location_Have_You_Done_Business_With, out var businessBefore);
             viewModel.CreditData.PriorBusiness = businessBefore;
             viewModel.CreditData.PriorBusinessAddress1 = retailerInfo.Prior_Business_Location_Contact_Address1;
             viewModel.CreditData.PriorBusinessAddress2 = retailerInfo.Prior_Business_Location_Contact_Address2;
@@ -422,9 +360,10 @@ namespace CreditAppBMG.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> GeneratePDF(CreditAppModel model, IFormFile fileUploadCertificate, IFormFile fileUploadLicense)
+        public async Task<IActionResult> GeneratePdf(CreditAppModel model, IFormFile fileUploadCertificate, IFormFile fileUploadLicense)
         {
-            CreditDataEntity creditDataEntity = null;
+            //ModelState.Clear();
+            CreditDataEntity creditDataEntity;
             UpdateWithNulls(model);
             //update DB
             using (var context = new CreditAppContext())
@@ -442,7 +381,7 @@ namespace CreditAppBMG.Controllers
                 var distributorEntity = _mapper.Map<DistributorEntity>(model.Distributor);
                 // additional check 
                 var existingDistributor = context.Distributors.Any(x => x.DistributorId == model.CreditData.DistributorId);
-                
+
                 if (existingDistributor)
                 {
                     context.Update(distributorEntity);
@@ -456,14 +395,9 @@ namespace CreditAppBMG.Controllers
                 model.CreditData.Id = creditDataEntity.Id;
                 model.Distributor.Id = distributorEntity.Id;
                 var hasUploadedFiles = false;
-                byte[] licenseFileContent = null;
-                string licenseFileName = null;
 
-                var licenseCreditDataFilesEntity = context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id.Value);
-                if (licenseCreditDataFilesEntity == null)
-                {
-                    licenseCreditDataFilesEntity = new CreditDataFilesEntity();
-                }
+                var licenseCreditDataFilesEntity = context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id.Value) ??
+                                                   new CreditDataFilesEntity();
                 if (creditDataEntity.Id.HasValue)
                 {
                     licenseCreditDataFilesEntity.CreditDataId = creditDataEntity.Id.Value;
@@ -474,24 +408,22 @@ namespace CreditAppBMG.Controllers
                     using (var memoryStream = new MemoryStream())
                     {
                         await fileUploadLicense.CopyToAsync(memoryStream);
-                        licenseFileContent = memoryStream.ToArray();
-                        licenseFileName = fileUploadLicense.FileName;
+                        var licenseFileContent = memoryStream.ToArray();
+                        var licenseFileName = fileUploadLicense.FileName;
                         licenseCreditDataFilesEntity.LicenseFile = licenseFileContent;
                         licenseCreditDataFilesEntity.LicenseFileName = licenseFileName;
-                        licenseCreditDataFilesEntity.LastUpdateLicence = DateTime.Now;
+                        licenseCreditDataFilesEntity.LastUpdateLicense = DateTime.Now;
                     }
                 }
 
-                byte[] certificateFileContent = null;
-                string certificateFileName = null;
                 if (fileUploadCertificate != null)
                 {
                     hasUploadedFiles = true;
                     using (var memoryStream = new MemoryStream())
                     {
                         await fileUploadCertificate.CopyToAsync(memoryStream);
-                        certificateFileContent = memoryStream.ToArray();
-                        certificateFileName = fileUploadCertificate.FileName;
+                        var certificateFileContent = memoryStream.ToArray();
+                        var certificateFileName = fileUploadCertificate.FileName;
                         licenseCreditDataFilesEntity.TaxCertificateFile = certificateFileContent;
                         licenseCreditDataFilesEntity.TaxCertificateFileName = certificateFileName;
                         licenseCreditDataFilesEntity.LastUpdateCertificate = DateTime.Now;
@@ -505,33 +437,35 @@ namespace CreditAppBMG.Controllers
                     else
                         context.Update(licenseCreditDataFilesEntity);
                     context.SaveChanges();
-                    
+
                 }
                 model.CreditDataFiles = _mapper.Map<CreditDataFiles>(licenseCreditDataFilesEntity);
                 // check files
 
-            }
-            this.ValidateCreditData(model.CreditData);
-            this.ValidateCreditDataFiles(model.CreditDataFiles);
-            if (ModelState.IsValid)
-            {
-                var templateLocation = Path.Combine(this._hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
-                var fileName = $"D{model.CreditData.DistributorId}_R{model.CreditData.RetailerId}_Document.pdf";
-                var outputPath = Path.Combine(this._hostingEnvironment.WebRootPath, $"Pdfs/{fileName}");
-                PdfGenerator pdfGenerator = new PdfGenerator(model);
-                var fileGenerated = pdfGenerator.GeneratePdf(templateLocation, outputPath);
 
-                if (fileGenerated)
+                ValidateCreditData(model.CreditData);
+                ValidateCreditDataFiles(model.CreditDataFiles);
+                if (ModelState.IsValid)
                 {
-                    byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
-                    return File(fileBytes, "application/octet-stream", fileName);
+                    var templateLocation = Path.Combine(_hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
+                    var fileName = $"D{model.CreditData.DistributorId}_R{model.CreditData.RetailerId}_Document.pdf";
+                    var outputPath = Path.Combine(_hostingEnvironment.WebRootPath, $"Pdfs/{fileName}");
+                    PdfGenerator pdfGenerator = new PdfGenerator(model);
+                    var fileGenerated = pdfGenerator.GeneratePdf(templateLocation, outputPath);
+
+                    if (fileGenerated)
+                    {
+                        creditDataEntity.Status = "PdfGenerated";
+                        context.Update(creditDataEntity);
+                        context.SaveChanges();
+                        byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
+                        return File(fileBytes, "application/octet-stream", fileName);
+                    }
                 }
             }
-
-            model.StatesListItems = this.GetStatesListItems();
+            model.StatesListItems = GetStatesListItems();
             return View("Index", model);
 
-            //return Ok();
         }
 
         private void UpdateWithNulls(CreditAppModel model)
@@ -593,7 +527,7 @@ namespace CreditAppBMG.Controllers
 
         private List<SelectListItem> GetStatesListItems()
         {
-            List<SelectListItem> returnStates = new List<SelectListItem>();
+            List<SelectListItem> returnStates;
             using (var context = new CreditAppContext())
             {
                 var statesEntity = context.States.ToList();
@@ -608,7 +542,7 @@ namespace CreditAppBMG.Controllers
 
         private List<States> GetStates()
         {
-            List<States> states = new List<States>();
+            List<States> states;
             
             using (var context = new CreditAppContext())
             {
@@ -622,7 +556,7 @@ namespace CreditAppBMG.Controllers
         {
             if (creditDataFilesModel==null || String.IsNullOrWhiteSpace(creditDataFilesModel.LicenseFileName))
             {
-                ModelState.AddModelError("CreditDataFiles.LicenseFileName", "Missing Licence File");
+                ModelState.AddModelError("CreditDataFiles.LicenseFileName", "Missing License File");
             }
 
             if (creditDataFilesModel == null || String.IsNullOrWhiteSpace(creditDataFilesModel.TaxCertificateFileName))
@@ -660,9 +594,57 @@ namespace CreditAppBMG.Controllers
 
             if (creditDataModel.PropertyOwned)
             {
+                if (creditDataModel.PropertyType == "--" || creditDataModel.PropertyType==null)
+                {
+                    ModelState.AddModelError("CreditData.PropertyType", "Please select property type");
+                }
+
+                if (string.IsNullOrWhiteSpace(creditDataModel.PropertyAddress1))
+                {
+                    ModelState.AddModelError("CreditData.PropertyAddress1", "Required field");
+                }
+
+                if (string.IsNullOrWhiteSpace(creditDataModel.PropertyCity))
+                {
+                    ModelState.AddModelError("CreditData.PropertyCity", "Required field");
+                }
+
+                if (string.IsNullOrWhiteSpace(creditDataModel.PropertyState))
+                {
+                    ModelState.AddModelError("CreditData.PropertyState", "Required field");
+                }
+
+                if (string.IsNullOrWhiteSpace(creditDataModel.PropertyZipCode))
+                {
+                    ModelState.AddModelError("CreditData.PropertyZipCode", "Required field");
+                }
+
                 errorMessage = ValidateZipCode(creditDataModel.PropertyZipCode, creditDataModel.PropertyState);
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                     ModelState.AddModelError("CreditData.PropertyZipCode", errorMessage);
+            }
+
+            if (creditDataModel.PriorBusiness)
+            {
+                if (string.IsNullOrWhiteSpace(creditDataModel.PriorBusinessAddress1))
+                {
+                    ModelState.AddModelError("CreditData.PriorBusinessAddress1", "Required field");
+                }
+
+                if (string.IsNullOrWhiteSpace(creditDataModel.PriorBusinessCity))
+                {
+                    ModelState.AddModelError("CreditData.PriorBusinessCity", "Required field");
+                }
+
+                if (string.IsNullOrWhiteSpace(creditDataModel.PriorBusinessState))
+                {
+                    ModelState.AddModelError("CreditData.PriorBusinessState", "Required field");
+                }
+
+                if (string.IsNullOrWhiteSpace(creditDataModel.PriorBusinessZipCode))
+                {
+                    ModelState.AddModelError("CreditData.PriorBusinessZipCode", "Required field");
+                }
             }
 
             errorMessage = ValidateZipCode(creditDataModel.TradeReference1ZipCode, creditDataModel.TradeReference1State);
@@ -675,15 +657,36 @@ namespace CreditAppBMG.Controllers
 
 
             //-----------------
-            if (creditDataModel.CompanyType == "--")
+            if (creditDataModel.CompanyType == "--" || creditDataModel.CompanyType == null)
             {
                 ModelState.AddModelError("CreditData.CompanyType", "Please select company type");
             }
 
-            if (creditDataModel.PropertyType == "--")
+            if (creditDataModel.State == "--" || creditDataModel.State == null)
             {
-                ModelState.AddModelError("CreditData.PropertyType", "Please select property type");
+                ModelState.AddModelError("CreditData.State", "Please select state");
             }
+
+            if (creditDataModel.BillingContactState == "--" || creditDataModel.BillingContactState == null)
+            {
+                ModelState.AddModelError("CreditData.BillingContactState", "Please select state");
+            }
+
+            if (creditDataModel.PrincipalState == "--" || creditDataModel.PrincipalState == null)
+            {
+                ModelState.AddModelError("CreditData.PrincipalState", "Please select state");
+            }
+
+            if (creditDataModel.BankReferenceState == "--" || creditDataModel.BankReferenceState == null)
+            {
+                ModelState.AddModelError("CreditData.BankReferenceState", "Please select state");
+            }
+
+            if (creditDataModel.BankReferenceAccountType == "--" || creditDataModel.BankReferenceAccountType == null)
+            {
+                ModelState.AddModelError("CreditData.BankReferenceAccountType", "Please select state");
+            }
+
         }
 
         private string ValidateZipCode(string zipCode, string state)
@@ -783,59 +786,59 @@ namespace CreditAppBMG.Controllers
                     }
                 }
 
-                FillDistributorFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
+                FillDistributorFromRetailerInfo(viewModel, retailerInfo);
             }
 
-            viewModel.StatesListItems = this.GetStatesListItems();
-            viewModel.States = this.GetStates();
+            viewModel.StatesListItems = GetStatesListItems();
+            viewModel.States = GetStates();
             return viewModel;
         }
 
         [HttpPost]
         public IActionResult ClearForm([FromBody]CreditAppModel model)
         {
-            //delete reccord
-            using (var context = new CreditAppContext())
+            if (model.CreditData.Id.HasValue)
             {
-                CreditDataEntity creditDataEntity = new CreditDataEntity() { Id = model.CreditData.Id };
-                context.CreditData.Attach(creditDataEntity);
-                context.CreditData.Remove(creditDataEntity);
-                context.SaveChanges();
-            }
+                //delete reccord
+                using (var context = new CreditAppContext())
+                {
+                    CreditDataEntity creditDataEntity = new CreditDataEntity() { Id = model.CreditData.Id };
+                    if (creditDataEntity != null)
+                    {
+                        context.CreditData.Attach(creditDataEntity);
+                        context.CreditData.Remove(creditDataEntity);
+                        context.SaveChanges();
+                    }
+                }
 
-            
-            var viewModel = this.GetInitialValues(model.Token);
+            }
+            var viewModel = GetInitialValues(model.Token);
 
             return View("Index", viewModel);
         }
 
-        //[HttpPost]
-        //public FileResult DownloadFile(int? fileId)
-        //{
-        //    byte[] bytes;
-        //    string fileName, contentType;
-        //    string constr = ConfigurationManager.ConnectionStrings["ConString"].ConnectionString;
-        //    using (SqlConnection con = new SqlConnection(constr))
-        //    {
-        //        using (SqlCommand cmd = new SqlCommand())
-        //        {
-        //            cmd.CommandText = "SELECT Name, Data, ContentType FROM tblFiles WHERE Id=@Id";
-        //            cmd.Parameters.AddWithValue("@Id", fileId);
-        //            cmd.Connection = con;
-        //            con.Open();
-        //            using (SqlDataReader sdr = cmd.ExecuteReader())
-        //            {
-        //                sdr.Read();
-        //                bytes = (byte[])sdr["Data"];
-        //                contentType = sdr["ContentType"].ToString();
-        //                fileName = sdr["Name"].ToString();
-        //            }
-        //            con.Close();
-        //        }
-        //    }
+        [HttpGet]
+        [Route("Home/DownloadFile/{creditDataId}/{fileType}")]
+        public FileResult DownloadFile(int creditDataId, string fileType)
+        {
+            byte[] bytes;
+            string fileName;
+            using (var context = new CreditAppContext())
+            {
+                var crFile = context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataId);
+                if (fileType.ToLower() == "licensefile")
+                {
+                    bytes = crFile.LicenseFile;
+                    fileName = crFile.LicenseFileName;
+                }
+                else
+                {
+                    bytes = crFile.TaxCertificateFile;
+                    fileName = crFile.TaxCertificateFileName;
+                }
+            }
+            return File(bytes, "application/octet-stream", fileName);
 
-        //   return File(bytes, contentType, fileName);
-        //return new File();
-        //}
+        }
     }
 }

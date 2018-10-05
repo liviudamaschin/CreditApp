@@ -27,9 +27,7 @@ namespace CreditAppBMG
         public void ConfigureServices(IServiceCollection services)
         {
 
-            //var connection = @"Server=.;Database=CreditApp;Trusted_Connection=True;";
-            //services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(connection));
-
+    
             services.AddSingleton<IConfiguration>(Configuration);
 
             services.AddDbContext<CreditAppContext>(options =>
@@ -41,35 +39,6 @@ namespace CreditAppBMG
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
-            //var config = new MapperConfiguration(cfg =>
-            //{
-            //    //cfg.ValidateInlineMaps = false;// .ConfigurationProvider.AssertConfigurationIsValid();
-            //    //cfg.
-            //    cfg.CreateMap<States, StatesEntity>();
-
-            //    cfg.CreateMap<CreditDataEntity, CreditData>()
-            //    .ForMember(x => x.CompanyTypeName, opt => opt.Ignore());
-            //    //.ForSourceMember(x => x.CreditDataFiles, opt => opt.Ignore())
-            //    //.IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.IgnoreAllSourcePropertiesWithAnInaccessibleSetter();
-
-            //    cfg.CreateMap<CreditData, CreditDataEntity>()
-            //    .ForSourceMember(x => x.CompanyTypeName, opt => opt.Ignore());
-
-            //    cfg.AddGlobalIgnore("CreditDataFiles");
-
-            //    cfg.CreateMap<USZipCodes, ZipCodesUSEntity>().ReverseMap();
-
-            //    cfg.CreateMap<Distributor, DistributorEntity>()
-            //    .ForSourceMember(x => x.DistributorLogoURL, opt => opt.Ignore());
-            //    //.ReverseMap();
-
-            //    cfg.CreateMap<DistributorEntity, Distributor>()
-            //    .ForMember(x => x.DistributorLogoURL, opt => opt.Ignore());
-
-
-            //});
 
             var config = new AutoMapper.MapperConfiguration(cfg =>
             {

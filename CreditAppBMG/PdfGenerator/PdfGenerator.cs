@@ -72,10 +72,11 @@ namespace CreditAppBMG.Pdf
                     image.SetAbsolutePosition(20, 730);
                     contentByte.AddImage(image);
 
-                    CreateBiggerTexBox("DistributorName", 20, 732, 300, obj.Distributor.DistributorName, contentByte);
-                    CreateSmallerTexBox("DistributorAddress", 330, 768, 400, "Address: " + obj.Distributor.DistributorAddress + obj.Distributor.DistributorCity + ", " + obj.Distributor.DistributorState + ", " + obj.Distributor.DistributorZip, contentByte);
-                    CreateSmallerTexBox("DistributorPhone", 330, 747, 400, "Phone: " + obj.Distributor.DistributorPhone, contentByte);
-                    CreateSmallerTexBox("DistributorWebsite", 330, 732, 400, "Website: " + obj.Distributor.DistributorWebSiteURL, contentByte);
+                    CreateBiggerTexBox("DistributorName", 88, 770, 300, obj.Distributor.DistributorName, contentByte);
+                    CreateSmallerTexBox("DistributorAddress", 88, 760, 800, obj.Distributor.DistributorAddress, contentByte);
+                    CreateSmallerTexBox("DistributorAddress2", 88, 752, 800,  obj.Distributor.DistributorCity + ", " + obj.Distributor.DistributorState + ", " + obj.Distributor.DistributorZip, contentByte);
+                    CreateSmallerTexBox("DistributorPhone", 88, 744, 400, "Phone: " + obj.Distributor.DistributorPhone, contentByte);
+                    CreateSmallerTexBox("DistributorWebsite", 88, 736, 400, "Web: " + obj.Distributor.DistributorWebSiteURL.Replace("Http://",""), contentByte);
 
                     //CreteTextField("BusinessName", 88, 663, 215, obj.CreditData.BusinessName, stamper);
                     CreateTexBox("BusinessName", 88, 665, 215, obj.CreditData.BusinessName, contentByte);

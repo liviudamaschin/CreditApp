@@ -25,31 +25,20 @@ namespace CreditAppBMG.ViewModels
 
         public DateTime? CreatedDate { get; set; }
 
-        public DateTime? LastUpdateLicence { get; set; }
+        public DateTime? LastUpdateLicense { get; set; }
 
         public DateTime? LastUpdateCertificate { get; set; }
 
-        public string LicenceFileMessage
-        {
-            get
-            {
-                return this.GetLicenceFileMessage();
-            }
-        }
+        public string LicenseFileMessage => GetLicenseFileMessage();
 
-        public string CertificateFileMessage
-        {
-            get
-            {
-                return this.GetCertificateFileMessage();
-            }
-        }
 
-        public string GetLicenceFileMessage()
+        public string CertificateFileMessage => GetCertificateFileMessage();
+
+        public string GetLicenseFileMessage()
         {
             var retVal = String.Empty;
-            if (this.LastUpdateLicence.HasValue)
-                retVal = $"Last upload: {this.LicenseFileName} on {this.LastUpdateLicence.Value.ToShortDateString()} at {this.LastUpdateLicence.Value.ToLongTimeString() }";
+            if (LastUpdateLicense.HasValue)
+                retVal = $"Last upload: {LicenseFileName} on {LastUpdateLicense.Value.ToShortDateString()} at {LastUpdateLicense.Value.ToLongTimeString() }";
 
             return retVal;
         }
@@ -57,8 +46,8 @@ namespace CreditAppBMG.ViewModels
         public string GetCertificateFileMessage()
         {
             var retVal = String.Empty;
-            if (this.LastUpdateCertificate.HasValue)
-                retVal = $"Last upload: {this.TaxCertificateFile} on {this.LastUpdateCertificate.Value.ToShortDateString()} at {this.LastUpdateCertificate.Value.ToLongTimeString()}";
+            if (LastUpdateCertificate.HasValue)
+                retVal = $"Last upload: {TaxCertificateFileName} on {LastUpdateCertificate.Value.ToShortDateString()} at {LastUpdateCertificate.Value.ToLongTimeString()}";
 
             return retVal;
         }

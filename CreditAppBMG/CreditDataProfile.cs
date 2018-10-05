@@ -27,10 +27,10 @@ namespace CreditAppBMG
                 .ForMember(x => x.CreditDataFiles, opt => opt.Ignore());
 
             CreateMap<CreditDataFilesEntity, CreditDataFiles>()
-                .ForMember(x => x.LicenceFileMessage, opt => opt.Ignore());
+                .ForMember(x => x.LicenseFileMessage, opt => opt.Ignore());
 
             CreateMap<CreditDataFiles, CreditDataFilesEntity>()
-                .ForSourceMember(x => x.LicenceFileMessage, opt => opt.Ignore());
+                .ForSourceMember(x => x.LicenseFileMessage, opt => opt.Ignore());
         }
     }
 }

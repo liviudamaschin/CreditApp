@@ -16,9 +16,9 @@ namespace CreditAppBMG.Entities
         public string TaxCertificateFileName { get; set; }
         public byte[] TaxCertificateFile { get; set; }
         public DateTime? CreatedDate { get; set; }
-        public DateTime? LastUpdateLicence { get; set; }
+        public DateTime? LastUpdateLicense { get; set; }
         public DateTime? LastUpdateCertificate { get; set; }
-
+ 
         public virtual CreditDataEntity CreditData { get; set; }
     }
 }

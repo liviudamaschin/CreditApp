@@ -17,11 +17,16 @@ namespace CreditAppBMG.Entities
         public int? DistributorId { get; set; }
         public string RetailerId { get; set; }
         public string Token { get; set; }
+        [MaxLength(100)]
         public string BusinessName { get; set; }
+        [MaxLength(100)]
         public string TradeName { get; set; }
+        [MaxLength(50)]
         public string LicenseNumber { get; set; }
         public DateTime? LicenseExpirationDate { get; set; }
+        [MaxLength(50)]
         public string Ein { get; set; }
+        [MaxLength(50)]
         public string NystateTaxId { get; set; }
         public string DeliveryTime { get; set; }
         public string CompanyType { get; set; }

@@ -307,11 +307,16 @@ $.fn.extend({
 					
 					caretTimeoutId = setTimeout(function(){
 						writeBuffer();
-						if (pos == mask.length) {
-							input.caret(0, pos);
-						} else {
-							input.caret(pos);
-						}
+						//if (pos == mask.length) {
+						//	input.caret(0, pos);
+						//} else {
+						//	input.caret(pos);
+						//}
+					    if (focusText === "") {
+					        input.caret(0, pos);
+					    } else {
+                            input.caret(mask.length, focusText.length);
+					    }
 					}, 10);
 				})
 				.bind("blur.mask", function() {

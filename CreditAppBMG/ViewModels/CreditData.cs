@@ -7,7 +7,7 @@ namespace CreditAppBMG.ViewModels
 {
     public class CreditData
     {
-        [Required(ErrorMessage = "Required field")]
+        //[Required(ErrorMessage = "Required field")]
         public int? Id { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -35,6 +35,7 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "License number:*")]
+        [MaxLength(40)]
         public string LicenseNumber { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -44,7 +45,6 @@ namespace CreditAppBMG.ViewModels
         public DateTime LicenseExpirationDate { get; set; }
 
         [Required(ErrorMessage = "Required field")]
-        [HTMLMaskAttribute("mask", "99-9999999")] //EIN format
         [Display(Name = "EIN:*")]
         public string EIN { get; set; }
 
@@ -136,41 +136,41 @@ namespace CreditAppBMG.ViewModels
         [Display(Name = "Do you own property?")]
         public bool PropertyOwned { get; set; }
 
-        [Display(Name = "Property type:")]
+        [Display(Name = "Property type:*")]
         public string PropertyType { get; set; }
 
-        [Display(Name = "Address 1:")]
+        [Display(Name = "Address 1:*")]
         public string PropertyAddress1 { get; set; }
 
         [Display(Name = "Address 2:")]
         public string PropertyAddress2 { get; set; }
 
-        [Display(Name = "City:")]
+        [Display(Name = "City:*")]
         public string PropertyCity { get; set; }
 
-        [Display(Name = "State:")]
+        [Display(Name = "State:*")]
         public string PropertyState { get; set; }
 
-        [Display(Name = "Zip:")]
+        [Display(Name = "Zip:*")]
         public string PropertyZipCode { get; set; }
 
         [Required(ErrorMessage = "Required field")]
-        [Display(Name = "Have you done business before with {0} Southern Glazers Wine & Spirits?")]
+        [Display(Name = "Have you done business before with {0}?")]
         public bool PriorBusiness { get; set; }
 
-        [Display(Name = "Address 1:")]
+        [Display(Name = "Address 1:*")]
         public string PriorBusinessAddress1 { get; set; }
 
         [Display(Name = "Address 2:")]
         public string PriorBusinessAddress2 { get; set; }
 
-        [Display(Name = "City:")]
+        [Display(Name = "City:*")]
         public string PriorBusinessCity { get; set; }
 
-        [Display(Name = "State:")]
+        [Display(Name = "State:*")]
         public string PriorBusinessState { get; set; }
 
-        [Display(Name = "Zip:")]
+        [Display(Name = "Zip:*")]
         public string PriorBusinessZipCode { get; set; }
 
         [Required(ErrorMessage = "Required field")]
