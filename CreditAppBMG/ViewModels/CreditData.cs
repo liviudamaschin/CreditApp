@@ -8,13 +8,14 @@ namespace CreditAppBMG.ViewModels
     public class CreditData
     {
         //[Required(ErrorMessage = "Required field")]
+        [Key]
         public int? Id { get; set; }
 
         [Required(ErrorMessage = "Required field")]
-        public int DistributorId { get; set; }
+        public string DistributorId { get; set; }
 
         [Required(ErrorMessage = "Required field")]
-        public string RetailerId { get; set; }
+        public int RetailerId { get; set; }
 
         [Required(ErrorMessage = "Required field")]
         public string Token { get; set; }
@@ -137,21 +138,26 @@ namespace CreditAppBMG.ViewModels
         public bool PropertyOwned { get; set; }
 
         [Display(Name = "Property type:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PropertyType { get; set; }
 
         [Display(Name = "Address 1:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PropertyAddress1 { get; set; }
 
         [Display(Name = "Address 2:")]
         public string PropertyAddress2 { get; set; }
 
         [Display(Name = "City:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PropertyCity { get; set; }
 
         [Display(Name = "State:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PropertyState { get; set; }
 
         [Display(Name = "Zip:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PropertyZipCode { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -159,18 +165,22 @@ namespace CreditAppBMG.ViewModels
         public bool PriorBusiness { get; set; }
 
         [Display(Name = "Address 1:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PriorBusinessAddress1 { get; set; }
 
         [Display(Name = "Address 2:")]
         public string PriorBusinessAddress2 { get; set; }
 
         [Display(Name = "City:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PriorBusinessCity { get; set; }
 
         [Display(Name = "State:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PriorBusinessState { get; set; }
 
         [Display(Name = "Zip:*")]
+        [Required(ErrorMessage = "Required field")]
         public string PriorBusinessZipCode { get; set; }
 
         [Required(ErrorMessage = "Required field")]

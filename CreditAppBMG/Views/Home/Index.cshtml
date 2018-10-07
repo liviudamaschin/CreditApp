@@ -1,15 +1,7 @@
 ﻿@model CreditAppBMG.ViewModels.CreditAppModel
 @*<form asp-controller="Home" asp-action="GeneratePDF" id="frmCreditApp" method="POST" enctype="multipart/form-data" data-ajax="true" role="form">*@
-<form asp-controller="Home" asp-action="GeneratePdf" enctype="multipart/form-data" id="frmCreditApp" method="post" class="form-label-left" role="form" autocomplete="off">
-    @*<div class="form-group">
-            <label asp-for="DistributorName" class="control-label"></label>
-            <input asp-for="DistributorName" class="form-control" />
-            <span asp-validation-for="DistributorName" class="text-danger"></span>
-
-            @Html.TextBoxFor(m => m.DistributorState, new { @id= "DistributorState", @class = "form-control" })
-        </div>*@
-
-    <!-- form content-->
+<form asp-controller="Home" asp-action="GeneratePdf" enctype="multipart/form-data" id="frmCreditApp" method="post" class="form-label-left" role="form" autocomplete="nope">
+   <!-- form content-->
     <div class="row">
         <div class="col-md-6" style="clear: both">
             <button id="btnClearForm" type="button" class="btn btn-default btn-block">Clear form</button>
@@ -641,7 +633,7 @@
                         <div class="form-group">
                             <label asp-for="CreditDataFiles.LicenseFileName" class="control-label"></label>
                             <div class="input-group input-file" name="fileUploadLicense">
-                                <input type="text" class="form-control" placeholder='Click Browse to upload Licence file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
+                                <input type="text" class="form-control" data-prop="LicenseFileName" placeholder='Click Browse to upload Licence file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                 </span>
@@ -671,7 +663,7 @@
                         <div class="form-group">
                             <label asp-for="CreditDataFiles.TaxCertificateFileName" class="control-label"></label>
                             <div class="input-group input-file" name="fileUploadCertificate">
-                                <input type="text" class="form-control" placeholder='Click Browse to upload Certificate file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
+                                <input type="text" class="form-control" data-prop="TaxCertificateFileName" placeholder='Click Browse to upload Certificate file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
                                 <span class="input-group-btn">
                                     <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                 </span>
@@ -742,7 +734,19 @@
                     var element = $("<input type='file' class='input-ghost' style='visibility:hidden; height:0'>");
                     element.attr("name", $(this).attr("name"));
                     element.change(function () {
+                        //var validator = {};
+                        var validator = $.data($('form')[0], 'validator');
                         element.next(element).find('input').val((element.val()).split('\\').pop());
+                        var property = element.next(element).find('input')[0].dataset.prop;
+                        if (property === "TaxCertificateFileName") {
+                            validator.showErrors({ "CreditDataFiles.TaxCertificateFileName": null });
+                        }
+                        if (property === "LicenseFileName") {
+                            validator.showErrors({ "CreditDataFiles.LicenseFileName": null });
+                        }
+
+                        //fixValidFieldStyles($("#frmCreditApp"), validator);
+                        
                     });
                     $(this).find("button.btn-choose").click(function () {
                         element.click();
@@ -872,22 +876,22 @@
             event.preventDefault();
             if (confirm("Data entered will be deleted. Continue?")) {
                 var formModel = $('#frmCreditApp').serializeArray();
-            var jsonModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
-            //var formModel = $('#frmCreditApp').serializeArray();
+                var jsonModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+                //var formModel = $('#frmCreditApp').serializeArray();
 
-            $.ajax({
-                url: '@Url.Action("ClearForm", "Home")',
-                type: "POST",
-                dataType: "JSON",
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify(jsonModel),
-                success: function (response) {
-                }
-            });
+                $.ajax({
+                    url: '@Url.Action("ClearForm", "Home")',
+                    type: "POST",
+                    dataType: "JSON",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonModel),
+                    success: function (response) {
+                    }
+                });
             } else {
                 return false;
             }
-
+            return true;
         });
     });
 </script>

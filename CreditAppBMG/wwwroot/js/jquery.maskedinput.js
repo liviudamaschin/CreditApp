@@ -313,11 +313,12 @@ $.fn.extend({
 						//	input.caret(pos);
 						//}
 					    if (focusText === "") {
-					        input.caret(0, pos);
+                            input.caret(0, focusText.length);
 					    } else {
-                            input.caret(mask.length, focusText.length);
+                            //input.caret(mask.length, focusText.length);
+					        input.caret(0, focusText.length);
 					    }
-					}, 10);
+					}, 3);
 				})
 				.bind("blur.mask", function() {
 					checkVal();
