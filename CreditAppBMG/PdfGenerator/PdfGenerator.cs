@@ -1,19 +1,16 @@
 ﻿using CreditAppBMG.ViewModels;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.FileProviders;
 
 namespace CreditAppBMG.Pdf
 {
     public class PdfGenerator
     {
         private CreditAppModel obj;
+        private string FontPath;
 
         public PdfGenerator(CreditAppModel creditAppModel)
         {
@@ -53,10 +50,11 @@ namespace CreditAppBMG.Pdf
 
             return true;
         }
-        public bool GeneratePdf(string templatePath, string outputFile)
+        public bool GeneratePdf(string templatePath, string fontPath, string outputFile)
         {
             //generate pdf
             var fileTemplatePath = templatePath;
+            this.FontPath = fontPath;
 
             using (var reader = new PdfReader(fileTemplatePath))
             {
@@ -101,7 +99,7 @@ namespace CreditAppBMG.Pdf
                     CreateTexBox("PrincipalContactName", 45, 557, 260, obj.CreditData.PrincipalName, contentByte);
                     CreateTexBox("PrincipalContactTitle", 327, 557, 260, obj.CreditData.PrincipalTitle, contentByte);
 
-                    CreateTexBox("PrincipalContactPhhone", 48, 539, 148, obj.CreditData.PrincipalPhone, contentByte);
+                    CreateTexBox("PrincipalContactPhone", 48, 539, 148, obj.CreditData.PrincipalPhone, contentByte);
                     CreateTexBox("PrincipalContactEmail", 225, 539, 220, obj.CreditData.PrincipalEmail, contentByte);
                     CreateTexBox("PrincipalContactSSN", 478, 539, 110, obj.CreditData.PrincipalSSN, contentByte);
 
@@ -147,13 +145,25 @@ namespace CreditAppBMG.Pdf
                     CreateTexBox("BankReferenceState", 305, 288, 140, obj.CreditData.BankReferenceState, contentByte);
                     CreateTexBox("BankReferenceZip", 468, 288, 118, obj.CreditData.BankReferenceZipCode.ToString(), contentByte);
 
-                    CreateTexBox("DistributorName2", 150, 262, 200, obj.Distributor.DistributorName, contentByte);
+                    //CreateTexBox("DistributorName2", 150, 262, 200, obj.Distributor.DistributorName, contentByte);
 
                     //StatesBo priorBusinessState = new StatesBoService().GetByAbbreviation(obj.CreditData.PriorBusinessState);
                     string priorBusinessStateName = obj.CreditData.PriorBusinessState == null ? "" : obj.CreditData.PriorBusinessState;
                     string priorBusinessAddress = "";
-                    if (!string.IsNullOrEmpty(obj.CreditData.PriorBusinessAddress1) && !string.IsNullOrEmpty(obj.CreditData.PriorBusinessCity) && !string.IsNullOrEmpty(priorBusinessStateName) && !string.IsNullOrEmpty(obj.CreditData.PriorBusinessZipCode))
-                        priorBusinessAddress = $"{obj.CreditData.PriorBusinessAddress1} {obj.CreditData.PriorBusinessAddress2}, {obj.CreditData.PriorBusinessCity}, {priorBusinessStateName}, {obj.CreditData.PriorBusinessZipCode}";
+
+                    CreateTexBox("PriorBusiness", 18, (float)261.4, 570, $"Have you done business with {obj.Distributor.DistributorName} before? If yes, provide location address:", contentByte);
+
+                    if (!obj.CreditData.PriorBusiness)
+                    {
+                        priorBusinessAddress = "No";
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(obj.CreditData.PriorBusinessAddress1) && !string.IsNullOrEmpty(obj.CreditData.PriorBusinessCity) && !string.IsNullOrEmpty(priorBusinessStateName) && !string.IsNullOrEmpty(obj.CreditData.PriorBusinessZipCode))
+                            priorBusinessAddress = $"{obj.CreditData.PriorBusinessAddress1} {obj.CreditData.PriorBusinessAddress2}, {obj.CreditData.PriorBusinessCity}, {priorBusinessStateName}, {obj.CreditData.PriorBusinessZipCode}";
+                    }
+
+                    DrawHorizontalLine(18, (float) 246.4, 576, contentByte);
 
                     CreateTexBox("PriorBusinessAddress", 18, 249, 570, priorBusinessAddress, contentByte);
 
@@ -217,7 +227,7 @@ namespace CreditAppBMG.Pdf
                 {".csv", "text/csv"}
             };
         }
-        private bool CreatecheckBoxField()
+        private bool CreateCheckBoxField()
         {
             //checkBox = new RadioCheckField(writer, new Rectangle(20, 20), "noDelete", "Yes");
             //field = checkBox.CheckField;
@@ -295,6 +305,29 @@ namespace CreditAppBMG.Pdf
             bool success = false;
             try
             {
+                //var baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                BaseFont baseFont = BaseFont.CreateFont(this.FontPath, BaseFont.CP1250, BaseFont.EMBEDDED);
+                //var baseFont = BaseFont.CreateFont("Arial", BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                contentByte.BeginText();
+                contentByte.SetFontAndSize(baseFont, 9);
+
+                contentByte.ShowTextAligned(PdfContentByte.ALIGN_LEFT, string.IsNullOrWhiteSpace(content) ? string.Empty : content, left, top, 0);
+                contentByte.EndText();
+
+                success = true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return success;
+        }
+
+        private bool CreateLabel(string label, float left, float top, string content, PdfContentByte contentByte)
+        {
+            bool success = false;
+            try
+            {
                 var baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 //var baseFont = BaseFont.CreateFont("Arial", BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 contentByte.BeginText();
@@ -312,5 +345,13 @@ namespace CreditAppBMG.Pdf
             return success;
         }
 
+        private void DrawHorizontalLine(float left, float top, float length, PdfContentByte contentByte)
+        {
+            contentByte.SetLineWidth(0.70);
+            //contentByte.SetColorStroke(new BaseColor(255,0,0));
+            contentByte.MoveTo(left, top);
+            contentByte.LineTo(left+length, top);
+            contentByte.Stroke();
+        }
     }
 }

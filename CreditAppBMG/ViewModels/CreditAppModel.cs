@@ -22,6 +22,8 @@ namespace CreditAppBMG.ViewModels
         // keep track of downloaded logo:
         public string LocalLogo { get; set; }
 
+        public string LocalFont { get; set; }
+
         public List<SelectListItem> CompanyTypes { get; } = new List<SelectListItem>
         {
             new SelectListItem { Value = "MX", Text = "Limited liability company" },
@@ -34,7 +36,7 @@ namespace CreditAppBMG.ViewModels
         {
             new SelectListItem { Value = "8am - 12pm", Text = "8am - 12pm" },
             new SelectListItem { Value = "1pm - 8pm", Text = "1pm - 8pm" },
-            new SelectListItem { Value = "8pm - 8am", Text = "8pm - 8am"  }
+            new SelectListItem { Value = "8am - 8pm", Text = "8am - 8pm"  }
         };
 
         public List<SelectListItem> PropertyType { get; } = new List<SelectListItem>

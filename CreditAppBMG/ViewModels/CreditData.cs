@@ -42,7 +42,7 @@ namespace CreditAppBMG.ViewModels
         [Required(ErrorMessage = "Required field")]
         [DataType(DataType.Date)]
         [Display(Name = "License expiration date:*")]
-        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
+        //[DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime LicenseExpirationDate { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -60,14 +60,8 @@ namespace CreditAppBMG.ViewModels
         [Display(Name = "Company type:*")]
         public string CompanyType { get; set; }
 
-        public string CompanyTypeName
-        {
-            get
-            {
-                return this.GetCompanyTypeName(this.CompanyType);
-            }
-        }
- 
+        public string CompanyTypeName => this.GetCompanyTypeName(this.CompanyType);
+
         [Required(ErrorMessage = "Required field")]
         [Phone]
         [HTMLMaskAttribute("mask", "(999) 999-9999")] //phone format
@@ -118,7 +112,7 @@ namespace CreditAppBMG.ViewModels
         [Display(Name = "Address 1:*")]
         public string PrincipalAddress1 { get; set; }
 
-        [Display(Name = "Address 2:*")]
+        [Display(Name = "Address 2:")]
         public string PrincipalAddress2 { get; set; }
 
         [Required(ErrorMessage = "Required field")]

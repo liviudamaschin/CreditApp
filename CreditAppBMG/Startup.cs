@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using CreditAppBMG.CustomAttributes;
+﻿using CreditAppBMG.CustomAttributes;
 using CreditAppBMG.Entities;
-using CreditAppBMG.ViewModels;
 //using CreditAppBMG.DAL.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -81,7 +79,7 @@ namespace CreditAppBMG
             });
 
             var cultureInfo = new CultureInfo("en-US");
-            //cultureInfo.DateTimeFormat.ShortDatePattern = "";
+            cultureInfo.DateTimeFormat.ShortDatePattern = "MM/dd/yy";
 
             CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
             CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
