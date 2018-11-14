@@ -41,6 +41,9 @@
     background-color: #640c03;
     height: 102px;
     position: relative;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    /*overflow: hidden;*/
 }
 
 .logo {
@@ -88,4 +91,19 @@
 
 .validation-summary-valid {
     display: none;
+}
+
+
+.vertical-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.middle {
+    display: flex;
+    align-items: center;
+    justify-content: center
 }

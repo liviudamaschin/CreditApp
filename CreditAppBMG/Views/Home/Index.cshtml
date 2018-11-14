@@ -4,16 +4,18 @@
     <div class="main-module">
         <div class="header-top-spacer"></div>
 
-        <div class="header-logo-color" style="vertical-align: center">
+    <div class="header-logo-color" >
             <img src="~/images/header-object.png" style="max-height: 122px; position:absolute" />
-            <img src="@Model.Distributor.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px; vertical-align: center" />
-            <label class="control-label" style="padding-left: 20px; color: white; font-size:1.5em">@Model.Distributor.DistributorName</label>
+            <img src="@Model.Distributor.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px" />
+            <label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.Distributor.DistributorName</label>
 
         </div>
+
+    <div class="header-bottom-spacer middle" align="center">
+        <label class="middle" style="font-size:1.5em">CREDIT APPLICATION FORM</label>
+            
         
-        <div class="header-bottom-spacer">
-
-        </div>
+    </div>
         <div class="module-body">
             <!-- form content-->
             <div class="row">
@@ -58,8 +60,8 @@
                                             <div class="input-group">
                                                 <input asp-for="CreditData.LicenseExpirationDate" type="text" class="form-control datepicker" id="LicenseExpirationDate" asp-format="{0:MM/dd/yyyy}">
                                                 @*<div class="input-group-addon">
-                                                    <span class="glyphicon glyphicon-th"></span>
-                                                </div>*@
+                                                        <span class="glyphicon glyphicon-th"></span>
+                                                    </div>*@
                                             </div>
                                             <span asp-validation-for="CreditData.LicenseExpirationDate" class="text-danger"></span>
                                         </div>
@@ -653,14 +655,15 @@
                                         </span>
                                     </div>
                                     <span asp-validation-for="CreditDataFiles.LicenseFileName" class="text-danger"></span>
+
                                     @*@Html.DisplayTextFor(x => x.CreditDataFiles.LicenseFileMessage)*@
                                     <a asp-controller="Home"
                                        asp-action="DownloadFile"
                                        asp-route-creditdataid="@Model.CreditDataFiles.CreditDataId"
-                                       asp-route-filetype="LicenseFile"
-                                       onclick="window.open(document.URL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');">
-
-                                        @Html.DisplayTextFor(x => x.CreditDataFiles.LicenseFileMessage)
+                                       asp-route-filetype="LicenseFile">
+                                        @*onclick="window.open(document.URL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');">*@
+                                        @Html.ActionLink(@Model.CreditDataFiles.LicenseFileMessage, "DownloadFile", new { creditdataid = @Model.CreditDataFiles.CreditDataId,  filetype="LicenseFile"}, new { target = "_blank" })
+                                        @*@Html.DisplayTextFor(x => x.CreditDataFiles.LicenseFileMessage)*@
                                     </a>
                                 </div>
                                 <div style="font-size: 10px">Allowed file extensions: pdf, jpg, jpeg, png</div>
@@ -721,6 +724,7 @@
     @Html.HiddenFor(m => m.CreditData.Id)
 
     @Html.HiddenFor(m => m.LocalLogo)
+
     @Html.HiddenFor(m => m.Token)
 
     @Html.HiddenFor(m => m.CreditDataFiles.Id)
@@ -737,6 +741,8 @@
     @Html.HiddenFor(m => m.Distributor.DistributorZip)
     @Html.HiddenFor(m => m.Distributor.DistributorPhone)
     @Html.HiddenFor(m => m.Distributor.DistributorWebSiteURL)
+    @Html.HiddenFor(m => m.Distributor.DistributorLogoURL)
+    
 
 </form>
 

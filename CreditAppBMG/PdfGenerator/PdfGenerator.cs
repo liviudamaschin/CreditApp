@@ -113,6 +113,7 @@ namespace CreditAppBMG.Pdf
                     //CreateRadioGroup("OwnProperty", 113, 480, 6, 30, obj.CreditData.PropertyOwned ? 0 : 1, contentByte);
                     //CreateRadioGroup("PropertyType", 190, 480, 6, 70, obj.CreditData.PropertyOwned ? obj.CreditData.PropertyType == "Residential" ? 0 : 1 : -1, contentByte);
                     CreateTexBox("OwnProperty", 113, 482, 6, obj.CreditData.PropertyOwned ? "X" : "", contentByte);
+                    CreateTexBox("OwnProperty", 143, 482, 6, !obj.CreditData.PropertyOwned ? "X" : "", contentByte);
                     CreateTexBox("PropertyType", 190, 482, 6, obj.CreditData.PropertyOwned ? obj.CreditData.PropertyType=="Residential" ? "X" : "":"", contentByte);
                     if (obj.CreditData.PropertyOwned)
                     {
@@ -151,7 +152,7 @@ namespace CreditAppBMG.Pdf
                     string priorBusinessStateName = obj.CreditData.PriorBusinessState == null ? "" : obj.CreditData.PriorBusinessState;
                     string priorBusinessAddress = "";
 
-                    CreateTexBox("PriorBusiness", 18, (float)261.4, 570, $"Have you done business with {obj.Distributor.DistributorName} before? If yes, provide location address:", contentByte);
+                    CreateTexBox("PriorBusiness", (float)144, (float)261.3, 570, $"{obj.Distributor.DistributorName} before? If yes, provide location address:", contentByte);
 
                     if (!obj.CreditData.PriorBusiness)
                     {
@@ -165,7 +166,7 @@ namespace CreditAppBMG.Pdf
 
                     DrawHorizontalLine(18, (float) 246.4, 576, contentByte);
 
-                    CreateTexBox("PriorBusinessAddress", 18, 249, 570, priorBusinessAddress, contentByte);
+                    CreateTexBox("PriorBusinessAddress", 20, 249, 570, priorBusinessAddress, contentByte);
 
                     CreateTexBox("TradeReference1Name", 52, 203, 365, obj.CreditData.TradeReference1Name, contentByte);
                     CreateTexBox("TradeReference1AccountNumber", 494, 203, 80, obj.CreditData.TradeReference1AccountNumber, contentByte);
@@ -305,9 +306,8 @@ namespace CreditAppBMG.Pdf
             bool success = false;
             try
             {
-                //var baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
                 BaseFont baseFont = BaseFont.CreateFont(this.FontPath, BaseFont.CP1250, BaseFont.EMBEDDED);
-                //var baseFont = BaseFont.CreateFont("Arial", BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                //contentByte.SetColorFill(new BaseColor(255, 0, 0));
                 contentByte.BeginText();
                 contentByte.SetFontAndSize(baseFont, 9);
 
