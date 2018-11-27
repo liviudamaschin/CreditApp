@@ -1,22 +1,27 @@
 ﻿using System;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using CreditAppBMG.ViewModels;
-using Newtonsoft.Json;
-using CreditAppBMG.Models;
-using RestSharp;
-using System.IO;
-using CreditAppBMG.Entities;
-using AutoMapper;
-using System.Linq;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using CreditAppBMG.Pdf;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using AutoMapper;
+using CreditAppBMG.BL;
+using CreditAppBMG.Entities;
+using CreditAppBMG.Models;
+using CreditAppBMG.Models.Requests;
+using CreditAppBMG.Models.Responses;
+using CreditAppBMG.Pdf;
+using CreditAppBMG.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
+using RestSharp;
+using FileInfo = CreditAppBMG.Models.Requests.FileInfo;
 
 namespace CreditAppBMG.Controllers
 {
@@ -360,9 +365,9 @@ namespace CreditAppBMG.Controllers
             //return $"You typed : {model}." ;
             return "zzz";
         }
-        
+
         [HttpPost]
-        public async Task<IActionResult> GeneratePdf(CreditAppModel model, IFormFile fileUploadCertificate, IFormFile fileUploadLicense)
+        public IActionResult GeneratePdf(CreditAppModel model, IFormFile fileUploadCertificate, IFormFile fileUploadLicense)
         {
             // to force updating the view with current viewModel values
             // we need to preserve the error messages, clear modelState and the add the errors back.
@@ -477,19 +482,69 @@ namespace CreditAppBMG.Controllers
                         context.Update(creditDataEntity);
                         context.SaveChanges();
                         byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
-                        return File(fileBytes, "application/octet-stream", fileName);
+                        AdobeSignWS ws = new AdobeSignWS();
+
+                        // PostTransientDocument
+                        var td = ws.PostTransientDocument(fileBytes, fileName);
+
+                        //string url = @"http://localhost:62378/api/AdobeSign";
+                        //var client = new RestClient(url);
+                        //var request = new RestRequest("PostTransientDocument", Method.POST);
+                        //request.AddHeader("Content-Type", "multipart/form-data");
+                        //request.AddFileBytes("file", fileBytes, fileName);
+                        //request.AddParameter("fileName", fileName);
+                        
+                        //IRestResponse<TransientDocument> result = client.Execute<TransientDocument>(request);
+
+                        // create agreement
+                        var agreement = ws.CreateAgreement(td.transientDocumentId, "agreementName",
+                            model.CreditData.PrincipalEmail);
+
+                        var signingUrls = ws.GetAgreementSigningUrl(agreement.Id);
+                        //var newAgreementRequest = new RestRequest("CreateAgreement", Method.POST);
+                        //var agreementRequest = new AgreementMinimalRequest 
+                        //{
+                        //    fileInfos = new List<FileInfo>
+                        //    {
+                        //        new FileInfo
+                        //        {
+                        //            transientDocumentId = result.Data.transientDocumentId
+                        //        }
+                        //    },
+                        //    name = "MyTestAgreement",
+                        //    participantSetsInfo = new List<ParticipantInfo>
+                        //    {
+                        //        new ParticipantInfo
+                        //        {
+                        //            memberInfos = new List<MemberInfo>
+                        //            {
+                        //                new MemberInfo
+                        //                {
+                        //                    email = "liviu.damaschin@gmail.com"
+                        //                }
+                        //            },
+                        //            order = 1,
+                        //            role = "SIGNER"
+                        //        }
+                        //    },
+                        //    signatureType = "ESIGN",
+                        //    state = "IN_PROCESS"
+                        //};
+                      
+                        //newAgreementRequest.RequestFormat = DataFormat.Json;
+                        //newAgreementRequest.AddJsonBody(agreementRequest);
+
+                        //IRestResponse<AgreementCreationResponse> agreementResponse = client.Execute<AgreementCreationResponse>(newAgreementRequest);
+                       
+
+                        return View("Index", model);
                     }
                 }
             }
 
             model.StatesListItems = GetStatesListItems();
 
-            //foreach (KeyValuePair<string, string> previousError in previousErrors)
-            //{
-            //    ModelState.AddModelError(previousError.Key, previousError.Value);
-            //}
             return View("Index", model);
-
         }
 
         private void UpdateWithNulls(CreditAppModel model)
