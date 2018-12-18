@@ -30,5 +30,6 @@ namespace CreditAppBMG.Models.Requests
         public string signatureType { get; set; }
 
         public string state { get; set; }
+
     }
 }

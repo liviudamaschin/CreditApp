@@ -4,13 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using CreditAppBMG.BL;
 using CreditAppBMG.Entities;
+using CreditAppBMG.Enums;
 using CreditAppBMG.Models;
-using CreditAppBMG.Models.Requests;
 using CreditAppBMG.Models.Responses;
 using CreditAppBMG.Pdf;
 using CreditAppBMG.ViewModels;
@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using RestSharp;
-using FileInfo = CreditAppBMG.Models.Requests.FileInfo;
 
 namespace CreditAppBMG.Controllers
 {
@@ -84,9 +83,6 @@ namespace CreditAppBMG.Controllers
         private void FillCreditDataFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo, TokenInfo tokenInfo)
         {
 
-            //RetailerBo retailer = new RetailerBo();
-            // business
-            //retailerInfo.DistributorId
             viewModel.CreditData = new CreditData();
             viewModel.CreditData.DistributorId = retailerInfo.DistributorId.ToString();
             viewModel.CreditData.RetailerId = Convert.ToInt32(tokenInfo.UserID);
@@ -103,11 +99,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.Address1 = retailerInfo.Business_Information_Address1;
             viewModel.CreditData.Address2 = retailerInfo.Business_Information_Address2;
             viewModel.CreditData.City = retailerInfo.Business_Information_City;
-            //var businessState = new StatesBoService().GetByAbbreviation(retailerInfo.Business_Information_State);
-            //if (businessState == null)
-            //    viewModel.CreditData.State = "";
-            //else
-            //    viewModel.CreditData.State = businessState.Abbreviation;
+
             viewModel.CreditData.State = retailerInfo.Business_Information_State;
             viewModel.CreditData.ZipCode = retailerInfo.Business_Information_Zip;
             // principal
@@ -119,11 +111,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PrincipalAddress1 = retailerInfo.Principal_Contact_Address1;
             viewModel.CreditData.PrincipalAddress2 = retailerInfo.Principal_Contact_Address2;
             viewModel.CreditData.PrincipalCity = retailerInfo.Principal_Contact_City;
-            //var principalState = new StatesBoService().GetByAbbreviation(retailerInfo.Principal_Contact_State);
-            //if (principalState == null)
-            //    viewModel.CreditData.PrincipalState = "";
-            //else
-            //    viewModel.CreditData.State = principalState.Abbreviation;
+            
             viewModel.CreditData.PrincipalState = retailerInfo.Principal_Contact_State;
             viewModel.CreditData.PrincipalZipCode = retailerInfo.Principal_Contact_Zip;
             // property owned
@@ -133,11 +121,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PropertyAddress1 = retailerInfo.Property_Location_Contact_Address1;
             viewModel.CreditData.PropertyAddress2 = retailerInfo.Property_Location_Contact_Address2;
             viewModel.CreditData.PropertyCity = retailerInfo.Property_Location_Contact_City;
-            //var propertyState = new StatesBoService().GetByAbbreviation(retailerInfo.Property_Location_Contact_State);
-            //if (propertyState == null)
-            //    viewModel.CreditData.PropertyState = "";
-            //else
-            //    viewModel.CreditData.PropertyState = propertyState.Abbreviation;
+            
             viewModel.CreditData.PropertyState = retailerInfo.Property_Location_Contact_State;
             viewModel.CreditData.PropertyZipCode = retailerInfo.Property_Location_Contact_Zip;
             // prior business
@@ -146,11 +130,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PriorBusinessAddress1 = retailerInfo.Prior_Business_Location_Contact_Address1;
             viewModel.CreditData.PriorBusinessAddress2 = retailerInfo.Prior_Business_Location_Contact_Address2;
             viewModel.CreditData.PriorBusinessCity = retailerInfo.Prior_Business_Location_Contact_City;
-            //var priorBusinessState = new StatesBoService().GetByAbbreviation(retailerInfo.Prior_Business_Location_Contact_State);
-            //if (priorBusinessState == null)
-            //    viewModel.CreditData.PriorBusinessState = "";
-            //else
-            //    viewModel.CreditData.PriorBusinessState = priorBusinessState.Abbreviation;
+
             viewModel.CreditData.PriorBusinessState = retailerInfo.Prior_Business_Location_Contact_State;
             viewModel.CreditData.PriorBusinessZipCode = retailerInfo.Prior_Business_Location_Contact_Zip;
             // billing contact
@@ -160,11 +140,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.BillingContactAddress1 = retailerInfo.Billing_Contact_Address1;
             viewModel.CreditData.BillingContactAddress2 = retailerInfo.Billing_Contact_Address2;
             viewModel.CreditData.BillingContactCity = retailerInfo.Billing_Contact_City;
-            //var billingContactState = new StatesBoService().GetByAbbreviation(retailerInfo.Billing_Contact_State);
-            //if (billingContactState == null)
-            //    viewModel.CreditData.BillingContactState = "";
-            //else
-            //    viewModel.CreditData.BillingContactState = billingContactState.Abbreviation;
+           
             viewModel.CreditData.BillingContactState = retailerInfo.Billing_Contact_State;
             viewModel.CreditData.BillingContactZipCode = retailerInfo.Billing_Contact_Zip;
             //bank reference
@@ -176,11 +152,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.BankReferenceAddress1 = retailerInfo.Banc_Reference_Address1;
             viewModel.CreditData.BankReferenceAddress2 = retailerInfo.Banc_Reference_Address2;
             viewModel.CreditData.BankReferenceCity = retailerInfo.Banc_Reference_City;
-            //var bankReferenceState = new StatesBoService().GetByAbbreviation(retailerInfo.Banc_Reference_State);
-            //if (bankReferenceState == null)
-            //    viewModel.CreditData.BankReferenceState = "";
-            //else
-            //    viewModel.CreditData.BankReferenceState = bankReferenceState.Abbreviation;
+           
             viewModel.CreditData.BankReferenceState = retailerInfo.Banc_Reference_State;
             viewModel.CreditData.BankReferenceZipCode = retailerInfo.Banc_Reference_Zip;
             // tradereference 1
@@ -190,25 +162,16 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.TradeReference1Address1 = retailerInfo.Trade_Reference1_Address1;
             viewModel.CreditData.TradeReference1Address2 = retailerInfo.Trade_Reference1_Address2;
             viewModel.CreditData.TradeReference1City = retailerInfo.Trade_Reference1_City;
-            //var tradeReference1State = new StatesBoService().GetByAbbreviation(retailerInfo.Trade_Reference1_State);
-            //if (tradeReference1State == null)
-            //    viewModel.CreditData.TradeReference1State = "";
-            //else
-            //    viewModel.CreditData.TradeReference1State = tradeReference1State.Abbreviation;
             viewModel.CreditData.TradeReference1State = retailerInfo.Trade_Reference1_State;
             viewModel.CreditData.TradeReference1ZipCode = retailerInfo.Trade_Reference1_Zip;
-            // tradereference 1
+            // tradereference 2
             viewModel.CreditData.TradeReference2Name = retailerInfo.Trade_Reference2_Name;
             viewModel.CreditData.TradeReference2Phone = retailerInfo.Trade_Reference2_Phone;
             viewModel.CreditData.TradeReference2AccountNumber = "";
             viewModel.CreditData.TradeReference2Address1 = retailerInfo.Trade_Reference2_Address1;
             viewModel.CreditData.TradeReference2Address2 = retailerInfo.Trade_Reference2_Address2;
             viewModel.CreditData.TradeReference2City = retailerInfo.Trade_Reference2_City;
-            //var tradeReference2State = new StatesBoService().GetByAbbreviation(retailerInfo.Trade_Reference2_State);
-            //if (tradeReference2State == null)
-            //    viewModel.CreditData.TradeReference2State = "";
-            //else
-            //    viewModel.CreditData.TradeReference2State = tradeReference2State.Abbreviation;
+           
             viewModel.CreditData.TradeReference2State = retailerInfo.Trade_Reference2_State;
             viewModel.CreditData.TradeReference2ZipCode = retailerInfo.Trade_Reference2_Zip;
         }
@@ -469,7 +432,7 @@ namespace CreditAppBMG.Controllers
                 }
                 if (ModelState.IsValid)
                 {
-                    var templateLocation = Path.Combine(_hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK_2.pdf");
+                    var templateLocation = Path.Combine(_hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
                     var fontPath = Path.Combine(_hostingEnvironment.WebRootPath, $"PdfTemplate/48920384.ttf");
                     var fileName = $"D{model.CreditData.DistributorId}_R{model.CreditData.RetailerId}_Document.pdf";
                     var outputPath = Path.Combine(_hostingEnvironment.WebRootPath, $"Pdfs/{fileName}");
@@ -478,65 +441,55 @@ namespace CreditAppBMG.Controllers
 
                     if (fileGenerated)
                     {
-                        creditDataEntity.Status = "PdfGenerated";
-                        context.Update(creditDataEntity);
-                        context.SaveChanges();
+                        creditDataEntity.Status = CreditAppStatusEnum.SENT_FOR_SIGNATURE.ToString();//"PdfGenerated";
+                        
                         byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
                         AdobeSignWS ws = new AdobeSignWS();
 
-                        // PostTransientDocument
-                        var td = ws.PostTransientDocument(fileBytes, fileName);
-
-                        //string url = @"http://localhost:62378/api/AdobeSign";
-                        //var client = new RestClient(url);
-                        //var request = new RestRequest("PostTransientDocument", Method.POST);
-                        //request.AddHeader("Content-Type", "multipart/form-data");
-                        //request.AddFileBytes("file", fileBytes, fileName);
-                        //request.AddParameter("fileName", fileName);
-                        
-                        //IRestResponse<TransientDocument> result = client.Execute<TransientDocument>(request);
-
-                        // create agreement
-                        var agreement = ws.CreateAgreement(td.transientDocumentId, "agreementName",
-                            model.CreditData.PrincipalEmail);
-
-                        var signingUrls = ws.GetAgreementSigningUrl(agreement.Id);
-                        //var newAgreementRequest = new RestRequest("CreateAgreement", Method.POST);
-                        //var agreementRequest = new AgreementMinimalRequest 
+                        //// PostTransientDocument
+                        //var td = ws.PostTransientDocument(fileBytes, fileName);
+                        //string redirectUrl = String.Empty;
+                        //// create agreement
+                        //if (model.CreditData.Id != null)
                         //{
-                        //    fileInfos = new List<FileInfo>
-                        //    {
-                        //        new FileInfo
-                        //        {
-                        //            transientDocumentId = result.Data.transientDocumentId
-                        //        }
-                        //    },
-                        //    name = "MyTestAgreement",
-                        //    participantSetsInfo = new List<ParticipantInfo>
-                        //    {
-                        //        new ParticipantInfo
-                        //        {
-                        //            memberInfos = new List<MemberInfo>
-                        //            {
-                        //                new MemberInfo
-                        //                {
-                        //                    email = "liviu.damaschin@gmail.com"
-                        //                }
-                        //            },
-                        //            order = 1,
-                        //            role = "SIGNER"
-                        //        }
-                        //    },
-                        //    signatureType = "ESIGN",
-                        //    state = "IN_PROCESS"
-                        //};
-                      
-                        //newAgreementRequest.RequestFormat = DataFormat.Json;
-                        //newAgreementRequest.AddJsonBody(agreementRequest);
+                        //    var agreement = ws.CreateAgreement(td.TransientDocumentId, "agreementName",
+                        //        model.CreditData.PrincipalEmail, model.CreditData.Id.Value);
+                        //    creditDataEntity.AdobeSignAgreementId = agreement.Id;
 
-                        //IRestResponse<AgreementCreationResponse> agreementResponse = client.Execute<AgreementCreationResponse>(newAgreementRequest);
-                       
+                        //    var agreementStr = ws.GetAgreement(agreement.Id);
+                        //    // put signing position
+                        //    //var aa = ws.AgreementSigningPosition(agreement.Id, 36, 75, 200, 150);
+                        //    // update status to state = "IN_PROCESS"
 
+                        //    SigningUrlResponse signingUrls = new SigningUrlResponse() ;
+                        //    int retries = 3;
+                        //    int i = 1;
+                        //    while (signingUrls.SigningUrlSetInfos==null && i <= retries)
+                        //    {
+                        //        signingUrls = ws.GetAgreementSigningUrl(agreement.Id);
+                        //        if (signingUrls.SigningUrlSetInfos == null)
+                        //            Thread.Sleep(1000);
+                        //    }
+                        //    //var signingUrls = ws.GetAgreementSigningUrl(agreement.Id);
+                        //    if (signingUrls.SigningUrlSetInfos != null)
+                        //    {
+                        //        redirectUrl = signingUrls.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
+                        //        creditDataEntity.SigningUrl = signingUrls.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
+                        //    }
+                        //}
+
+                        var resp = ws.SendDocumentForSignature(fileBytes, fileName, creditDataEntity.Id.Value,
+                            model.CreditData.PrincipalEmail);
+                        if (resp != null && !string.IsNullOrWhiteSpace(resp.agreementId))
+                        {
+                            creditDataEntity.AdobeSignAgreementId = resp.agreementId;
+                            creditDataEntity.SigningUrl = resp.signingUrl;
+                            context.Update(creditDataEntity);
+                            context.SaveChanges();
+                            return Redirect(resp.signingUrl);
+                        }
+
+                        model.StatesListItems = GetStatesListItems();
                         return View("Index", model);
                     }
                 }
@@ -925,7 +878,7 @@ namespace CreditAppBMG.Controllers
                             if (creditDataEntity == null)
                             {
                                 FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-
+                                creditDataEntity.Status= CreditAppStatusEnum.CREATED.ToString();
                             }
                         }
 

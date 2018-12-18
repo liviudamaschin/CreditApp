@@ -2,6 +2,6 @@
 {
     public class TransientDocument
     {
-        public string transientDocumentId { get; set; }
+        public string TransientDocumentId { get; set; }
     }
 }

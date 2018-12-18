@@ -1,12 +1,10 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using CreditAppBMG.ViewModels;
 using Microsoft.Extensions.Configuration;
 
 namespace CreditAppBMG.Entities
 {
-    public partial class CreditAppContext : DbContext
+    public class CreditAppContext : DbContext
     {
 
         public CreditAppContext()
@@ -26,7 +24,10 @@ namespace CreditAppBMG.Entities
         public DbSet<ZipCodesEntity> ZipCodes { get; set; }
         public DbSet<ZipCodesUSEntity> USZipCodes { get; set; }
         public DbSet<DistributorEntity> Distributors { get; set; }
+        public DbSet<ApplicationConfigurationEntity> ApplicationConfigurations { get; set; }
+        public DbSet<AdobeSignLogEntity> AdobeSignLogs { get; set; }
         
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

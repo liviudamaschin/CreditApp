@@ -48,8 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Images\" />
-    <Folder Include="Controllers\" />
-    <Folder Include="Enums\" />
     <Folder Include="PdfTemplate\" />
     <Folder Include="wwwroot\images\Logos\" />
     <Folder Include="wwwroot\PDFs\" />

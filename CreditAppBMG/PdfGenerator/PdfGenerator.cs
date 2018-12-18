@@ -70,6 +70,12 @@ namespace CreditAppBMG.Pdf
                     image.SetAbsolutePosition(20, 730);
                     contentByte.AddImage(image);
 
+                   
+                    //appearance.setReason(reason);
+                    //appearance.setLocation(location);
+                    //appearance.setVisibleSignature(new Rectangle(36, 748, 144, 780), 1, "sig");
+
+
                     CreateBiggerTexBox("DistributorName", 88, 770, 300, obj.Distributor.DistributorName, contentByte);
                     CreateSmallerTexBox("DistributorAddress", 88, 760, 800, obj.Distributor.DistributorAddress, contentByte);
                     CreateSmallerTexBox("DistributorAddress2", 88, 752, 800,  obj.Distributor.DistributorCity + ", " + obj.Distributor.DistributorState + ", " + obj.Distributor.DistributorZip, contentByte);
@@ -200,7 +206,24 @@ namespace CreditAppBMG.Pdf
 
                 }
             }
+            ////signature
+            ////stamper.SignatureAppearance.SetVisibleSignature(new Rectangle(36, 748, 144, 780), 1, "sig");
+            //var reader2 = new PdfReader(outputFile);
 
+            //FileInfo fi = new FileInfo(outputFile);
+            
+            //var fileStream2 = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
+                
+            //        PdfStamper signature = PdfStamper.CreateSignature(reader2, fileStream2, '\0');
+            //        PdfSignatureAppearance sap = signature.SignatureAppearance;
+
+            //        sap.Reason = "Reason";
+            //        sap.Contact = "Contact";
+            //        sap.Location = "Location";
+            //        sap.SetVisibleSignature(new iTextSharp.text.Rectangle(100, 100, 250, 150), 1, null);
+            //        //sap.Close();
+            //        //signature.Close();
+      
             //var path = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", filename);
             return true;
         }
