@@ -1,21 +1,21 @@
 ﻿@model CreditAppBMG.ViewModels.CreditAppModel
 @*<form asp-controller="Home" asp-action="GeneratePDF" id="frmCreditApp" method="POST" enctype="multipart/form-data" data-ajax="true" role="form">*@
-<form asp-controller="Home" asp-action="GeneratePdf" enctype="multipart/form-data" id="frmCreditApp" method="post" class="form-label-left" role="form" autocomplete="nope">
+<form asp-controller="Home" asp-action="GeneratePdf" enctype="multipart/form-data" id="frmCreditApp" method="post" class="form-label-left" role="form" autocomplete="false">
     <div class="main-module">
         <div class="header-top-spacer"></div>
 
-    <div class="header-logo-color" >
+        <div class="header-logo-color">
             <img src="~/images/header-object.png" style="max-height: 122px; position:absolute" />
             <img src="@Model.Distributor.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px" />
             <label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.Distributor.DistributorName</label>
 
         </div>
 
-    <div class="header-bottom-spacer middle" align="center">
-        <label class="middle" style="font-size:1.5em">CREDIT APPLICATION FORM</label>
-            
-        
-    </div>
+        <div class="header-bottom-spacer middle" align="center">
+            <label class="middle" style="font-size:1.5em">CREDIT APPLICATION FORM</label>
+
+
+        </div>
         <div class="module-body">
             <!-- form content-->
             <div class="row">
@@ -662,7 +662,7 @@
                                        asp-route-creditdataid="@Model.CreditDataFiles.CreditDataId"
                                        asp-route-filetype="LicenseFile">
                                         @*onclick="window.open(document.URL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');">*@
-                                        @Html.ActionLink(@Model.CreditDataFiles.LicenseFileMessage, "DownloadFile", new { creditdataid = @Model.CreditDataFiles.CreditDataId,  filetype="LicenseFile"}, new { target = "_blank" })
+                                        @Html.ActionLink(@Model.CreditDataFiles.LicenseFileMessage, "DownloadFile", new { creditdataid = @Model.CreditDataFiles.CreditDataId, filetype = "LicenseFile" }, new { target = "_blank" })
                                         @*@Html.DisplayTextFor(x => x.CreditDataFiles.LicenseFileMessage)*@
                                     </a>
                                 </div>
@@ -719,9 +719,12 @@
     </div>
     @*@Html.HiddenFor(m => m.DistributorName, new { @id = "_mDistributorName" })*@
     @Html.HiddenFor(m => m.CreditData.DistributorId)
+    @Html.HiddenFor(m => m.CreditData.SigningUrl)
+    @Html.HiddenFor(m => m.CreditData.Status)
     @Html.HiddenFor(m => m.CreditData.RetailerId)
     @Html.HiddenFor(m => m.CreditData.Token)
     @Html.HiddenFor(m => m.CreditData.Id)
+
 
     @Html.HiddenFor(m => m.LocalLogo)
 
@@ -742,14 +745,25 @@
     @Html.HiddenFor(m => m.Distributor.DistributorPhone)
     @Html.HiddenFor(m => m.Distributor.DistributorWebSiteURL)
     @Html.HiddenFor(m => m.Distributor.DistributorLogoURL)
-    
+
+    <div class="submit-progress hidden">
+
+        <label>Please wait while Saving Data...</label>
+
+    </div>
 
 </form>
-
+<div id="WaitDialog"   class="hidden" style="text-align: center">
+    <img  src="~/images/ajax-loader.gif" />
+    <div style="margin-top: 10px; color: white">
+        <b>Please wait</b>
+    </div>
+</div>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+<script src="~/js/jquery.blockUI.js"></script>
 <script type="text/javascript">
 
+   
     function bs_input_file() {
         $(".input-file").before(
             function () {
@@ -790,6 +804,38 @@
     }
 
     $(document).ready(function () {
+        $('#GeneratePDF').click(function() {
+            $('#GeneratePDF').attr("disabled", true);
+            $.blockUI({ overlayCSS: { backgroundColor: '#00f' } }); 
+            $('#frmCreditApp').submit();
+
+            //$.blockUI({ overlayCSS: { backgroundColor: '#00f' } });
+
+            //setTimeout($.unblockUI, 2000); 
+        });
+
+        //$('#GeneratePDF').click(function() { 
+        //    $.blockUI({ overlayCSS: { backgroundColor: '#00f' } }); 
+ 
+        //    //setTimeout($.unblockUI, 2000); 
+        //});
+
+        //$('#frmCreditApp').submit(function() {
+        //    $.blockUI({ overlayCSS: { backgroundColor: '#00f' } });
+        //});
+        // Hide the "busy" Gif at load:
+        //$("#divProcessing").dialog('open');
+
+        // Attach click handler to the submit button:
+        //$('#GeneratePDF').click(function () {
+        //    skm_LockScreen("Please wait..."); 
+        //    $('#frmCreditApp').submit(function() {
+        //        $(".submit-progress").hide();
+        //    });
+        //});
+
+       
+
         $(".input-validation-error:first").focus();
         // animated top scrolling
         $('body, html').animate({ scrollTop: $(".input-validation-error:first :input").offset.top});
@@ -805,6 +851,7 @@
         });
     });
     $(function () {
+
         $.fn.datepicker.noConflict;
         bs_input_file();
 
@@ -833,7 +880,7 @@
 
 
         $('#CreditData_BusinessName2').change(function () {
-           //Content to send
+            //Content to send
             var yourText = $(this).val();
             var jsonModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
             $.ajax({
@@ -878,7 +925,7 @@
         });
 
         $('#DistributorState').change(function () {
-           //Content to send
+            //Content to send
             var formData = $(this).serialize();
             //Post the content of your Textbox to your "YourAction" action in "YourController"
             @*$.post('@Url.Action("UpdateAction", "Home")', { "model": formData},function (data) {

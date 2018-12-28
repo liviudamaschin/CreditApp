@@ -19,6 +19,8 @@ namespace CreditAppBMG.ViewModels
 
         public IEnumerable<States> States { get; set; }
 
+        //public string SigningUrl { get; set; }
+
         // keep track of downloaded logo:
         public string LocalLogo { get; set; }
 

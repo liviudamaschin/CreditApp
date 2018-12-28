@@ -17,7 +17,7 @@ namespace CreditAppBMG.Controllers
     {
         private readonly CreditAppRepository repository = new CreditAppRepository();
 
-        [HttpPost("UpdateCreditApplicationStatus")]
+        [HttpPost("DocEvents")]
         public Task<bool> UpdateCreditApplicationStatus([FromBody]WebHookInfo webHookInfo)
         {
             using (var context = new CreditAppContext())

@@ -13,7 +13,7 @@ namespace CreditAppBMG.Entities
 
         public string GetKeyValue(string key)
         {
-            return this._context.ApplicationConfigurations.SingleOrDefault(x => x.ConfigKey == key).ConfigValue;
+            return this._context.ApplicationConfigurations.SingleOrDefault(x => x.ConfigKey == key && x.IsActive).ConfigValue;
         }
 
         public void AddAdobeSignLog(string action, string request, string response)

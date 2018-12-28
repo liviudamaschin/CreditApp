@@ -296,6 +296,10 @@ namespace CreditAppBMG.ViewModels
         [Display(Name = "Zip:")]
         public string TradeReference2ZipCode { get; set; }
 
+        public string SigningUrl { get; set; }
+
+        public string Status { get; set; }
+
         public Dictionary<string, string> CompanyTypes = new Dictionary<string, string> {
             { "MX", "Limited liability company" },
             { "CA", "S Corporation" },

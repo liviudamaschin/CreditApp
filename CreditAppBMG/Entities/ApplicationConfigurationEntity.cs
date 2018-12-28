@@ -12,6 +12,6 @@ namespace CreditAppBMG.Entities
 
         [Required] public string ConfigValue { get; set; }
 
-
+        public bool IsActive { get; set; }
     }
 }

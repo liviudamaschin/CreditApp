@@ -41,7 +41,16 @@ namespace CreditAppBMG.Controllers
 
             var viewModel = GetInitialValues(token);
 
-            return View(viewModel);
+            if (!string.IsNullOrWhiteSpace(viewModel.CreditData.SigningUrl))
+            {
+                return Redirect(viewModel.CreditData.SigningUrl);
+            }
+            else
+            {
+                return View(viewModel);
+            }
+
+            
         }
 
         private void FillDistributorFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo)
@@ -335,6 +344,7 @@ namespace CreditAppBMG.Controllers
             // to force updating the view with current viewModel values
             // we need to preserve the error messages, clear modelState and the add the errors back.
             Dictionary<string, string> previousErrors = new Dictionary<string, string>();
+
             foreach (KeyValuePair<string, ModelStateEntry> modelStateItem in ModelState)
             {
                 if (modelStateItem.Value.Errors.Any())
@@ -357,6 +367,7 @@ namespace CreditAppBMG.Controllers
                 }
                 else
                 {
+                    //creditDataEntity.Status = CreditAppStatusEnum.CREATED.ToString();
                     context.Add(creditDataEntity);
                 }
 
@@ -878,8 +889,14 @@ namespace CreditAppBMG.Controllers
                             if (creditDataEntity == null)
                             {
                                 FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-                                creditDataEntity.Status= CreditAppStatusEnum.CREATED.ToString();
+                                viewModel.CreditData.Status= CreditAppStatusEnum.CREATED.ToString();
+                                //creditDataEntity.Status= CreditAppStatusEnum.CREATED.ToString();
                             }
+
+                            //if (!string.IsNullOrWhiteSpace(creditDataEntity.SigningUrl))
+                            //{
+                            //    return Redirect(creditDataEntity.SigningUrl);
+                            //}
                         }
 
                         FillDistributorFromRetailerInfo(viewModel, retailerInfo);
