@@ -41,9 +41,30 @@ namespace CreditAppBMG.Controllers
 
             var viewModel = GetInitialValues(token);
 
+
             if (!string.IsNullOrWhiteSpace(viewModel.CreditData.SigningUrl))
             {
                 return Redirect(viewModel.CreditData.SigningUrl);
+            }
+            else if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
+            {
+                AdobeSignWS ws = new AdobeSignWS();
+                var signingUrlResp = ws.GetAgreementSigningUrl(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
+                if (signingUrlResp?.SigningUrlSetInfos != null)
+                {
+                    // update the signing url
+                    using (var context = new CreditAppContext())
+                    {
+                        var creditDataEntity =
+                            context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
+                        creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
+                        context.Update(creditDataEntity);
+                        context.SaveChanges();
+                    }
+                    return Redirect(signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl);
+                }
+                else
+                    return View("NotAvailableView", viewModel.Distributor);
             }
             else
             {
@@ -457,38 +478,7 @@ namespace CreditAppBMG.Controllers
                         byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
                         AdobeSignWS ws = new AdobeSignWS();
 
-                        //// PostTransientDocument
-                        //var td = ws.PostTransientDocument(fileBytes, fileName);
-                        //string redirectUrl = String.Empty;
-                        //// create agreement
-                        //if (model.CreditData.Id != null)
-                        //{
-                        //    var agreement = ws.CreateAgreement(td.TransientDocumentId, "agreementName",
-                        //        model.CreditData.PrincipalEmail, model.CreditData.Id.Value);
-                        //    creditDataEntity.AdobeSignAgreementId = agreement.Id;
-
-                        //    var agreementStr = ws.GetAgreement(agreement.Id);
-                        //    // put signing position
-                        //    //var aa = ws.AgreementSigningPosition(agreement.Id, 36, 75, 200, 150);
-                        //    // update status to state = "IN_PROCESS"
-
-                        //    SigningUrlResponse signingUrls = new SigningUrlResponse() ;
-                        //    int retries = 3;
-                        //    int i = 1;
-                        //    while (signingUrls.SigningUrlSetInfos==null && i <= retries)
-                        //    {
-                        //        signingUrls = ws.GetAgreementSigningUrl(agreement.Id);
-                        //        if (signingUrls.SigningUrlSetInfos == null)
-                        //            Thread.Sleep(1000);
-                        //    }
-                        //    //var signingUrls = ws.GetAgreementSigningUrl(agreement.Id);
-                        //    if (signingUrls.SigningUrlSetInfos != null)
-                        //    {
-                        //        redirectUrl = signingUrls.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
-                        //        creditDataEntity.SigningUrl = signingUrls.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
-                        //    }
-                        //}
-
+                    
                         var resp = ws.SendDocumentForSignature(fileBytes, fileName, creditDataEntity.Id.Value,
                             model.CreditData.PrincipalEmail);
                         if (resp != null && !string.IsNullOrWhiteSpace(resp.agreementId))
@@ -497,11 +487,13 @@ namespace CreditAppBMG.Controllers
                             creditDataEntity.SigningUrl = resp.signingUrl;
                             context.Update(creditDataEntity);
                             context.SaveChanges();
-                            return Redirect(resp.signingUrl);
+                            if (!string.IsNullOrWhiteSpace(resp.signingUrl))
+                                return Redirect(resp.signingUrl);
                         }
 
-                        model.StatesListItems = GetStatesListItems();
-                        return View("Index", model);
+                        return View("NotAvailableView",model.Distributor);
+                        //model.StatesListItems = GetStatesListItems();
+                        //return View("Index", model);
                     }
                 }
             }

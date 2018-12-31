@@ -116,22 +116,22 @@
     position: fixed;
     top: 50%;
     left: 50%;
-    height: 6em;
-    padding-top: 2.3em;
-    /* The following rules are the ones most likely to change */
-    width: 20em;
-    /* Set 'margin-left' to a negative number
-     that is 1/2 of 'width' */
-    margin-left: -10em;
+    height: 5em;
+    width: 40em;
+    /* Set 'margin-left' and 'margin-top' to a negative number
+     that is 1/2 of 'width' ; 1/2 of height */
+    margin-top: -2.5em;
+    padding-top: 2em;
+    margin-left: -20em;
     padding-left: 2.1em;
     background-color: black;
     color: white;
- }
+}
 .submit-progress-bg {
 
     background-color: lightgray;
 
-    opacity: .5;
+    opacity: 0.5;
 
 }
 #loading-overlay {

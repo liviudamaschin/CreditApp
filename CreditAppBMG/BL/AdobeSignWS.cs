@@ -99,14 +99,15 @@ namespace CreditAppBMG.BL
             return agreementResponse.Data;
         }
 
-        public SigningUrlResponse GetAgreementSigningUrl(string agreementId)
+        public SigningUrlResponse GetAgreementSigningUrl(string agreementId, int creditDataId)
         {
             var request = new RestRequest("GetAgreementSigningUrl", Method.GET);
             request.AddQueryParameter("agreementId", agreementId);
+            request.AddQueryParameter("creditDataId", creditDataId.ToString());
             IRestResponse<SigningUrlResponse> result = client.Execute<SigningUrlResponse>(request);
 
             //log
-            repository.AddAdobeSignLog("GetAgreementSigningUrl", request.Parameters.ToJson(), result.Data.ToJson());
+            //repository.AddAdobeSignLog("GetAgreementSigningUrl", request.Parameters.ToJson(), result.Data.ToJson());
 
             return result.Data;
         }

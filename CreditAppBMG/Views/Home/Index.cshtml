@@ -724,6 +724,8 @@
     @Html.HiddenFor(m => m.CreditData.RetailerId)
     @Html.HiddenFor(m => m.CreditData.Token)
     @Html.HiddenFor(m => m.CreditData.Id)
+    @Html.HiddenFor(m => m.CreditData.AdobeSignAgreementId)
+    
 
 
     @Html.HiddenFor(m => m.LocalLogo)
@@ -748,22 +750,24 @@
 
     <div class="submit-progress hidden">
 
-        <label>Please wait while Saving Data...</label>
+        <label>Contacting AdobeSign for accessing the document for signature. Please wait...</label>
 
     </div>
 
 </form>
-<div id="WaitDialog"   class="hidden" style="text-align: center">
-    <img  src="~/images/ajax-loader.gif" />
-    <div style="margin-top: 10px; color: white">
-        <b>Please wait</b>
-    </div>
-</div>
+
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="~/js/jquery.blockUI.js"></script>
 <script type="text/javascript">
 
-   
+    function DisplayProgressMessage() {
+        //$(ctl).prop("disabled", true);
+        //$(ctl).text(msg);
+
+        $(".submit-progress").removeClass("hidden");
+
+        $("body").addClass("submit-progress-bg");
+        return true;
+    };
     function bs_input_file() {
         $(".input-file").before(
             function () {
@@ -806,18 +810,16 @@
     $(document).ready(function () {
         $('#GeneratePDF').click(function() {
             $('#GeneratePDF').attr("disabled", true);
-            $.blockUI({ overlayCSS: { backgroundColor: '#00f' } }); 
+            DisplayProgressMessage();
+           
             $('#frmCreditApp').submit();
 
-            //$.blockUI({ overlayCSS: { backgroundColor: '#00f' } });
-
-            //setTimeout($.unblockUI, 2000); 
         });
 
-        //$('#GeneratePDF').click(function() { 
-        //    $.blockUI({ overlayCSS: { backgroundColor: '#00f' } }); 
- 
-        //    //setTimeout($.unblockUI, 2000); 
+        //$('#GeneratePDF').click(function() {
+        //    $.blockUI({ overlayCSS: { backgroundColor: '#00f' } });
+
+        //    //setTimeout($.unblockUI, 2000);
         //});
 
         //$('#frmCreditApp').submit(function() {
@@ -828,13 +830,13 @@
 
         // Attach click handler to the submit button:
         //$('#GeneratePDF').click(function () {
-        //    skm_LockScreen("Please wait..."); 
+        //    skm_LockScreen("Please wait...");
         //    $('#frmCreditApp').submit(function() {
         //        $(".submit-progress").hide();
         //    });
         //});
 
-       
+
 
         $(".input-validation-error:first").focus();
         // animated top scrolling
