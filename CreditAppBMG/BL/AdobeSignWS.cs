@@ -6,6 +6,7 @@ using CreditAppBMG.Extensions;
 using CreditAppBMG.Models.Requests;
 using CreditAppBMG.Models.Responses;
 using RestSharp;
+using System.Net;
 
 namespace CreditAppBMG.BL
 {
@@ -48,6 +49,8 @@ namespace CreditAppBMG.BL
             request.AddQueryParameter("fileName", fileName);
             request.AddQueryParameter("creditDataId", creditDataId.ToString());
             request.AddQueryParameter("recipientEmail", recipientEmail);
+            request.AddQueryParameter("agreementName", $"DCA{creditDataId}");
+            
             IRestResponse<SigningDocumentResponse> result = client.Execute<SigningDocumentResponse>(request);
             //log
             //repository.AddAdobeSignLog("PostTransientDocument", fileName, result.Data.ToJson());
@@ -112,16 +115,16 @@ namespace CreditAppBMG.BL
             return result.Data;
         }
 
-        public string GetAgreement(string agreementId)
+        public AgreementResponse GetAgreement(string agreementId, int creditDataId)
         {
             var request = new RestRequest("GetAgreement", Method.GET);
             request.AddQueryParameter("agreementId", agreementId);
-            var result = client.Execute(request);
-
+            //var result = client.Execute(request);
+            IRestResponse<AgreementResponse> result = client.Execute<AgreementResponse>(request);
             //log
             repository.AddAdobeSignLog("GetAgreement", request.Parameters.ToJson(), result.Content.ToJson());
 
-            return result.Content;
+            return result.Data;
         }
 
         public SigningUrlResponse AgreementSigningPosition(string agreementId, float height, float left, float top, float width)
@@ -134,6 +137,24 @@ namespace CreditAppBMG.BL
             request.AddQueryParameter("width", width.ToString());
             IRestResponse<SigningUrlResponse> result = client.Execute<SigningUrlResponse>(request);
             return result.Data;
+        }
+
+        public byte[] GetAgreementDocumentUrl(string agreementId, int creditDataId)
+        {
+
+            var request = new RestRequest("GetAgreementDocumentUrl", Method.POST);
+
+            request.AddQueryParameter("agreementId", agreementId);
+            request.AddQueryParameter("creditDataId", creditDataId.ToString());
+            //var result = client.Execute(request);
+            IRestResponse<DocumentUrlResponse> result = client.Execute<DocumentUrlResponse>(request);
+
+            var pdfUrl = result.Data;
+
+            WebClient wc = new WebClient();
+            byte[] fileContent = wc.DownloadData(pdfUrl.url);
+
+            return fileContent;
         }
     }
 }

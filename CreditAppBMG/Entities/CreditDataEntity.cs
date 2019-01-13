@@ -24,8 +24,8 @@ namespace CreditAppBMG.Entities
         [MaxLength(50)]
         public string LicenseNumber { get; set; }
         public DateTime? LicenseExpirationDate { get; set; }
-        [MaxLength(50)]
-        public string Ein { get; set; }
+        //[MaxLength(50)]
+        //public string Ein { get; set; }
         [MaxLength(50)]
         public string NystateTaxId { get; set; }
         public string DeliveryTime { get; set; }
@@ -40,7 +40,7 @@ namespace CreditAppBMG.Entities
         public string PrincipalTitle { get; set; }
         public string PrincipalEmail { get; set; }
         public string PrincipalPhone { get; set; }
-        public string PrincipalSsn { get; set; }
+        //public string PrincipalSsn { get; set; }
         public string PrincipalAddress1 { get; set; }
         public string PrincipalAddress2 { get; set; }
         public string PrincipalCity { get; set; }

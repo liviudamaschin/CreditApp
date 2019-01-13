@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CreditAppBMG.Entities;
+using CreditAppBMG.Helper;
 using CreditAppBMG.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -20,10 +21,14 @@ namespace CreditAppBMG
         {
             CreateMap<CreditDataEntity, CreditData>()
                 .ForMember(x => x.CompanyTypeName, opt => opt.Ignore())
+                .ForMember(x=>x.BankReferenceAccountNumber, opt=>opt.MapFrom(src => StringChrypt.Decrypt(src.BankReferenceAccountNumber)))
+                .ForMember(x => x.BankReferenceRoutingNumber, opt => opt.MapFrom(src => StringChrypt.Decrypt(src.BankReferenceRoutingNumber)))
                 .ForSourceMember(x => x.CreditDataFiles, opt => opt.Ignore());
 
             CreateMap<CreditData, CreditDataEntity>()
                 .ForSourceMember(x => x.CompanyTypeName, opt => opt.Ignore())
+                .ForMember(x => x.BankReferenceAccountNumber, opt => opt.MapFrom(src => StringChrypt.Encrypt(src.BankReferenceAccountNumber)))
+                .ForMember(x => x.BankReferenceRoutingNumber, opt => opt.MapFrom(src => StringChrypt.Encrypt(src.BankReferenceRoutingNumber)))
                 .ForMember(x => x.CreditDataFiles, opt => opt.Ignore());
 
             CreateMap<CreditDataFilesEntity, CreditDataFiles>()

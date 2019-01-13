@@ -4,14 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
 using CreditAppBMG.BL;
 using CreditAppBMG.Entities;
 using CreditAppBMG.Enums;
 using CreditAppBMG.Models;
-using CreditAppBMG.Models.Responses;
 using CreditAppBMG.Pdf;
 using CreditAppBMG.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -29,6 +26,9 @@ namespace CreditAppBMG.Controllers
     {
         private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IMapper _mapper;
+        private readonly CreditAppRepository repository = new CreditAppRepository();
+        private readonly string verifyTokenKey = "BMGVerifyTokenUrl";
+        private readonly string retailerInfoUrl = "BMGGetRetailerInfoUrl";
 
         public HomeController(IMapper mapper, IHostingEnvironment hostingEnvironment)
         {
@@ -38,17 +38,39 @@ namespace CreditAppBMG.Controllers
        
         public IActionResult Index(string token)
         {
-
+            AdobeSignWS ws = new AdobeSignWS();
             var viewModel = GetInitialValues(token);
 
-
+            // if an agreement was created check agreement status
+            if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
+            {
+                var agreementResponse = ws.GetAgreement(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
+                //if agreement is signed then show the signed document
+                // and update the creditData status
+                if (agreementResponse.status == CreditAppStatusEnum.SIGNED.ToString())
+                {
+                    using (var context = new CreditAppContext())
+                    {
+                        var creditDataEntity = context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
+                        //creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
+                        creditDataEntity.Status = CreditAppStatusEnum.SIGNED.ToString();
+                        context.Update(creditDataEntity);
+                        context.SaveChanges();
+                    }
+                    // display message “This application has been signed already!”
+                    //todo: show Application signed view
+                    return this.ShowSignedDocument(viewModel.CreditData.Id.Value, viewModel.CreditData.AdobeSignAgreementId);
+                }
+            }
+                
+   
             if (!string.IsNullOrWhiteSpace(viewModel.CreditData.SigningUrl))
             {
                 return Redirect(viewModel.CreditData.SigningUrl);
             }
             else if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
             {
-                AdobeSignWS ws = new AdobeSignWS();
+               
                 var signingUrlResp = ws.GetAgreementSigningUrl(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
                 if (signingUrlResp?.SigningUrlSetInfos != null)
                 {
@@ -66,12 +88,8 @@ namespace CreditAppBMG.Controllers
                 else
                     return View("NotAvailableView", viewModel.Distributor);
             }
-            else
-            {
-                return View(viewModel);
-            }
-
-            
+          
+            return View(viewModel);
         }
 
         private void FillDistributorFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo)
@@ -473,23 +491,25 @@ namespace CreditAppBMG.Controllers
 
                     if (fileGenerated)
                     {
-                        creditDataEntity.Status = CreditAppStatusEnum.SENT_FOR_SIGNATURE.ToString();//"PdfGenerated";
+                        creditDataEntity.Status = CreditAppStatusEnum.CREATED.ToString();
                         
                         byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
+                        
                         AdobeSignWS ws = new AdobeSignWS();
+                        System.IO.File.Delete(outputPath);
 
-                    
                         var resp = ws.SendDocumentForSignature(fileBytes, fileName, creditDataEntity.Id.Value,
                             model.CreditData.PrincipalEmail);
-                        if (resp != null && !string.IsNullOrWhiteSpace(resp.agreementId))
+                        if (resp != null && !string.IsNullOrWhiteSpace(resp.agreementId) && !string.IsNullOrWhiteSpace(resp.signingUrl))
                         {
                             creditDataEntity.AdobeSignAgreementId = resp.agreementId;
                             creditDataEntity.SigningUrl = resp.signingUrl;
+                            creditDataEntity.Status = CreditAppStatusEnum.SENT_FOR_SIGNATURE.ToString();//"PdfGenerated";
                             context.Update(creditDataEntity);
                             context.SaveChanges();
-                            if (!string.IsNullOrWhiteSpace(resp.signingUrl))
-                                return Redirect(resp.signingUrl);
+                            return Redirect(resp.signingUrl);
                         }
+                        
 
                         return View("NotAvailableView",model.Distributor);
                         //model.StatesListItems = GetStatesListItems();
@@ -520,8 +540,8 @@ namespace CreditAppBMG.Controllers
             TokenInfo tokenInfo = default(TokenInfo);
             errorMessage = "";
 
-            //string url = WebConfigurationManager.AppSettings["verifyToken"].ToString();
-            string url = @"https://webservice.bevmedia.com/BMGOrderWebService/api/verifyToken";
+            string url = repository.GetKeyValue(verifyTokenKey);
+            //string url = @"https://webservice.bevmedia.com/BMGOrderWebService/api/verifyToken";
             var client = new RestClient(url);
             var request = new RestRequest(Method.POST);
             request.AddHeader("Token", token);
@@ -541,8 +561,8 @@ namespace CreditAppBMG.Controllers
         {
             RetailerInfo retailerInfo = default(RetailerInfo);
             errorMessage = "";
-            //string url = WebConfigurationManager.AppSettings["getRetailerInfo"];
-            string url = @"https://webservice.bevmedia.com/BMGOrderWebService/api/getRetailerInfo";
+            string url = repository.GetKeyValue(retailerInfoUrl);
+            //string url = @"https://webservice.bevmedia.com/BMGOrderWebService/api/getRetailerInfo";
             var client = new RestClient(url);
             var request = new RestRequest(Method.POST);
             request.AddHeader("TokenValue", tokenInfo.Token);
@@ -799,26 +819,6 @@ namespace CreditAppBMG.Controllers
         {
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GeneratePDF2(IFormFile file)
-        {
-            // full path to file in temp location
-            var filePath = Path.GetTempFileName();
-
-            if (file.Length > 0)
-            {
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-            }
-
-            // process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-
-            return Ok();
-        }
-
         private CreditAppModel GetInitialValues(string token)
         {
             CreditAppModel viewModel = new CreditAppModel();
@@ -844,6 +844,7 @@ namespace CreditAppBMG.Controllers
                     {
                         using (var context = new CreditAppContext())
                         {
+
                             var creditDataEntity = context.CreditData.SingleOrDefault(x =>
                                 x.RetailerId == Convert.ToInt32(tokenInfo.UserID) &&
                                 x.DistributorId.ToString() == tokenInfo.DistribuitorID);
@@ -946,6 +947,40 @@ namespace CreditAppBMG.Controllers
             }
             return File(bytes, "application/octet-stream", fileName);
 
+        }
+
+        public ActionResult ShowSignedDocument(int creditDataId, string agreementId)
+        {
+            AdobeSignWS ws = new AdobeSignWS();
+
+            var PDFContent = ws.GetAgreementDocumentUrl(agreementId, creditDataId);
+            //FileStream PDFContent = File.OpenRead(@"d:\MyFile.pdf");
+            //byte[] contents = FetchPdfBytes();
+            Response.Headers.Add("Content-Disposition", "inline; filename=Distributor_Credit_Application.pdf");
+            //Response.Headers.Add("Content-Disposition", "inline;");
+            return File(PDFContent, "application/pdf");
+            //return Ok();
+        }
+
+        public ActionResult ViewPDF(string pdfUrl)
+        {
+            string embed = "<object data=\"{0}\" type=\"application/pdf\" width=\"500px\" height=\"300px\">";
+            embed += "If you are unable to view file, you can download from <a href = \"{0}\">here</a>";
+            embed += " or download <a target = \"_blank\" href = \"http://get.adobe.com/reader/\">Adobe PDF Reader</a> to view the file.";
+            embed += "</object>";
+            TempData["Embed"] = string.Format(embed, pdfUrl);
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult ViewDocument(string token)
+        {
+            var viewModel = GetInitialValues(token);
+            if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
+            {
+                return this.ShowSignedDocument(viewModel.CreditData.Id.Value, viewModel.CreditData.AdobeSignAgreementId);
+            }
+            return View("ViewAgreementDocument");
         }
     }
 }

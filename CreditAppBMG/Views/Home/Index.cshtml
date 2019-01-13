@@ -725,7 +725,7 @@
     @Html.HiddenFor(m => m.CreditData.Token)
     @Html.HiddenFor(m => m.CreditData.Id)
     @Html.HiddenFor(m => m.CreditData.AdobeSignAgreementId)
-    
+
 
 
     @Html.HiddenFor(m => m.LocalLogo)
@@ -748,11 +748,26 @@
     @Html.HiddenFor(m => m.Distributor.DistributorWebSiteURL)
     @Html.HiddenFor(m => m.Distributor.DistributorLogoURL)
 
-    <div class="submit-progress hidden">
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <label>Contacting AdobeSign for accessing the document for signature. Please wait...</label>
+        </div>
+
+    </div>
+
+
+
+    @*<div class="LockOn">
+    </div>*@
+    @*<div class="submit-progress hidden modal">
 
         <label>Contacting AdobeSign for accessing the document for signature. Please wait...</label>
 
-    </div>
+    </div>*@
 
 </form>
 
@@ -760,12 +775,18 @@
 <script type="text/javascript">
 
     function DisplayProgressMessage() {
-        //$(ctl).prop("disabled", true);
-        //$(ctl).text(msg);
 
-        $(".submit-progress").removeClass("hidden");
+        $("#myModal").css("display", "block");
 
-        $("body").addClass("submit-progress-bg");
+        //$(".submit-progress").removeClass("hidden");
+        //$("body").addClass("submit-progress-bg");
+        return true;
+    };
+
+    function HideProgressMessage() {
+        $("#myModal").css("display", "none");
+        //$(".submit-progress").addClass("hidden");
+        //$("body").removeClass("submit-progress-bg");
         return true;
     };
     function bs_input_file() {
@@ -808,13 +829,21 @@
     }
 
     $(document).ready(function () {
-        $('#GeneratePDF').click(function() {
-            $('#GeneratePDF').attr("disabled", true);
-            DisplayProgressMessage();
-           
+        HideProgressMessage();
+        
+        $('#GeneratePDF').click(function () {
+            if ($('#frmCreditApp').valid()) {
+                $('#GeneratePDF').attr("disabled", true);
+                DisplayProgressMessage();
+            }
             $('#frmCreditApp').submit();
 
         });
+
+
+
+
+
 
         //$('#GeneratePDF').click(function() {
         //    $.blockUI({ overlayCSS: { backgroundColor: '#00f' } });
