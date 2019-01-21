@@ -75,7 +75,7 @@ namespace CreditAppBMG
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}");
             });
 
             var cultureInfo = new CultureInfo("en-US");

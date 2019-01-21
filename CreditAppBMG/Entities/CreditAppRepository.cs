@@ -18,16 +18,15 @@ namespace CreditAppBMG.Entities
 
         public void AddAdobeSignLog(string action, string request, string response)
         {
-            using (var context = new CreditAppContext())
-            {
+            
                 AdobeSignLogEntity entity = new AdobeSignLogEntity();
                 entity.Action = action;
                 entity.Request = request;
                 entity.Response = response;
 
-                context.AdobeSignLogs.Add(entity);
-                context.SaveChanges();
-            }
+                _context.AdobeSignLogs.Add(entity);
+                _context.SaveChanges();
+            
         }
     }
 }

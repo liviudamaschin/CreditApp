@@ -119,12 +119,27 @@ namespace CreditAppBMG.BL
         {
             var request = new RestRequest("GetAgreement", Method.GET);
             request.AddQueryParameter("agreementId", agreementId);
+            request.AddQueryParameter("creditDataId", creditDataId.ToString());
             //var result = client.Execute(request);
             IRestResponse<AgreementResponse> result = client.Execute<AgreementResponse>(request);
             //log
-            repository.AddAdobeSignLog("GetAgreement", request.Parameters.ToJson(), result.Content.ToJson());
+            //repository.AddAdobeSignLog("GetAgreement", request.Parameters.ToJson(), result.Content.ToJson());
 
             return result.Data;
+        }
+
+        public string CancelAgreement(string agreementId, int creditDataId)
+        {
+            var request = new RestRequest("CancelAgreement", Method.PUT);
+            request.AddParameter("agreementId", agreementId, ParameterType.QueryString);
+            request.AddParameter("creditDataId", creditDataId, ParameterType.QueryString);
+
+            //var result = client.Execute(request);
+            IRestResponse<AgreementCancelResponse> result = client.Execute<AgreementCancelResponse>(request);
+            //log
+            //repository.AddAdobeSignLog("GetAgreement", request.Parameters.ToJson(), result.Content.ToJson());
+
+            return result.Data.status;
         }
 
         public SigningUrlResponse AgreementSigningPosition(string agreementId, float height, float left, float top, float width)
@@ -139,7 +154,24 @@ namespace CreditAppBMG.BL
             return result.Data;
         }
 
-        public byte[] GetAgreementDocumentUrl(string agreementId, int creditDataId)
+        public string GetAgreementDocumentUrl(string agreementId, int creditDataId)
+        {
+
+            var request = new RestRequest("GetAgreementDocumentUrl", Method.POST);
+
+            request.AddQueryParameter("agreementId", agreementId);
+            request.AddQueryParameter("creditDataId", creditDataId.ToString());
+            IRestResponse<DocumentUrlResponse> result = client.Execute<DocumentUrlResponse>(request);
+
+            var pdfUrl = result.Data;
+
+            WebClient wc = new WebClient();
+            //byte[] fileContent = wc.DownloadData(pdfUrl.url);
+
+            return pdfUrl.url;
+        }
+
+        public byte[] GetAgreementDocument(string agreementId, int creditDataId)
         {
 
             var request = new RestRequest("GetAgreementDocumentUrl", Method.POST);

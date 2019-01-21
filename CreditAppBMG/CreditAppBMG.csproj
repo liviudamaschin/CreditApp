@@ -6,9 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PdfTemplate\**" />
     <Compile Remove="wwwroot\NewFolder1\**" />
+    <Content Remove="PdfTemplate\**" />
     <Content Remove="wwwroot\NewFolder1\**" />
+    <EmbeddedResource Remove="PdfTemplate\**" />
     <EmbeddedResource Remove="wwwroot\NewFolder1\**" />
+    <None Remove="PdfTemplate\**" />
     <None Remove="wwwroot\NewFolder1\**" />
   </ItemGroup>
 
@@ -52,7 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Images\" />
-    <Folder Include="PdfTemplate\" />
     <Folder Include="wwwroot\images\Logos\" />
     <Folder Include="wwwroot\PDFs\" />
   </ItemGroup>

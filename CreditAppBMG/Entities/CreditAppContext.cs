@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using CreditAppBMG.ViewModels;
 
 namespace CreditAppBMG.Entities
 {
@@ -330,6 +331,8 @@ namespace CreditAppBMG.Entities
             //        .IsUnicode(false);
             //});
         }
+
+        //public DbSet<CreditAppBMG.ViewModels.CreditData> CreditData_1 { get; set; }
 
     }
 }
