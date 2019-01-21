@@ -33,11 +33,18 @@ namespace CreditAppBMG.Controllers
 
             BevMediaService bevMediaService = new BevMediaService(baseUrl);
             TokenInfo tokenInfo= bevMediaService.VerifyToken(token, out var err);
+            RetailerInfo retailer = bevMediaService.GetRetailerInfo(tokenInfo, out var errMsg);
             var creditDataList=_context.CreditData
                 .Where(x => x.DistributorId == tokenInfo.DistribuitorID)
                 .Include(files=>files.CreditDataFiles)
                 .ToList();
-            var creditDataModel = _mapper.Map<List<CreditData>>(creditDataList);
+            var creditDataListModel = _mapper.Map<List<CreditData>>(creditDataList);
+            var distributorViewModel = new DistributorViewModel();
+            distributorViewModel.CreditDataList = creditDataListModel;
+
+            distributorViewModel.Distributor = new Distributor();
+            distributorViewModel.Distributor.DistributorLogoURL = retailer.DistributorLogoURL;
+            distributorViewModel.Distributor.DistributorName = retailer.DistributorName;
 
             //var creditDataFiles = _context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id);
             //if (creditDataFiles != null)
@@ -45,7 +52,7 @@ namespace CreditAppBMG.Controllers
             //    viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
             //}
 
-            return View("DistributorView", creditDataModel);
+            return View("DistributorView", distributorViewModel);
         }
 
         [HttpGet]

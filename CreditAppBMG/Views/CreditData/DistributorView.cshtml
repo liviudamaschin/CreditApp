@@ -1,4 +1,4 @@
-﻿@model List<CreditAppBMG.ViewModels.CreditData>
+﻿@model CreditAppBMG.ViewModels.DistributorViewModel
 @{
     ViewData["Title"] = "DistributorView";
     Layout = "~/Views/Shared/_CreditAppLayout.cshtml";
@@ -12,8 +12,8 @@
 
     <div class="header-logo-color">
         <img src="~/images/header-object.png" style="max-height: 122px; position:absolute" />
-        @*<img src="@Model.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px" />*@
-        @*<label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.DistributorName</label>*@
+        <img src="@Model.Distributor.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px" />
+        <label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.Distributor.DistributorName</label>
 
     </div>
 
@@ -26,24 +26,24 @@
 
 
         @*@(Html.Grid<CreditAppBMG.ViewModels.CreditData>(Model)
-                                                                        .Build(columns =>
-                                                                        {
-                                                                            columns.Add(model => model.Column1);
-                                                                            columns.Add(model => model.BusinessName).Titled("BusinessName");
-                                                                            columns.Add(model => model.PrincipalName).Titled("PrincipalName");
-                                                                            columns.Add(model => model.Status).Titled("status");
+                                                                            .Build(columns =>
+                                                                            {
+                                                                                columns.Add(model => model.Column1);
+                                                                                columns.Add(model => model.BusinessName).Titled("BusinessName");
+                                                                                columns.Add(model => model.PrincipalName).Titled("PrincipalName");
+                                                                                columns.Add(model => model.Status).Titled("status");
 
 
-                                                                    //columns.Add(model => Html.ActionLink("PDF", "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId}));
-                                                                    columns.Add(model => Html.ActionLink("PDF", "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId }));
+                                                                        //columns.Add(model => Html.ActionLink("PDF", "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId}));
+                                                                        columns.Add(model => Html.ActionLink("PDF", "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId }));
 
-                                                                        })
-                                                                        .Empty("No data found")
-                                                                        .Filterable()
-                                                                        .MultiFilterable()
-                                                                        .Sortable()
-                //.Pageable()
-        )*@
+                                                                            })
+                                                                            .Empty("No data found")
+                                                                            .Filterable()
+                                                                            .MultiFilterable()
+                                                                            .Sortable()
+                    //.Pageable()
+            )*@
 
         <table class="table table-bordered table-responsive table-hover">
             <tr>
@@ -59,18 +59,30 @@
                     Status / Comments
                 </th>
             </tr>
-            @foreach (var d in Model)
+            @foreach (var d in Model.CreditDataList)
             {
                 <tr>
-                    <td>@d.BusinessName <br />
-                    @d.Address1<br />
-                    @d.Address2 <br />
-                    @d.City @d.State @d.ZipCode <br />
-                    @d.Phone <br />
-                    @d.PrincipalEmail
-                    
+                    <td>
+                        <b>@d.BusinessName</b> <br />
+                        @d.Address1<br />
+                        @d.Address2 <br />
+                        @d.City @d.State @d.ZipCode <br />
+                        @d.Phone <br />
+                        @d.PrincipalEmail <br><br />
+                        @if (d.CreditFiles.Any())
+                        {
+                            @Html.ActionLink("NYS Liquor License", "DownloadFile", "Home", new { creditDataId = d.Id, fileType = "licensefile" }, null)
+                            <br>
+                            @Html.ActionLink("NYS Sales Tax Certificate", "DownloadFile", "Home", new { creditDataId = d.Id, fileType = "TaxCertificateFile" }, null)
+                        }
                     </td>
-                    <td>@d.Status</td>
+                    <td>
+                        @*@Html.ActionLink(d.Status, "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId })*@
+                        @Html.ActionLink(d.Status, "ShowDocument", "CreditData", new { creditDataId = d.Id, agreementId = d.AdobeSignAgreementId }, new { target = "_self" })
+                        
+                        <br>
+                        @d.LastUpdate
+                    </td>
                     <td>@d.PrincipalEmail</td>
 
                 </tr>
