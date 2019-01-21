@@ -23,6 +23,7 @@ namespace CreditAppBMG
                 .ForMember(x => x.CompanyTypeName, opt => opt.Ignore())
                 .ForMember(x=>x.BankReferenceAccountNumber, opt=>opt.MapFrom(src => StringChrypt.Decrypt(src.BankReferenceAccountNumber)))
                 .ForMember(x => x.BankReferenceRoutingNumber, opt => opt.MapFrom(src => StringChrypt.Decrypt(src.BankReferenceRoutingNumber)))
+                .ForMember(x => x.CreditFiles, opt => opt.MapFrom(src => src.CreditDataFiles))
                 .ForSourceMember(x => x.CreditDataFiles, opt => opt.Ignore());
 
             CreateMap<CreditData, CreditDataEntity>()

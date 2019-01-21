@@ -1,5 +1,4 @@
-﻿using CreditAppBMG.CustomAttributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,7 +6,6 @@ namespace CreditAppBMG.ViewModels
 {
     public class CreditData
     {
-        //[Required(ErrorMessage = "Required field")]
         [Key]
         public int? Id { get; set; }
 
@@ -42,11 +40,12 @@ namespace CreditAppBMG.ViewModels
         [Required(ErrorMessage = "Required field")]
         [DataType(DataType.Date)]
         [Display(Name = "License expiration date:*")]
-        //[DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime LicenseExpirationDate { get; set; }
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "EIN:*")]
+        [StringLength(10, MinimumLength = 10)]
+        [RegularExpression(@"^[1-9]\d?-\d{7}$", ErrorMessage = "Not a valid EIN number")]
         public string EIN { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -63,8 +62,8 @@ namespace CreditAppBMG.ViewModels
         public string CompanyTypeName => this.GetCompanyTypeName(this.CompanyType);
 
         [Required(ErrorMessage = "Required field")]
-        [Phone]
-        [HTMLMaskAttribute("mask", "(999) 999-9999")] //phone format
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         [Display(Name = "Phone:*")]
         public string Phone { get; set; }
 
@@ -102,10 +101,13 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "Phone:*")]
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         public string PrincipalPhone { get; set; }
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "Social security number: *")]
+        [RegularExpression(@"^\d{3}-\d{2}-\d{4}$", ErrorMessage = "Not a valid SSN number")]
         public string PrincipalSSN { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -188,6 +190,8 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "Phone:*")]
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         public string BillingContactPhone { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -215,6 +219,8 @@ namespace CreditAppBMG.ViewModels
 
         [Required(ErrorMessage = "Required field")]
         [Display(Name = "Phone:*")]
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         public string BankReferencePhone { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -252,6 +258,8 @@ namespace CreditAppBMG.ViewModels
         public string TradeReference1Name { get; set; }
 
         [Display(Name = "Phone:")]
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         public string TradeReference1Phone { get; set; }
 
         [Display(Name = "Account number:")]
@@ -276,6 +284,8 @@ namespace CreditAppBMG.ViewModels
         public string TradeReference2Name { get; set; }
 
         [Display(Name = "Phone:")]
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         public string TradeReference2Phone { get; set; }
 
         [Display(Name = "Account number:")]
@@ -301,6 +311,8 @@ namespace CreditAppBMG.ViewModels
         public string AdobeSignAgreementId { get; set; }
 
         public string Status { get; set; }
+
+        public ICollection<CreditDataFiles> CreditFiles { get; set; }
 
         public Dictionary<string, string> CompanyTypes = new Dictionary<string, string> {
             { "MX", "Limited liability company" },

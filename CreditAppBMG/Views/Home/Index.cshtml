@@ -762,12 +762,12 @@
 
 
     @*<div class="LockOn">
-    </div>*@
+        </div>*@
     @*<div class="submit-progress hidden modal">
 
-        <label>Contacting AdobeSign for accessing the document for signature. Please wait...</label>
+            <label>Contacting AdobeSign for accessing the document for signature. Please wait...</label>
 
-    </div>*@
+        </div>*@
 
 </form>
 
@@ -830,7 +830,7 @@
 
     $(document).ready(function () {
         HideProgressMessage();
-        
+
         $('#GeneratePDF').click(function () {
             if ($('#frmCreditApp').valid()) {
                 $('#GeneratePDF').attr("disabled", true);
@@ -909,6 +909,19 @@
         $('.validate-zip').mask('?99999');
         //$('.validate-zip').setCursorToTextEnd();
 
+        @*$('.phone-mask').blur(function () {
+            var controlValue = $(this).val();
+            $.ajax({
+                url:'@Url.Action("EIN_Validation", "Home")',
+                type: "GET",
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(jsonModel),
+                success: function (response) {
+                    alert(response);
+                }
+            });
+        });*@
 
         $('#CreditData_BusinessName2').change(function () {
             //Content to send

@@ -35,10 +35,11 @@ namespace CreditAppBMG.Controllers
             _mapper = mapper;
             _hostingEnvironment = hostingEnvironment;
         }
-       
+
         public IActionResult Index(string token)
         {
             AdobeSignWS ws = new AdobeSignWS();
+
             var viewModel = GetInitialValues(token);
 
             // if an agreement was created check agreement status
@@ -54,41 +55,61 @@ namespace CreditAppBMG.Controllers
                         var creditDataEntity = context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
                         //creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
                         creditDataEntity.Status = CreditAppStatusEnum.SIGNED.ToString();
+                        creditDataEntity.LastUpdate = DateTime.Now;
                         context.Update(creditDataEntity);
                         context.SaveChanges();
                     }
                     // display message “This application has been signed already!”
                     //todo: show Application signed view
-                    return this.ShowSignedDocument(viewModel.CreditData.Id.Value, viewModel.CreditData.AdobeSignAgreementId);
-                }
-            }
-                
-   
-            if (!string.IsNullOrWhiteSpace(viewModel.CreditData.SigningUrl))
-            {
-                return Redirect(viewModel.CreditData.SigningUrl);
-            }
-            else if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
-            {
-               
-                var signingUrlResp = ws.GetAgreementSigningUrl(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
-                if (signingUrlResp?.SigningUrlSetInfos != null)
-                {
-                    // update the signing url
-                    using (var context = new CreditAppContext())
-                    {
-                        var creditDataEntity =
-                            context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
-                        creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
-                        context.Update(creditDataEntity);
-                        context.SaveChanges();
-                    }
-                    return Redirect(signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl);
+                    //return this.ShowSignedDocument(viewModel.CreditData.Id.Value, viewModel.CreditData.AdobeSignAgreementId);
+                    return View("AlreadySignedView", viewModel.Distributor);
                 }
                 else
-                    return View("NotAvailableView", viewModel.Distributor);
+                {
+                    var cancelled = ws.CancelAgreement(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
+                    if (cancelled == CreditAppStatusEnum.CANCELLED.ToString())
+                    {
+                        using (var context = new CreditAppContext())
+                        {
+                            var creditDataEntity = context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
+                            creditDataEntity.SigningUrl = null;
+                            creditDataEntity.AdobeSignAgreementId = null;
+                            creditDataEntity.Status = CreditAppStatusEnum.CREATED.ToString();
+                            creditDataEntity.CreatedDate = DateTime.Now;
+                            creditDataEntity.LastUpdate = DateTime.Now;
+                            context.Update(creditDataEntity);
+                            context.SaveChanges();
+                        }
+                    }
+                }
             }
-          
+
+
+            //if (!string.IsNullOrWhiteSpace(viewModel.CreditData.SigningUrl))
+            //{
+            //    return Redirect(viewModel.CreditData.SigningUrl);
+            //}
+            //else if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
+            //{
+
+            //var signingUrlResp = ws.GetAgreementSigningUrl(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
+            //if (signingUrlResp?.SigningUrlSetInfos != null)
+            //{
+            //    // update the signing url
+            //    using (var context = new CreditAppContext())
+            //    {
+            //        var creditDataEntity =
+            //            context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
+            //        creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
+            //        context.Update(creditDataEntity);
+            //        context.SaveChanges();
+            //    }
+            //    return Redirect(signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl);
+            //}
+            //  else
+            //      return View("NotAvailableView", viewModel.Distributor);
+            //}
+
             return View(viewModel);
         }
 
@@ -105,7 +126,7 @@ namespace CreditAppBMG.Controllers
             viewModel.Distributor.DistributorZip = retailerInfo.DistributorZip;
             viewModel.Distributor.DistributorPhone = retailerInfo.DistributorPhone;
             viewModel.Distributor.DistributorWebSiteURL = retailerInfo.DistributorWebSiteURL;
-            
+
             // download logo:
             if (!string.IsNullOrEmpty(retailerInfo.DistributorLogoURL))
             {
@@ -123,7 +144,7 @@ namespace CreditAppBMG.Controllers
                 {
                     //throw;
                 }
-                    
+
                 viewModel.LocalLogo = localFileLocation;
             }
         }
@@ -159,7 +180,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PrincipalAddress1 = retailerInfo.Principal_Contact_Address1;
             viewModel.CreditData.PrincipalAddress2 = retailerInfo.Principal_Contact_Address2;
             viewModel.CreditData.PrincipalCity = retailerInfo.Principal_Contact_City;
-            
+
             viewModel.CreditData.PrincipalState = retailerInfo.Principal_Contact_State;
             viewModel.CreditData.PrincipalZipCode = retailerInfo.Principal_Contact_Zip;
             // property owned
@@ -169,7 +190,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.PropertyAddress1 = retailerInfo.Property_Location_Contact_Address1;
             viewModel.CreditData.PropertyAddress2 = retailerInfo.Property_Location_Contact_Address2;
             viewModel.CreditData.PropertyCity = retailerInfo.Property_Location_Contact_City;
-            
+
             viewModel.CreditData.PropertyState = retailerInfo.Property_Location_Contact_State;
             viewModel.CreditData.PropertyZipCode = retailerInfo.Property_Location_Contact_Zip;
             // prior business
@@ -188,7 +209,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.BillingContactAddress1 = retailerInfo.Billing_Contact_Address1;
             viewModel.CreditData.BillingContactAddress2 = retailerInfo.Billing_Contact_Address2;
             viewModel.CreditData.BillingContactCity = retailerInfo.Billing_Contact_City;
-           
+
             viewModel.CreditData.BillingContactState = retailerInfo.Billing_Contact_State;
             viewModel.CreditData.BillingContactZipCode = retailerInfo.Billing_Contact_Zip;
             //bank reference
@@ -200,7 +221,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.BankReferenceAddress1 = retailerInfo.Banc_Reference_Address1;
             viewModel.CreditData.BankReferenceAddress2 = retailerInfo.Banc_Reference_Address2;
             viewModel.CreditData.BankReferenceCity = retailerInfo.Banc_Reference_City;
-           
+
             viewModel.CreditData.BankReferenceState = retailerInfo.Banc_Reference_State;
             viewModel.CreditData.BankReferenceZipCode = retailerInfo.Banc_Reference_Zip;
             // tradereference 1
@@ -219,7 +240,7 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData.TradeReference2Address1 = retailerInfo.Trade_Reference2_Address1;
             viewModel.CreditData.TradeReference2Address2 = retailerInfo.Trade_Reference2_Address2;
             viewModel.CreditData.TradeReference2City = retailerInfo.Trade_Reference2_City;
-           
+
             viewModel.CreditData.TradeReference2State = retailerInfo.Trade_Reference2_State;
             viewModel.CreditData.TradeReference2ZipCode = retailerInfo.Trade_Reference2_Zip;
         }
@@ -380,8 +401,29 @@ namespace CreditAppBMG.Controllers
         [HttpPost]
         public IActionResult GeneratePdf(CreditAppModel model, IFormFile fileUploadCertificate, IFormFile fileUploadLicense)
         {
+            if (model.CreditData.Id.HasValue)
+            {
+                using (var context = new CreditAppContext())
+                {
+                    var crdDataEntity = context.CreditData.SingleOrDefault(x => x.Id == model.CreditData.Id.Value);
+                    if (crdDataEntity != null && !string.IsNullOrWhiteSpace(crdDataEntity.AdobeSignAgreementId))
+                    {
+                        AdobeSignWS ws = new AdobeSignWS();
+                        var agreementResponse = ws.GetAgreement(crdDataEntity.AdobeSignAgreementId, model.CreditData.Id.Value);
+                        if (agreementResponse.status == CreditAppStatusEnum.SIGNED.ToString())
+                        {
+                            crdDataEntity.Status = CreditAppStatusEnum.SIGNED.ToString();
+                            context.Update(crdDataEntity);
+                            crdDataEntity.LastUpdate = DateTime.Now;
+                            context.SaveChanges();
+                            return View("AlreadySignedView", model.Distributor);
+                        }
+                    }
+                }
+            }
+
             // to force updating the view with current viewModel values
-            // we need to preserve the error messages, clear modelState and the add the errors back.
+            // we need to preserve the error messages, clear modelState and then add the errors back.
             Dictionary<string, string> previousErrors = new Dictionary<string, string>();
 
             foreach (KeyValuePair<string, ModelStateEntry> modelStateItem in ModelState)
@@ -480,6 +522,7 @@ namespace CreditAppBMG.Controllers
                 {
                     ModelState.AddModelError(previousError.Key, previousError.Value);
                 }
+
                 if (ModelState.IsValid)
                 {
                     var templateLocation = Path.Combine(_hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
@@ -492,9 +535,9 @@ namespace CreditAppBMG.Controllers
                     if (fileGenerated)
                     {
                         creditDataEntity.Status = CreditAppStatusEnum.CREATED.ToString();
-                        
+                        creditDataEntity.CreatedDate = DateTime.Now;
                         byte[] fileBytes = System.IO.File.ReadAllBytes(outputPath);
-                        
+
                         AdobeSignWS ws = new AdobeSignWS();
                         System.IO.File.Delete(outputPath);
 
@@ -505,13 +548,14 @@ namespace CreditAppBMG.Controllers
                             creditDataEntity.AdobeSignAgreementId = resp.agreementId;
                             creditDataEntity.SigningUrl = resp.signingUrl;
                             creditDataEntity.Status = CreditAppStatusEnum.SENT_FOR_SIGNATURE.ToString();//"PdfGenerated";
+                            creditDataEntity.LastUpdate = DateTime.Now;
                             context.Update(creditDataEntity);
                             context.SaveChanges();
                             return Redirect(resp.signingUrl);
                         }
-                        
 
-                        return View("NotAvailableView",model.Distributor);
+
+                        return View("NotAvailableView", model.Distributor);
                         //model.StatesListItems = GetStatesListItems();
                         //return View("Index", model);
                     }
@@ -526,8 +570,8 @@ namespace CreditAppBMG.Controllers
         private void UpdateWithNulls(CreditAppModel model)
         {
             foreach (var propertyInfo in model.CreditData.GetType().GetProperties().Where(p => !p.GetGetMethod().GetParameters().Any()))
-                {
-                if (propertyInfo.GetValue(model.CreditData)!=null && propertyInfo.GetValue(model.CreditData).ToString() == "--")
+            {
+                if (propertyInfo.GetValue(model.CreditData) != null && propertyInfo.GetValue(model.CreditData).ToString() == "--")
                 {
                     propertyInfo.SetValue(model.CreditData, null);
                 }
@@ -589,8 +633,8 @@ namespace CreditAppBMG.Controllers
                 var states = _mapper.Map<List<States>>(statesEntity);
 
 
-                returnStates = states.Select(x => new SelectListItem() { Value= x.Abbreviation, Text = x.State}).ToList();
-                
+                returnStates = states.Select(x => new SelectListItem() { Value = x.Abbreviation, Text = x.State }).ToList();
+
             }
             return returnStates;
         }
@@ -598,7 +642,7 @@ namespace CreditAppBMG.Controllers
         private List<States> GetStates()
         {
             List<States> states;
-            
+
             using (var context = new CreditAppContext())
             {
                 var statesEntity = context.States.ToList();
@@ -609,7 +653,7 @@ namespace CreditAppBMG.Controllers
 
         private void ValidateCreditDataFiles(CreditDataFiles creditDataFilesModel)
         {
-            if (creditDataFilesModel==null || String.IsNullOrWhiteSpace(creditDataFilesModel.LicenseFileName))
+            if (creditDataFilesModel == null || String.IsNullOrWhiteSpace(creditDataFilesModel.LicenseFileName))
             {
                 ModelState.AddModelError("CreditDataFiles.LicenseFileName", "Missing License File");
             }
@@ -632,7 +676,7 @@ namespace CreditAppBMG.Controllers
 
             errorMessage = ValidateZipCode(creditDataModel.ZipCode, creditDataModel.State);
             if (!string.IsNullOrWhiteSpace(errorMessage))
-                ModelState.AddModelError("CreditData.ZipCode",errorMessage );
+                ModelState.AddModelError("CreditData.ZipCode", errorMessage);
 
             errorMessage = ValidateZipCode(creditDataModel.BankReferenceZipCode, creditDataModel.BankReferenceState);
             if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -815,8 +859,14 @@ namespace CreditAppBMG.Controllers
         }
 
         [HttpPost]
-        public void ValidateZipCodeServer([FromQuery]string propName, [FromBody]CreditAppModel model )
+        public void ValidateZipCodeServer([FromQuery]string propName, [FromBody]CreditAppModel model)
         {
+        }
+
+        [HttpGet]
+        public JsonResult EIN_Validation(string EIN)
+        {
+            return Json("Invalid EIN!!");
         }
 
         private CreditAppModel GetInitialValues(string token)
@@ -835,8 +885,8 @@ namespace CreditAppBMG.Controllers
 
             if (!string.IsNullOrWhiteSpace(token))
             {
-               TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
-                
+                TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
+
                 if (string.IsNullOrWhiteSpace(tokenErrorMessage))
                 {
                     RetailerInfo retailerInfo = GetRetailerInfo(tokenInfo, out string retailerErrorMessage);
@@ -882,7 +932,7 @@ namespace CreditAppBMG.Controllers
                             if (creditDataEntity == null)
                             {
                                 FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-                                viewModel.CreditData.Status= CreditAppStatusEnum.CREATED.ToString();
+                                viewModel.CreditData.Status = CreditAppStatusEnum.CREATED.ToString();
                                 //creditDataEntity.Status= CreditAppStatusEnum.CREATED.ToString();
                             }
 
@@ -953,7 +1003,7 @@ namespace CreditAppBMG.Controllers
         {
             AdobeSignWS ws = new AdobeSignWS();
 
-            var PDFContent = ws.GetAgreementDocumentUrl(agreementId, creditDataId);
+            var PDFContent = ws.GetAgreementDocument(agreementId, creditDataId);
             //FileStream PDFContent = File.OpenRead(@"d:\MyFile.pdf");
             //byte[] contents = FetchPdfBytes();
             Response.Headers.Add("Content-Disposition", "inline; filename=Distributor_Credit_Application.pdf");

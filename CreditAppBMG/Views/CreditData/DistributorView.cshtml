@@ -1,0 +1,91 @@
+﻿@model List<CreditAppBMG.ViewModels.CreditData>
+@{
+    ViewData["Title"] = "DistributorView";
+    Layout = "~/Views/Shared/_CreditAppLayout.cshtml";
+}
+@section css
+    {
+    <link href="~/css/MvcGrid/mvc-grid.css" rel="stylesheet">
+}
+<div class="main-module">
+    <div class="header-top-spacer"></div>
+
+    <div class="header-logo-color">
+        <img src="~/images/header-object.png" style="max-height: 122px; position:absolute" />
+        @*<img src="@Model.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px" />*@
+        @*<label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.DistributorName</label>*@
+
+    </div>
+
+    <div class="header-bottom-spacer middle" align="center">
+        <label class="middle" style="font-size:1.5em">Retailer Credit Application Status List</label>
+
+
+    </div>
+    <div class="module-body">
+
+
+        @*@(Html.Grid<CreditAppBMG.ViewModels.CreditData>(Model)
+                                                                        .Build(columns =>
+                                                                        {
+                                                                            columns.Add(model => model.Column1);
+                                                                            columns.Add(model => model.BusinessName).Titled("BusinessName");
+                                                                            columns.Add(model => model.PrincipalName).Titled("PrincipalName");
+                                                                            columns.Add(model => model.Status).Titled("status");
+
+
+                                                                    //columns.Add(model => Html.ActionLink("PDF", "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId}));
+                                                                    columns.Add(model => Html.ActionLink("PDF", "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId }));
+
+                                                                        })
+                                                                        .Empty("No data found")
+                                                                        .Filterable()
+                                                                        .MultiFilterable()
+                                                                        .Sortable()
+                //.Pageable()
+        )*@
+
+        <table class="table table-bordered table-responsive table-hover">
+            <tr>
+                <th>Retailer </th>
+                <th>
+                    Retailer Application
+                    <br />
+                    Status
+                </th>
+                <th>
+                    Distributor Application
+                    <br />
+                    Status / Comments
+                </th>
+            </tr>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td>@d.BusinessName <br />
+                    @d.Address1<br />
+                    @d.Address2 <br />
+                    @d.City @d.State @d.ZipCode <br />
+                    @d.Phone <br />
+                    @d.PrincipalEmail
+                    
+                    </td>
+                    <td>@d.Status</td>
+                    <td>@d.PrincipalEmail</td>
+
+                </tr>
+            }
+        </table>
+
+    </div>
+</div>
+@section Scripts
+    {
+
+    <script src="~/js/MvcGrid/mvc-grid.js"></script>
+    <script>
+        [].forEach.call(document.getElementsByClassName('mvc-grid'), function (element) {
+            new MvcGrid(element);
+        });
+    </script>
+}

@@ -1,6 +1,6 @@
 ﻿@model CreditAppBMG.ViewModels.Distributor
 @{
-    ViewData["Title"] = "NotAvailableView";
+    ViewData["Title"] = "AlreadySignedView";
     Layout = "~/Views/Shared/_CreditAppLayout.cshtml";
 }
 
@@ -10,7 +10,7 @@
     <div class="header-logo-color">
         <img src="~/images/header-object.png" style="max-height: 122px; position:absolute" />
         <img src="@Model.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px" />
-            <label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.DistributorName</label>
+        <label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.DistributorName</label>
 
     </div>
 
@@ -22,7 +22,7 @@
     <div class="module-body">
 
         <div>
-            <label>AdobeSign service is not available at the moment.  Please try again later.</label>
+            <label>This application has been signed already!</label>
         </div>
 
     </div>
