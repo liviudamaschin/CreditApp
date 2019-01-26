@@ -55,21 +55,25 @@ namespace CreditAppBMG.Pdf
             //generate pdf
             var fileTemplatePath = templatePath;
             this.FontPath = fontPath;
-
+            Stream inputImageStream = null;
             using (var reader = new PdfReader(fileTemplatePath))
             {
-                using (Stream inputImageStream = new FileStream(this.obj.LocalLogo, FileMode.Open, FileAccess.Read, FileShare.Read))
+                if (this.obj.LocalLogo != null)
+                    inputImageStream = new FileStream(this.obj.LocalLogo, FileMode.Open, FileAccess.Read, FileShare.Read);
+
                 using (var fileStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
                 {
                     var stamper = new PdfStamper(reader, fileStream);
                     var contentByte = stamper.GetOverContent(1);
 
-                    Image image = Image.GetInstance(inputImageStream);
-                    image.ScaleAbsoluteHeight(image.Height / (float)3.5);
-                    image.ScaleAbsoluteWidth(image.Width / (float)3.5);
-                    image.SetAbsolutePosition(20, 730);
-                    contentByte.AddImage(image);
-
+                    if (this.obj.LocalLogo != null)
+                    {
+                        Image image = Image.GetInstance(inputImageStream);
+                        image.ScaleAbsoluteHeight(image.Height / (float)3.5);
+                        image.ScaleAbsoluteWidth(image.Width / (float)3.5);
+                        image.SetAbsolutePosition(20, 730);
+                        contentByte.AddImage(image);
+                    }
                    
                     //appearance.setReason(reason);
                     //appearance.setLocation(location);
@@ -80,7 +84,8 @@ namespace CreditAppBMG.Pdf
                     CreateSmallerTexBox("DistributorAddress", 88, 760, 800, obj.Distributor.DistributorAddress, contentByte);
                     CreateSmallerTexBox("DistributorAddress2", 88, 752, 800,  obj.Distributor.DistributorCity + ", " + obj.Distributor.DistributorState + ", " + obj.Distributor.DistributorZip, contentByte);
                     CreateSmallerTexBox("DistributorPhone", 88, 744, 400, "Phone: " + obj.Distributor.DistributorPhone, contentByte);
-                    CreateSmallerTexBox("DistributorWebsite", 88, 736, 400, "Web: " + obj.Distributor.DistributorWebSiteURL.Replace("Http://",""), contentByte);
+                    if (!string.IsNullOrWhiteSpace(obj.Distributor.DistributorWebSiteURL))
+                        CreateSmallerTexBox("DistributorWebsite", 88, 736, 400, "Web: " + obj.Distributor.DistributorWebSiteURL.Replace("Http://",""), contentByte);
 
                     //CreteTextField("BusinessName", 88, 663, 215, obj.CreditData.BusinessName, stamper);
                     CreateTexBox("BusinessName", 88, 665, 215, obj.CreditData.BusinessName, contentByte);
@@ -206,14 +211,20 @@ namespace CreditAppBMG.Pdf
 
                 }
             }
+            if (inputImageStream != null)
+            {
+                inputImageStream.Close();
+                inputImageStream.Dispose();
+            }
+
             ////signature
             ////stamper.SignatureAppearance.SetVisibleSignature(new Rectangle(36, 748, 144, 780), 1, "sig");
             //var reader2 = new PdfReader(outputFile);
 
             //FileInfo fi = new FileInfo(outputFile);
-            
+
             //var fileStream2 = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
-                
+
             //        PdfStamper signature = PdfStamper.CreateSignature(reader2, fileStream2, '\0');
             //        PdfSignatureAppearance sap = signature.SignatureAppearance;
 
@@ -223,7 +234,7 @@ namespace CreditAppBMG.Pdf
             //        sap.SetVisibleSignature(new iTextSharp.text.Rectangle(100, 100, 250, 150), 1, null);
             //        //sap.Close();
             //        //signature.Close();
-      
+
             //var path = Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", filename);
             return true;
         }

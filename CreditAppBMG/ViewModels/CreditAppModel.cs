@@ -5,6 +5,7 @@ namespace CreditAppBMG.ViewModels
 {
     public class CreditAppModel
     {
+        public string ErrorMessage { get; set; }
         public string Token { get; set; }
 
         public Distributor Distributor { get; set; }

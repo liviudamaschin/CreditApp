@@ -312,6 +312,8 @@ namespace CreditAppBMG.ViewModels
 
         public string Status { get; set; }
 
+        public string Comments { get; set; }
+
         public ICollection<CreditDataFiles> CreditFiles { get; set; }
 
         public Dictionary<string, string> CompanyTypes = new Dictionary<string, string> {

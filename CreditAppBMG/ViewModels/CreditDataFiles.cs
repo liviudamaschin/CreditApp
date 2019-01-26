@@ -8,7 +8,7 @@ namespace CreditAppBMG.ViewModels
         [Key]
         //[Required(ErrorMessage = "Required field")]
         //[ScaffoldColumn(false)]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         //[Required(ErrorMessage = "Required field")]
         public int CreditDataId { get; set; }

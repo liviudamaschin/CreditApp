@@ -10,6 +10,8 @@ using CreditAppBMG.BL;
 using CreditAppBMG.Models;
 using AutoMapper;
 using CreditAppBMG.ViewModels;
+using CreditAppBMG.Extensions;
+
 
 namespace CreditAppBMG.Controllers
 {
@@ -23,6 +25,18 @@ namespace CreditAppBMG.Controllers
         {
             _mapper = mapper;
             _context = context;
+        }
+
+        [HttpGet]
+        [AutoValidateAntiforgeryToken]
+        [Route("/GetComment")]
+        public IActionResult GetComment(int creditDataId)
+        {
+            var creditDataEntity = _context.CreditData
+                    .Where(x => x.Id == creditDataId).SingleOrDefault();
+            //if (creditDataEntity != null)
+            //{ }
+            return Ok(creditDataEntity);
         }
 
         [HttpGet]
@@ -45,18 +59,12 @@ namespace CreditAppBMG.Controllers
             distributorViewModel.Distributor = new Distributor();
             distributorViewModel.Distributor.DistributorLogoURL = retailer.DistributorLogoURL;
             distributorViewModel.Distributor.DistributorName = retailer.DistributorName;
-
-            //var creditDataFiles = _context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id);
-            //if (creditDataFiles != null)
-            //{
-            //    viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
-            //}
-
+                      
             return View("DistributorView", distributorViewModel);
         }
 
         [HttpGet]
-        [Route("/ShowDocument")]
+        //[Route("/ShowDocument")]
         public IActionResult ShowDocument(int creditDataId, string agreementId)
         {
             AdobeSignWS ws = new AdobeSignWS();
@@ -66,108 +74,25 @@ namespace CreditAppBMG.Controllers
             return Redirect(documentUrl);
         }
 
-        // GET: api/CreditData
-        [HttpGet]
-        public IEnumerable<CreditDataEntity> GetCreditData_1()
+        [HttpPost]
+        [Route("/Distributor/AddComment")]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddComment([FromBody]AddCommentModel model)
         {
-            return _context.CreditData.ToList();
+            if (!string.IsNullOrWhiteSpace(model.CreditDataStatus))
+            {
+                var creditDataEntity = _context.CreditData
+                    .Where(x => x.Id == model.CreditDataId).SingleOrDefault();
+                if (creditDataEntity != null)
+                {
+                    creditDataEntity.Status = model.CreditDataStatus;
+                    creditDataEntity.Comments = model.Comments;
+                    _context.SaveChanges();
+                }
+            }
+            var retUrl = Url.Action("GetDistributorView", "CreditData", new { token = model.Token });
+            return Json(new { url = retUrl });
         }
 
-
-
-        //// GET: api/CreditData/5
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> GetCreditData([FromRoute] int? id)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    var creditData = await _context.CreditData.FindAsync(id);
-
-        //    if (creditData == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return Ok(creditData);
-        //}
-
-        //// PUT: api/CreditData/5
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutCreditData([FromRoute] int? id, [FromBody] CreditDataEntity creditData)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    if (id != creditData.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(creditData).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!CreditDataExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
-        //// POST: api/CreditData
-        //[HttpPost]
-        //public async Task<IActionResult> PostCreditData([FromBody] CreditDataEntity creditData)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    _context.CreditData.Add(creditData);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetCreditData", new { id = creditData.Id }, creditData);
-        //}
-
-        //// DELETE: api/CreditData/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteCreditData([FromRoute] int? id)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    var creditData = await _context.CreditData.FindAsync(id);
-        //    if (creditData == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.CreditData.Remove(creditData);
-        //    await _context.SaveChangesAsync();
-
-        //    return Ok(creditData);
-        //}
-
-        //private bool CreditDataExists(int? id)
-        //{
-        //    return _context.CreditData.Any(e => e.Id == id);
-        //}
     }
 }

@@ -47,7 +47,7 @@
     <Folder Include="Content\Images\" />
     <Folder Include="PdfTemplate\" />
     <Folder Include="wwwroot\images\Logos\" />
-    <Folder Include="wwwroot\PDFs\" />
+    <Folder Include="wwwroot\_PDFs\" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="appsettings.json">

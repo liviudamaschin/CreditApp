@@ -1,4 +1,35 @@
-﻿.form-group.required .control-label:after {
+﻿#hider {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 1600px;
+    height: 2000px;
+    margin-top: -800px; /*set to a negative number 1/2 of your height*/
+    margin-left: -500px; /*set to a negative number 1/2 of your width*/
+    /*
+        z- index must be lower than pop up box
+       */
+    z-index: 99;
+    background-color: lightgray;
+    opacity:0.6;
+}
+
+#popup_box {
+    background-color:white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10em;
+    height: 10em;
+    margin-top: -5em; /*set to a negative number 1/2 of your height*/
+    margin-left: -5em; /*set to a negative number 1/2 of your width*/
+    border: 1px solid #ccc;
+    border: 2px solid black;
+    z-index: 100;
+}
+/*`//////////////////////////////////////////////////////////*/
+
+.form-group.required .control-label:after {
     content: "*";
     color: red;
 }
@@ -226,4 +257,20 @@
     padding-right: 2.1em;
     background-color: dimgrey;
     color: white;
+}
+
+/*For larger buttons*/
+.overflow-hidden {
+    overflow: hidden !important;
+}
+
+
+.no-close .ui-dialog-titlebar-close {
+    display: none;
+}
+
+.fileuploadError {
+    background-color: rgb(255,220,220);
+    border-color: rgb(255,220,220);
+    border: 2px ridge
 }

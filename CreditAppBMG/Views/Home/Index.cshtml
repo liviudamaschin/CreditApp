@@ -35,20 +35,20 @@
                             <div class="panel-body">
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
-                                    <label asp-for="@Model.CreditData.BusinessName" class="control-label"></label>
-                                    <input asp-for="CreditData.BusinessName" class="form-control" />
+                                    <label asp-for="CreditData.BusinessName" class="control-label"></label>
+                                    <input asp-for="CreditData.BusinessName" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BusinessName" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.TradeName" class="control-label"></label>
-                                    <input asp-for="CreditData.TradeName" class="form-control" />
+                                    <input asp-for="CreditData.TradeName" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.TradeName" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.LicenseNumber" class="control-label"></label>
-                                            <input asp-for="CreditData.LicenseNumber" class="form-control" />
+                                            <input asp-for="CreditData.LicenseNumber" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.LicenseNumber" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -58,7 +58,7 @@
                                             <label asp-for="CreditData.LicenseExpirationDate" class="control-label"></label>
                                             @*<input asp-for="CreditData.LicenseExpirationDate" class="datepicker" />*@
                                             <div class="input-group">
-                                                <input asp-for="CreditData.LicenseExpirationDate" type="text" class="form-control datepicker" id="LicenseExpirationDate" asp-format="{0:MM/dd/yyyy}">
+                                                <input asp-for="CreditData.LicenseExpirationDate" autocomplete="off" type="text" class="form-control datepicker" id="LicenseExpirationDate" asp-format="{0:MM/dd/yyyy}">
                                                 @*<div class="input-group-addon">
                                                         <span class="glyphicon glyphicon-th"></span>
                                                     </div>*@
@@ -71,14 +71,14 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.EIN" class="control-label"></label>
-                                            <input asp-for="CreditData.EIN" class="form-control ein-mask" />
+                                            <input asp-for="CreditData.EIN" class="form-control ein-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.EIN" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.NYStateTaxId" class="control-label"></label>
-                                            <input asp-for="CreditData.NYStateTaxId" class="form-control" />
+                                            <input asp-for="CreditData.NYStateTaxId" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.NYStateTaxId" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -87,7 +87,7 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.DeliveryTime" class="control-label"></label>
-                                            <select asp-for="CreditData.DeliveryTime" asp-items="Model.DeliveryTime" class="form-control">
+                                            <select asp-for="CreditData.DeliveryTime" asp-items="Model.DeliveryTime" class="form-control" autocomplete="off">
                                                 <option value="--">Please select...</option>
                                             </select>
                                             <span asp-validation-for="CreditData.DeliveryTime" class="text-danger"></span>
@@ -108,26 +108,26 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.Phone" class="control-label"></label>
-                                            <input asp-for="CreditData.Phone" class="form-control phone-mask" />
+                                            <input asp-for="CreditData.Phone" class="form-control phone-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.Phone" class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.Address1" class="control-label"></label>
-                                    <input asp-for="CreditData.Address1" class="form-control" />
+                                    <input asp-for="CreditData.Address1" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.Address1" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.Address2" class="control-label"></label>
-                                    <input asp-for="CreditData.Address2" class="form-control" />
+                                    <input asp-for="CreditData.Address2" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.Address2" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.City" class="control-label"></label>
-                                            <input asp-for="CreditData.City" class="form-control" />
+                                            <input asp-for="CreditData.City" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.City" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -147,7 +147,7 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.ZipCode" class="control-label"></label>
-                                            <input asp-for="CreditData.ZipCode" class="form-control validate-zip" />
+                                            <input asp-for="CreditData.ZipCode" class="form-control validate-zip" autocomplete="off" />
                                             <span asp-validation-for="CreditData.ZipCode" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -168,50 +168,50 @@
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.PrincipalName" class="control-label"></label>
-                                    <input asp-for="CreditData.PrincipalName" class="form-control" />
+                                    <input asp-for="CreditData.PrincipalName" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.PrincipalName" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.PrincipalTitle" class="control-label"></label>
-                                    <input asp-for="CreditData.PrincipalTitle" class="form-control" />
+                                    <input asp-for="CreditData.PrincipalTitle" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.PrincipalTitle" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.PrincipalEmail" class="control-label"></label>
-                                    <input asp-for="CreditData.PrincipalEmail" class="form-control" />
+                                    <input asp-for="CreditData.PrincipalEmail" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.PrincipalEmail" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.PrincipalPhone" class="control-label"></label>
-                                            <input asp-for="CreditData.PrincipalPhone" class="form-control phone-mask" />
+                                            <input asp-for="CreditData.PrincipalPhone" class="form-control phone-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PrincipalPhone" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.PrincipalSSN" class="control-label"></label>
-                                            <input asp-for="CreditData.PrincipalSSN" class="form-control ssn-mask" />
+                                            <input asp-for="CreditData.PrincipalSSN" class="form-control ssn-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PrincipalSSN" class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.PrincipalAddress1" class="control-label"></label>
-                                    <input asp-for="CreditData.PrincipalAddress1" class="form-control" />
+                                    <input asp-for="CreditData.PrincipalAddress1" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.PrincipalAddress1" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.PrincipalAddress2" class="control-label"></label>
-                                    <input asp-for="CreditData.PrincipalAddress2" class="form-control" />
+                                    <input asp-for="CreditData.PrincipalAddress2" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.PrincipalAddress2" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.PrincipalCity" class="control-label"></label>
-                                            <input asp-for="CreditData.PrincipalCity" class="form-control" />
+                                            <input asp-for="CreditData.PrincipalCity" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PrincipalCity" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -229,7 +229,7 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.PrincipalZipCode" class="control-label"></label>
-                                            <input asp-for="CreditData.PrincipalZipCode" class="form-control validate-zip" />
+                                            <input asp-for="CreditData.PrincipalZipCode" class="form-control validate-zip" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PrincipalZipCode" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -254,19 +254,19 @@
                                         </div>
                                         <div class="form-group">
                                             <label asp-for="CreditData.PropertyAddress1" class="control-label"></label>
-                                            <input asp-for="CreditData.PropertyAddress1" class="form-control" />
+                                            <input asp-for="CreditData.PropertyAddress1" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PropertyAddress1" class="text-danger"></span>
                                         </div>
                                         <div class="form-group">
                                             <label asp-for="CreditData.PropertyAddress2" class="control-label"></label>
-                                            <input asp-for="CreditData.PropertyAddress2" class="form-control" />
+                                            <input asp-for="CreditData.PropertyAddress2" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PropertyAddress2" class="text-danger"></span>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6" style="padding-top: 10px;">
                                                 <div class="form-group">
                                                     <label asp-for="CreditData.PropertyCity" class="control-label"></label>
-                                                    <input asp-for="CreditData.PropertyCity" class="form-control" />
+                                                    <input asp-for="CreditData.PropertyCity" class="form-control" autocomplete="off" />
                                                     <span asp-validation-for="CreditData.PropertyCity" class="text-danger"></span>
                                                 </div>
                                             </div>
@@ -284,7 +284,7 @@
                                             <div class="col-md-6" style="padding-top: 10px;">
                                                 <div class="form-group">
                                                     <label asp-for="CreditData.PropertyZipCode" class="control-label"></label>
-                                                    <input asp-for="CreditData.PropertyZipCode" class="form-control validate-zip" />
+                                                    <input asp-for="CreditData.PropertyZipCode" class="form-control validate-zip" autocomplete="off" />
                                                     <span asp-validation-for="CreditData.PropertyZipCode" class="text-danger"></span>
                                                 </div>
                                             </div>
@@ -305,19 +305,19 @@
                                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                         <div class="form-group">
                                             <label asp-for="CreditData.PriorBusinessAddress1" class="control-label"></label>
-                                            <input asp-for="CreditData.PriorBusinessAddress1" class="form-control" />
+                                            <input asp-for="CreditData.PriorBusinessAddress1" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PriorBusinessAddress1" class="text-danger"></span>
                                         </div>
                                         <div class="form-group">
                                             <label asp-for="CreditData.PriorBusinessAddress2" class="control-label"></label>
-                                            <input asp-for="CreditData.PriorBusinessAddress2" class="form-control" />
+                                            <input asp-for="CreditData.PriorBusinessAddress2" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.PriorBusinessAddress2" class="text-danger"></span>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6" style="padding-top: 10px;">
                                                 <div class="form-group">
                                                     <label asp-for="CreditData.PriorBusinessCity" class="control-label"></label>
-                                                    <input asp-for="CreditData.PriorBusinessCity" class="form-control" />
+                                                    <input asp-for="CreditData.PriorBusinessCity" class="form-control" autocomplete="off" />
                                                     <span asp-validation-for="CreditData.PriorBusinessCity" class="text-danger"></span>
                                                 </div>
                                             </div>
@@ -335,7 +335,7 @@
                                             <div class="col-md-6" style="padding-top: 10px;">
                                                 <div class="form-group">
                                                     <label asp-for="CreditData.PriorBusinessZipCode" class="control-label"></label>
-                                                    <input asp-for="CreditData.PriorBusinessZipCode" class="form-control validate-zip" />
+                                                    <input asp-for="CreditData.PriorBusinessZipCode" class="form-control validate-zip" autocomplete="off" />
                                                     <span asp-validation-for="CreditData.PriorBusinessZipCode" class="text-danger"></span>
                                                 </div>
                                             </div>
@@ -360,34 +360,34 @@
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BillingContactName" class="control-label"></label>
-                                    <input asp-for="CreditData.BillingContactName" class="form-control" />
+                                    <input asp-for="CreditData.BillingContactName" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BillingContactName" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BillingContactEmail" class="control-label"></label>
-                                    <input asp-for="CreditData.BillingContactEmail" class="form-control" />
+                                    <input asp-for="CreditData.BillingContactEmail" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BillingContactEmail" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BillingContactPhone" class="control-label"></label>
-                                    <input asp-for="CreditData.BillingContactPhone" class="form-control phone-mask" />
+                                    <input asp-for="CreditData.BillingContactPhone" class="form-control phone-mask" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BillingContactPhone" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BillingContactAddress1" class="control-label"></label>
-                                    <input asp-for="CreditData.BillingContactAddress1" class="form-control" />
+                                    <input asp-for="CreditData.BillingContactAddress1" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BillingContactAddress1" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BillingContactAddress2" class="control-label"></label>
-                                    <input asp-for="CreditData.BillingContactAddress2" class="form-control" />
+                                    <input asp-for="CreditData.BillingContactAddress2" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BillingContactAddress2" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.BillingContactCity" class="control-label"></label>
-                                            <input asp-for="CreditData.BillingContactCity" class="form-control" />
+                                            <input asp-for="CreditData.BillingContactCity" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.BillingContactCity" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -405,7 +405,7 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.BillingContactZipCode" class="control-label"></label>
-                                            <input asp-for="CreditData.BillingContactZipCode" class="form-control validate-zip" />
+                                            <input asp-for="CreditData.BillingContactZipCode" class="form-control validate-zip" autocomplete="off" />
                                             <span asp-validation-for="CreditData.BillingContactZipCode" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -424,7 +424,7 @@
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BankReferenceName" class="control-label"></label>
-                                    <input asp-for="CreditData.BankReferenceName" class="form-control" />
+                                    <input asp-for="CreditData.BankReferenceName" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BankReferenceName" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
@@ -442,29 +442,29 @@
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BankReferenceAccountNumber" class="control-label"></label>
-                                    <input asp-for="CreditData.BankReferenceAccountNumber" class="form-control account-number-mask" />
+                                    <input asp-for="CreditData.BankReferenceAccountNumber" class="form-control account-number-mask" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BankReferenceAccountNumber" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BankReferenceRoutingNumber" class="control-label"></label>
-                                    <input asp-for="CreditData.BankReferenceRoutingNumber" class="form-control" />
+                                    <input asp-for="CreditData.BankReferenceRoutingNumber" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BankReferenceRoutingNumber" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BankReferenceAddress1" class="control-label"></label>
-                                    <input asp-for="CreditData.BankReferenceAddress1" class="form-control" />
+                                    <input asp-for="CreditData.BankReferenceAddress1" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BankReferenceAddress1" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.BankReferenceAddress2" class="control-label"></label>
-                                    <input asp-for="CreditData.BankReferenceAddress2" class="form-control" />
+                                    <input asp-for="CreditData.BankReferenceAddress2" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.BankReferenceAddress2" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.BankReferenceCity" class="control-label"></label>
-                                            <input asp-for="CreditData.BankReferenceCity" class="form-control" />
+                                            <input asp-for="CreditData.BankReferenceCity" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.BankReferenceCity" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -482,7 +482,7 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.BankReferenceZipCode" class="control-label"></label>
-                                            <input asp-for="CreditData.BankReferenceZipCode" class="form-control validate-zip" />
+                                            <input asp-for="CreditData.BankReferenceZipCode" class="form-control validate-zip" autocomplete="off" />
                                             <span asp-validation-for="CreditData.BankReferenceZipCode" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -504,7 +504,7 @@
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.TradeReference1Name" class="control-label"></label>
-                                    <input asp-for="CreditData.TradeReference1Name" class="form-control" />
+                                    <input asp-for="CreditData.TradeReference1Name" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.TradeReference1Name" class="text-danger"></span>
                                 </div>
 
@@ -512,33 +512,33 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference1Phone" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference1Phone" class="form-control phone-mask" />
+                                            <input asp-for="CreditData.TradeReference1Phone" class="form-control phone-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference1Phone" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference1AccountNumber" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference1AccountNumber" class="form-control account-number-mask" />
+                                            <input asp-for="CreditData.TradeReference1AccountNumber" class="form-control account-number-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference1AccountNumber" class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.TradeReference1Address1" class="control-label"></label>
-                                    <input asp-for="CreditData.TradeReference1Address1" class="form-control" />
+                                    <input asp-for="CreditData.TradeReference1Address1" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.TradeReference1Address1" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.TradeReference1Address2" class="control-label"></label>
-                                    <input asp-for="CreditData.TradeReference1Address2" class="form-control" />
+                                    <input asp-for="CreditData.TradeReference1Address2" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.TradeReference1Address2" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference1City" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference1City" class="form-control" />
+                                            <input asp-for="CreditData.TradeReference1City" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference1City" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -556,7 +556,7 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference1ZipCode" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference1ZipCode" class="form-control validate-zip" />
+                                            <input asp-for="CreditData.TradeReference1ZipCode" class="form-control validate-zip" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference1ZipCode" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -576,7 +576,7 @@
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.TradeReference2Name" class="control-label"></label>
-                                    <input asp-for="CreditData.TradeReference2Name" class="form-control" />
+                                    <input asp-for="CreditData.TradeReference2Name" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.TradeReference2Name" class="text-danger"></span>
                                 </div>
 
@@ -584,33 +584,33 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference2Phone" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference2Phone" class="form-control phone-mask" />
+                                            <input asp-for="CreditData.TradeReference2Phone" class="form-control phone-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference2Phone" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference2AccountNumber" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference2AccountNumber" class="form-control account-number-mask" />
+                                            <input asp-for="CreditData.TradeReference2AccountNumber" class="form-control account-number-mask" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference2AccountNumber" class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.TradeReference2Address1" class="control-label"></label>
-                                    <input asp-for="CreditData.TradeReference2Address1" class="form-control" />
+                                    <input asp-for="CreditData.TradeReference2Address1" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.TradeReference2Address1" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="CreditData.TradeReference2Address2" class="control-label"></label>
-                                    <input asp-for="CreditData.TradeReference2Address2" class="form-control" />
+                                    <input asp-for="CreditData.TradeReference2Address2" class="form-control" autocomplete="off" />
                                     <span asp-validation-for="CreditData.TradeReference2Address2" class="text-danger"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference2City" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference2City" class="form-control" />
+                                            <input asp-for="CreditData.TradeReference2City" class="form-control" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference2City" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -628,7 +628,7 @@
                                     <div class="col-md-6" style="padding-top: 10px;">
                                         <div class="form-group">
                                             <label asp-for="CreditData.TradeReference2ZipCode" class="control-label"></label>
-                                            <input asp-for="CreditData.TradeReference2ZipCode" class="form-control validate-zip" />
+                                            <input asp-for="CreditData.TradeReference2ZipCode" class="form-control validate-zip" autocomplete="off" />
                                             <span asp-validation-for="CreditData.TradeReference2ZipCode" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -649,7 +649,7 @@
                                 <div class="form-group">
                                     <label asp-for="CreditDataFiles.LicenseFileName" class="control-label"></label>
                                     <div class="input-group input-file" name="fileUploadLicense">
-                                        <input type="text" class="form-control" data-prop="LicenseFileName" placeholder='Click Browse to upload Licence file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
+                                        <input type="text" id="LicenseFileName" class="form-control" data-prop="LicenseFileName" placeholder='Click Browse to upload Licence file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
                                         <span class="input-group-btn">
                                             <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                         </span>
@@ -681,7 +681,7 @@
                                 <div class="form-group">
                                     <label asp-for="CreditDataFiles.TaxCertificateFileName" class="control-label"></label>
                                     <div class="input-group input-file" name="fileUploadCertificate">
-                                        <input type="text" class="form-control" data-prop="TaxCertificateFileName" placeholder='Click Browse to upload Certificate file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
+                                        <input type="text" id="TaxCertificateFileName" class="form-control" data-prop="TaxCertificateFileName" placeholder='Click Browse to upload Certificate file. (Allowed file extensions: pdf, jpg, jpeg, png)' />
                                         <span class="input-group-btn">
                                             <button class="btn btn-default btn-choose" type="button">Browse...</button>
                                         </span>
@@ -718,12 +718,16 @@
         </div>
     </div>
     @*@Html.HiddenFor(m => m.DistributorName, new { @id = "_mDistributorName" })*@
+    @*@Html.HiddenFor(m => m.CreditData.CreatedDate)*@
+    <input type="hidden" name="CreditData.CreatedDate" value="@Model.CreditData.CreatedDate" />
+    @Html.HiddenFor(m => m.CreditData.LastUpdate)
     @Html.HiddenFor(m => m.CreditData.DistributorId)
     @Html.HiddenFor(m => m.CreditData.SigningUrl)
     @Html.HiddenFor(m => m.CreditData.Status)
     @Html.HiddenFor(m => m.CreditData.RetailerId)
     @Html.HiddenFor(m => m.CreditData.Token)
     @Html.HiddenFor(m => m.CreditData.Id)
+
     @Html.HiddenFor(m => m.CreditData.AdobeSignAgreementId)
 
 
@@ -733,8 +737,16 @@
     @Html.HiddenFor(m => m.Token)
 
     @Html.HiddenFor(m => m.CreditDataFiles.Id)
+    @Html.HiddenFor(m => m.CreditDataFiles.CreatedDate)
+    @Html.HiddenFor(m => m.CreditDataFiles.CreditDataId)
+    @Html.HiddenFor(m => m.CreditDataFiles.LastUpdateCertificate)
+    @Html.HiddenFor(m => m.CreditDataFiles.LastUpdateLicense)
+    @Html.HiddenFor(m => m.CreditDataFiles.LicenseFile)
     @Html.HiddenFor(m => m.CreditDataFiles.LicenseFileName)
+    @Html.HiddenFor(m => m.CreditDataFiles.TaxCertificateFile)
     @Html.HiddenFor(m => m.CreditDataFiles.TaxCertificateFileName)
+
+
 
 
     @Html.HiddenFor(m => m.Distributor.Id)
@@ -802,6 +814,8 @@
                         var property = element.next(element).find('input')[0].dataset.prop;
                         if (property === "TaxCertificateFileName") {
                             validator.showErrors({ "CreditDataFiles.TaxCertificateFileName": null });
+
+                            fileuploadError
                         }
                         if (property === "LicenseFileName") {
                             validator.showErrors({ "CreditDataFiles.LicenseFileName": null });
@@ -829,6 +843,18 @@
     }
 
     $(document).ready(function () {
+        $("#TaxCertificateFileName").removeClass("fileuploadError");
+        $("#LicenseFileName").removeClass("fileuploadError");
+        var taxFileUploadVal = $("#CreditDataFiles_TaxCertificateFileName").val();
+        var licenseFileUploadVal = $("#CreditDataFiles_LicenseFileName").val();
+        //LicenseFileName
+        if (taxFileUploadVal == "") {
+            $("#TaxCertificateFileName").addClass("fileuploadError");
+        }
+        if (licenseFileUploadVal == "") {
+            $("#LicenseFileName").addClass("fileuploadError");
+        }
+
         HideProgressMessage();
 
         $('#GeneratePDF').click(function () {
@@ -1000,6 +1026,7 @@
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(jsonModel),
                     success: function (response) {
+                        window.location.href = response.url;
                     }
                 });
             } else {
