@@ -1,4 +1,5 @@
-﻿@model CreditAppBMG.ViewModels.DistributorViewModel
+﻿@Html.AntiForgeryToken()
+@model CreditAppBMG.ViewModels.DistributorViewModel
 @{
     ViewData["Title"] = "DistributorView";
     Layout = "~/Views/Shared/_CreditAppLayout.cshtml";
@@ -8,6 +9,19 @@
 @section css
     {
     <style>
+        .no-close .ui-dialog-titlebar-close {
+            display: none;
+        }
+
+        .ui-widget {
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important;
+            font-size: 14px !important;
+        }
+
+            .ui-widget textarea, .ui-widget button {
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important;
+                font-size: 14px !important;
+            }
 
         .table .thead-light th {
             color: #696969;
@@ -112,8 +126,14 @@
                     </td>
                     <td>
                         @*@Html.ActionLink(d.Status, "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId })*@
-                        @Html.ActionLink(d.Status, "ShowDocument", "CreditData", new { creditDataId = d.Id, agreementId = d.AdobeSignAgreementId }, new { target = "_self" })
-
+                        @if (!string.IsNullOrWhiteSpace(d.AdobeSignAgreementId))
+                        {
+                            @Html.ActionLink(d.Status, "ShowDocument", "CreditData", new { creditDataId = d.Id, agreementId = d.AdobeSignAgreementId }, new { target = "_self" })
+                        }
+                        else
+                        {
+                            @d.Status
+                        }
                         <br>
                         @d.LastUpdate
                     </td>
@@ -121,13 +141,8 @@
                         @d.Status <br />
                         @*@d.Comments <br />*@
                         @Html.TextArea("txtComments", d.Comments, new { @readonly = "readonly", @rows = 5, @cols = 40, @style = "height:100% ", @class = "ui-widget-content ui-corner-all" }) <br>
-                        <button id="add-comment" class="btn-add-comments" data-creditdata-id="@d.Id" >Add comment</button>
-                        @*@Html.DropDownList("CreditDataStatus",
-                                                new SelectList(Enum.GetValues(typeof(CreditAppBMG.Enums.CreditAppStatusEnum))),
-                                                "Select Status",
-                                                new { @class = "form-control" })<br />
-                            @Html.TextArea("Comments", "", new { rows = 5, cols = 40, style = "height:100%" })<br />
-                            @Html.ActionLink("Update", "UpdateComments", "CreditData", new { creditDataId = d.Id })*@
+                        <button id="add-comment" class="btn-add-comments" data-creditdata-id="@d.Id">Update</button>
+
                     </td>
 
                 </tr>
@@ -138,22 +153,40 @@
 </div>
 @*<button id="add-comment">Create new user</button>*@
 
-<div id="dialog-form" class="comments-dialog" title="Select Status and add comment" data-creditdata-id="" >
-    @*<p class="validateTips">All form fields are required.</p>*@ 
+<div id="dialog-form" title="Select Status and add comment" data-creditdata-id="">
+    @*<p class="validateTips">All form fields are required.</p>*@
 
     <form id="frmAddMessage" asp-controller="CreditData" asp-action="AddComment" method="post" role="form">
-        @Html.AntiForgeryToken()
-        <fieldset>
-            <label for="status">Select status</label>
-            @Html.DropDownList("CreditDataStatusList",
-                                            new SelectList(Enum.GetValues(typeof(CreditAppBMG.Enums.CreditAppStatusEnum))),
-                                            "Select Status",
-                                            new { @class = "form-control ui-widget-content ui-corner-all" })
-            <label for="comment">Comments</label>
-            @Html.TextArea("txtCommentsEdit", "", new { @rows = 5, @cols = 40, @style = "height:100%", @class = "ui-widget-content ui-corner-all" })
 
-            <input type="submit" id="submit-comment">
-        </fieldset>
+        @*<div class="row">*@
+        <div class="col-md-12" style="padding-top: 10px;">
+            @*<div class="panel-body">*@
+            <div class="form-group">
+                <label class="control-label">Select status</label>
+                <select id="CreditDataStatusList" class="form-control" autocomplete="off">
+                    <option value="">Please select...</option>
+                    <option value="APPROVED">APPROVED</option>
+                    <option value="DECLINED">DECLINED</option>
+                </select>
+                @*@Html.DropDownList("CreditDataStatusList",
+                    new SelectList(new string[] { "APPROVED", "DECLINED" }),
+                    "Select Status", new { @class = "form-control" })*@
+                @*, new { @class = "form-control ui-widget-content ui-corner-all" }*@
+            </div>
+            <div class="form-group">
+                <label class="control-label">Comments</label>
+                @Html.TextArea("txtCommentsEdit", "", new { @rows = 5, @cols = 40, @style = "height:100%",
+               @class = "form-control"})
+            </div>
+            <div style="text-align: right">
+                <input type="submit" id="submit-comment" style="padding-right:3px">
+                <button id="close-comment" style="padding-left:5px">Cancel</button>
+            </div>
+            @*</div>*@
+        </div>
+        @*</div>*@
+
+
     </form>
 </div>
 
@@ -186,7 +219,7 @@
             var token = document.getElementsByName("__RequestVerificationToken")[0].value
             return token;
         };
-    
+
         $(".btn-add-comments").button().on("click", function () {
             var creditdataid = $(this).data("creditdata-id");
             var status = "";
@@ -212,19 +245,30 @@
 
             $("#dialog-form").data("creditdata-id", creditdataid);
             $("#dialog-form").dialog({
+                //dialogClass: "no-close",
+                //hide: { effect: "explode", duration: 1000 },
+                //closeText: "hide",
+                //closeOnEscape: true,
+                resizable: true,
                 //autoOpen: false,
-                height: 340,
-                width: 444,
+                height: 346,
+                width: 460,
                 modal: true
             });
         });
+
+        $("#close-comment").click(function (event) {
+            event.preventDefault();
+            $("#dialog-form").dialog("close");
+        });
+
 
         $("#submit-comment").click(function (event) {
             event.preventDefault();
             var creditdataid = $("#dialog-form").data("creditdata-id");
             var creditDataStatus = $("#CreditDataStatusList").val();
             var comments = $("#txtCommentsEdit").val();
-       
+
             var param = {
                 creditdataid: creditdataid,
                 CreditDataStatus: creditDataStatus,

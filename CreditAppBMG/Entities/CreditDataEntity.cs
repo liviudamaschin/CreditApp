@@ -96,7 +96,7 @@ namespace CreditAppBMG.Entities
         public DateTime? CreatedDate { get; set; }
         public DateTime? LastUpdate { get; set; }
         public string Status { get; set; }
-        public string Comments { get; set; }
+        //public string Comments { get; set; }
         public string SigningUrl { get; set; }
         public string AdobeSignAgreementId { get; set; }
         public virtual ICollection<CreditDataFilesEntity> CreditDataFiles { get; set; }

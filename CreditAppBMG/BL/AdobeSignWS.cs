@@ -7,6 +7,7 @@ using CreditAppBMG.Models.Requests;
 using CreditAppBMG.Models.Responses;
 using RestSharp;
 using System.Net;
+using CreditAppBMG.Enums;
 
 namespace CreditAppBMG.BL
 {
@@ -188,5 +189,22 @@ namespace CreditAppBMG.BL
 
             return fileContent;
         }
+
+        //public void UpdateDistributorCreditAppStatuses(string distributorId)
+        //{
+        //    var distributordCreditDataList = repository.GetDistributorCreditData(distributorId);
+        //    foreach (var distributordCreditData in distributordCreditDataList)
+        //    {
+        //        if (distributordCreditData.Status == CreditAppStatusEnum.SENT_FOR_SIGNATURE.ToString())
+        //        {
+        //            var agreement = this.GetAgreement(distributordCreditData.AdobeSignAgreementId, distributordCreditData.Id);
+        //            if (distributordCreditData.Status != agreement.status)
+        //            {
+        //                repository.
+        //            }
+        //        }
+
+        //    }
+        //}
     }
 }

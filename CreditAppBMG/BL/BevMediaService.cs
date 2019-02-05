@@ -43,7 +43,7 @@ namespace CreditAppBMG.BL
             var client = new RestClient($"{this._baseUrl}/getRetailerInfo");
             var request = new RestRequest(Method.POST);
             request.AddHeader("TokenValue", tokenInfo.Token);
-            request.AddHeader("DistribuitorId", tokenInfo.DistribuitorID);
+            request.AddHeader("DistributorId", tokenInfo.DistributorID);
             request.AddHeader("UserId", tokenInfo.UserID);
             IRestResponse response = client.Execute(request);
             try
@@ -55,6 +55,29 @@ namespace CreditAppBMG.BL
                 errorMessage = response.Content;
             }
             return retailerInfo;
+        }
+
+        public DistributorInfo GetDistributorInfo(TokenInfo tokenInfo, out string errorMessage)
+        {
+            DistributorInfo distributorInfo = default(DistributorInfo);
+            errorMessage = "";
+            //string url = repository.GetKeyValue(retailerInfoUrl);
+            //string url = @"https://webservice.bevmedia.com/BMGOrderWebService/api/getRetailerInfo";
+            var client = new RestClient($"{this._baseUrl}/getDistributorInfo");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("TokenValue", tokenInfo.Token);
+            request.AddHeader("DistributorId", tokenInfo.DistributorID);
+            request.AddHeader("UserId", tokenInfo.UserID);
+            IRestResponse response = client.Execute(request);
+            try
+            {
+                distributorInfo = JsonConvert.DeserializeObject<DistributorInfo>(response.Content);
+            }
+            catch (Exception)
+            {
+                errorMessage = response.Content;
+            }
+            return distributorInfo;
         }
     }
 }

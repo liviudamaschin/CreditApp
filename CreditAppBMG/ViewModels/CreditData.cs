@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CreditAppBMG.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -312,7 +313,7 @@ namespace CreditAppBMG.ViewModels
 
         public string Status { get; set; }
 
-        public string Comments { get; set; }
+        public string Comments => this.GetComments(this.Id);
 
         public ICollection<CreditDataFiles> CreditFiles { get; set; }
 
@@ -331,6 +332,17 @@ namespace CreditAppBMG.ViewModels
                 companyTypeName = CompanyTypes[companyType];
             }
             return companyTypeName;
+        }
+
+        private string GetComments(int? creditDataId)
+        {
+            string retVal = string.Empty;
+            if (creditDataId.HasValue)
+            {
+                CreditAppRepository repository = new CreditAppRepository();
+                retVal= repository.GetCreditAppComments(creditDataId.Value);
+            }
+            return retVal;
         }
     }
 }

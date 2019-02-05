@@ -11,7 +11,7 @@ using CreditAppBMG.Models;
 using AutoMapper;
 using CreditAppBMG.ViewModels;
 using CreditAppBMG.Extensions;
-
+using CreditAppBMG.Enums;
 
 namespace CreditAppBMG.Controllers
 {
@@ -20,6 +20,7 @@ namespace CreditAppBMG.Controllers
     {
         private readonly CreditAppContext _context;
         private readonly IMapper _mapper;
+        private readonly CreditAppRepository repository = new CreditAppRepository();
 
         public CreditDataController(IMapper mapper, CreditAppContext context)
         {
@@ -36,31 +37,62 @@ namespace CreditAppBMG.Controllers
                     .Where(x => x.Id == creditDataId).SingleOrDefault();
             //if (creditDataEntity != null)
             //{ }
-            return Ok(creditDataEntity);
+            var creditDataModel = _mapper.Map<CreditDataEntity, CreditData>(creditDataEntity);
+            creditDataModel.Status = creditDataEntity.Status== "DECLINED"|| creditDataEntity.Status == "APPROVED"? creditDataEntity.Status : "";
+            return Ok(creditDataModel);
         }
 
         [HttpGet]
         [Route("/Distributor")]
         public IActionResult GetDistributorView(string token)
         {
-            string baseUrl = "https://webservice.bevmedia.com/BMGOrderWebService/api";
-
+            string baseUrl = repository.GetKeyValue("BMGBaseUrl");// "https://webservice.bevmedia.com/BMGOrderWebService/api";
+            ErrorModel errorModel = new ErrorModel();
             BevMediaService bevMediaService = new BevMediaService(baseUrl);
             TokenInfo tokenInfo= bevMediaService.VerifyToken(token, out var err);
-            RetailerInfo retailer = bevMediaService.GetRetailerInfo(tokenInfo, out var errMsg);
-            var creditDataList=_context.CreditData
-                .Where(x => x.DistributorId == tokenInfo.DistribuitorID)
-                .Include(files=>files.CreditDataFiles)
-                .ToList();
-            var creditDataListModel = _mapper.Map<List<CreditData>>(creditDataList);
-            var distributorViewModel = new DistributorViewModel();
-            distributorViewModel.CreditDataList = creditDataListModel;
+            if (string.IsNullOrWhiteSpace(err))
+            {
+                DistributorInfo distributor = bevMediaService.GetDistributorInfo(tokenInfo, out var errMsg);
+                //RetailerInfo distributor = bevMediaService.GetRetailerInfo(tokenInfo, out var errMsg);
+                if (string.IsNullOrWhiteSpace(errMsg))
+                {
+                    var creditDataList = _context.CreditData
+                        .Where(x => x.DistributorId == tokenInfo.DistributorID)
+                        .Include(files => files.CreditDataFiles)
+                        .ToList();
+                    var ws = new AdobeSignWS();
+                    foreach (var creditDataEntity in creditDataList)
+                    {
+                        if (creditDataEntity.Status == CreditAppStatusEnum.OUT_FOR_SIGNATURE.ToString())
+                        {
+                            var agreement = ws.GetAgreement(creditDataEntity.AdobeSignAgreementId, creditDataEntity.Id.Value);
+                            if (agreement.status != creditDataEntity.Status)
+                            {
+                                creditDataEntity.Status = agreement.status;
+                                _context.SaveChanges();
+                            }
+                        }
+                    }
+                    var creditDataListModel = _mapper.Map<List<CreditData>>(creditDataList);
+                    var distributorViewModel = new DistributorViewModel();
+                    distributorViewModel.CreditDataList = creditDataListModel;
 
-            distributorViewModel.Distributor = new Distributor();
-            distributorViewModel.Distributor.DistributorLogoURL = retailer.DistributorLogoURL;
-            distributorViewModel.Distributor.DistributorName = retailer.DistributorName;
-                      
-            return View("DistributorView", distributorViewModel);
+                    distributorViewModel.Distributor = new Distributor();
+                    distributorViewModel.Distributor.DistributorLogoURL = distributor.DistributorLogoURL;
+                    distributorViewModel.Distributor.DistributorName = distributor.DistributorName;
+
+                    return View("DistributorView", distributorViewModel);
+                }
+                else
+                {
+                    errorModel.Message = errMsg;
+                }
+            }
+            else
+            {
+                errorModel.Message = err;
+            }
+            return View("ErrorView", errorModel);
         }
 
         [HttpGet]
@@ -86,8 +118,10 @@ namespace CreditAppBMG.Controllers
                 if (creditDataEntity != null)
                 {
                     creditDataEntity.Status = model.CreditDataStatus;
-                    creditDataEntity.Comments = model.Comments;
+                    //creditDataEntity.Comments = model.Comments;
                     _context.SaveChanges();
+
+                    repository.AddDistributorLogWithComments(model.CreditDataId, model.CreditDataStatus, model.Comments);
                 }
             }
             var retUrl = Url.Action("GetDistributorView", "CreditData", new { token = model.Token });

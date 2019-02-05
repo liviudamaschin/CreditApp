@@ -1,6 +1,7 @@
 ﻿@model CreditAppBMG.ViewModels.CreditAppModel
 @*<form asp-controller="Home" asp-action="GeneratePDF" id="frmCreditApp" method="POST" enctype="multipart/form-data" data-ajax="true" role="form">*@
 <form asp-controller="Home" asp-action="GeneratePdf" enctype="multipart/form-data" id="frmCreditApp" method="post" class="form-label-left" role="form" autocomplete="false">
+    @Html.AntiForgeryToken()
     <div class="main-module">
         <div class="header-top-spacer"></div>
 

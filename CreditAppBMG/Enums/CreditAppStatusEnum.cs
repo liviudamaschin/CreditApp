@@ -3,8 +3,10 @@
     public enum CreditAppStatusEnum
     {
         CREATED = 0,
-        SENT_FOR_SIGNATURE = 1,
+        OUT_FOR_SIGNATURE = 1,
         SIGNED = 2,
-        CANCELLED = 3
+        CANCELLED = 3,
+        APPROVED = 4,
+        DECLINED = 5
     }
 }

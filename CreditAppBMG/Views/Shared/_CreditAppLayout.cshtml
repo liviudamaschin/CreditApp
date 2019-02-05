@@ -43,40 +43,7 @@
         </div>*@
     </div>
     <environment include="Development">
-        <script src="~/lib/jquery/dist/jquery-3.3.1.min.js"></script>
-        @*<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
-                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                asp-fallback-test="window.jQuery"
-                crossorigin="anonymous"
-                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
-        </script>*@
-        <script src="~/lib/jquery/dist/jquery-ui.js"></script>
-        @*<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
-                integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
-                crossorigin="anonymous"></script>*@
-        @*<script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                crossorigin="anonymous"
-                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-        </script>*@
         <script src="~/lib/jquery/dist/bootstrap.min.js"></script>
-        @*<script src="~/lib/jquery/dist/jquery.js"></script>*@
-        @*<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
-
-        <script src="~/js/jquery.maskedinput.js"></script>
-        <!-- Bootstrap Date-Picker Plugin -->
-        @*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>*@
-        <script src="~/lib/jquery/dist/bootstrap-datepicker.min.js"></script>
-        @*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.min.js"></script>*@
-
-
-    </environment>
-    <environment exclude="Development">
-
         <script src="~/lib/jquery/dist/jquery-3.3.1.min.js"></script>
         @*<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
                 asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
@@ -94,7 +61,7 @@
                 crossorigin="anonymous"
                 integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
         </script>*@
-        <script src="~/lib/jquery/dist/bootstrap.min.js"></script>
+
         @*<script src="~/lib/jquery/dist/jquery.js"></script>*@
         @*<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
         <script src="~/js/site.js" asp-append-version="true"></script>
@@ -108,7 +75,41 @@
         @*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.min.js"></script>*@
 
 
-        </environment>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/lib/jquery/dist/bootstrap.min.js"></script>
+        <script src="~/lib/jquery/dist/jquery-3.3.1.min.js"></script>
+        @*<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+        </script>*@
+        <script src="~/lib/jquery/dist/jquery-ui.js"></script>
+        @*<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+        integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
+        crossorigin="anonymous"></script>*@
+        @*<script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>*@
+
+        @*<script src="~/lib/jquery/dist/jquery.js"></script>*@
+        @*<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+
+        <script src="~/js/jquery.maskedinput.js"></script>
+        <!-- Bootstrap Date-Picker Plugin -->
+        @*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>*@
+        <script src="~/lib/jquery/dist/bootstrap-datepicker.min.js"></script>
+        @*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.min.js"></script>*@
+
+
+    </environment>
 
     @RenderSection("Scripts", required: false)
 </body>

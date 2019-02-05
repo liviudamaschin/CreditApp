@@ -38,79 +38,76 @@ namespace CreditAppBMG.Controllers
 
         public IActionResult Index(string token)
         {
+            ErrorModel errorModel = new ErrorModel();
             AdobeSignWS ws = new AdobeSignWS();
-
-            var viewModel = GetInitialValues(token);
-
-            // if an agreement was created check agreement status
-            if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
+            if (!string.IsNullOrWhiteSpace(token))
             {
-                var agreementResponse = ws.GetAgreement(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
-                //if agreement is signed then show the signed document
-                // and update the creditData status
-                if (agreementResponse.status == CreditAppStatusEnum.SIGNED.ToString())
+                TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
+                if (string.IsNullOrWhiteSpace(tokenErrorMessage))
                 {
-                    using (var context = new CreditAppContext())
+                    var viewModel = GetInitialValues(tokenInfo, out string errorMessage);
+                    if (string.IsNullOrWhiteSpace(errorMessage))
                     {
-                        var creditDataEntity = context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
-                        //creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
-                        creditDataEntity.Status = CreditAppStatusEnum.SIGNED.ToString();
-                        creditDataEntity.LastUpdate = DateTime.Now;
-                        context.Update(creditDataEntity);
-                        context.SaveChanges();
+                        // if an agreement was created check agreement status
+                        if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
+                        {
+                            var agreementResponse = ws.GetAgreement(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
+                            //if agreement is signed then show the signed document
+                            // and update the creditData status
+                            if (agreementResponse.status == CreditAppStatusEnum.SIGNED.ToString())
+                            {
+                                using (var context = new CreditAppContext())
+                                {
+                                    var creditDataEntity = context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
+                                    //creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
+                                    creditDataEntity.Status = CreditAppStatusEnum.SIGNED.ToString();
+                                    creditDataEntity.LastUpdate = DateTime.Now;
+                                    context.Update(creditDataEntity);
+                                    context.SaveChanges();
+                                }
+                                // display message “This application has been signed already!”
+                                //todo: show Application signed view
+                                //return this.ShowSignedDocument(viewModel.CreditData.Id.Value, viewModel.CreditData.AdobeSignAgreementId);
+                                return View("AlreadySignedView", viewModel.Distributor);
+                            }
+                            else
+                            {
+                                var cancelled = ws.CancelAgreement(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
+                                if (cancelled == CreditAppStatusEnum.CANCELLED.ToString())
+                                {
+                                    using (var context = new CreditAppContext())
+                                    {
+                                        var creditDataEntity = context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
+                                        creditDataEntity.SigningUrl = null;
+                                        creditDataEntity.AdobeSignAgreementId = null;
+                                        creditDataEntity.Status = CreditAppStatusEnum.CREATED.ToString();
+                                        creditDataEntity.CreatedDate = DateTime.Now;
+                                        creditDataEntity.LastUpdate = DateTime.Now;
+                                        context.Update(creditDataEntity);
+                                        context.SaveChanges();
+                                    }
+                                }
+                            }
+                        }
+                        return View(viewModel);
                     }
-                    // display message “This application has been signed already!”
-                    //todo: show Application signed view
-                    //return this.ShowSignedDocument(viewModel.CreditData.Id.Value, viewModel.CreditData.AdobeSignAgreementId);
-                    return View("AlreadySignedView", viewModel.Distributor);
+                    else
+                    {
+                        errorModel.Message = errorMessage;
+                    }
+                    
                 }
                 else
                 {
-                    var cancelled = ws.CancelAgreement(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
-                    if (cancelled == CreditAppStatusEnum.CANCELLED.ToString())
-                    {
-                        using (var context = new CreditAppContext())
-                        {
-                            var creditDataEntity = context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
-                            creditDataEntity.SigningUrl = null;
-                            creditDataEntity.AdobeSignAgreementId = null;
-                            creditDataEntity.Status = CreditAppStatusEnum.CREATED.ToString();
-                            creditDataEntity.CreatedDate = DateTime.Now;
-                            creditDataEntity.LastUpdate = DateTime.Now;
-                            context.Update(creditDataEntity);
-                            context.SaveChanges();
-                        }
-                    }
+                    errorModel.Message = tokenErrorMessage;
                 }
             }
+            else
+            {
+                errorModel.Message = "Missing token";
+            }
+            return View("ErrorView", errorModel);
 
-
-            //if (!string.IsNullOrWhiteSpace(viewModel.CreditData.SigningUrl))
-            //{
-            //    return Redirect(viewModel.CreditData.SigningUrl);
-            //}
-            //else if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
-            //{
-
-            //var signingUrlResp = ws.GetAgreementSigningUrl(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
-            //if (signingUrlResp?.SigningUrlSetInfos != null)
-            //{
-            //    // update the signing url
-            //    using (var context = new CreditAppContext())
-            //    {
-            //        var creditDataEntity =
-            //            context.CreditData.SingleOrDefault(x => x.Id == viewModel.CreditData.Id.Value);
-            //        creditDataEntity.SigningUrl = signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl;
-            //        context.Update(creditDataEntity);
-            //        context.SaveChanges();
-            //    }
-            //    return Redirect(signingUrlResp.SigningUrlSetInfos[0].SigningUrls[0].EsignUrl);
-            //}
-            //  else
-            //      return View("NotAvailableView", viewModel.Distributor);
-            //}
-
-            return View(viewModel);
         }
 
         private void FillDistributorFromRetailerInfo(CreditAppModel viewModel, RetailerInfo retailerInfo)
@@ -399,6 +396,7 @@ namespace CreditAppBMG.Controllers
         }
 
         [HttpPost]
+        //[ValidateAntiForgeryToken]
         public IActionResult GeneratePdf(CreditAppModel model, IFormFile fileUploadCertificate, IFormFile fileUploadLicense)
         {
             if (model.Distributor.DistributorId == null)
@@ -567,7 +565,7 @@ namespace CreditAppBMG.Controllers
                         {
                             creditDataEntity.AdobeSignAgreementId = resp.agreementId;
                             creditDataEntity.SigningUrl = resp.signingUrl;
-                            creditDataEntity.Status = CreditAppStatusEnum.SENT_FOR_SIGNATURE.ToString();//"PdfGenerated";
+                            creditDataEntity.Status = CreditAppStatusEnum.OUT_FOR_SIGNATURE.ToString();//"PdfGenerated";
                             creditDataEntity.LastUpdate = DateTime.Now;
                             context.Update(creditDataEntity);
                             context.SaveChanges();
@@ -630,7 +628,7 @@ namespace CreditAppBMG.Controllers
             var client = new RestClient(url);
             var request = new RestRequest(Method.POST);
             request.AddHeader("TokenValue", tokenInfo.Token);
-            request.AddHeader("DistribuitorId", tokenInfo.DistribuitorID);
+            request.AddHeader("DistributorId", tokenInfo.DistributorID);
             request.AddHeader("UserId", tokenInfo.UserID);
             IRestResponse response = client.Execute(request);
             try
@@ -889,10 +887,10 @@ namespace CreditAppBMG.Controllers
             return Json("Invalid EIN!!");
         }
 
-        private CreditAppModel GetInitialValues(string token)
+        private CreditAppModel GetInitialValues(TokenInfo tokenInfo, out string errorMessage)
         {
             CreditAppModel viewModel = new CreditAppModel();
-            viewModel.Token = token;
+            viewModel.Token = tokenInfo.Token;
             //viewModel.CreditData = new CreditData();
             //viewModel.Distributor = new Distributor();
             viewModel.Retailer = new Retailer();
@@ -903,90 +901,86 @@ namespace CreditAppBMG.Controllers
             viewModel.CreditData = new CreditData();
             viewModel.CreditDataFiles = new CreditDataFiles();
 
-            if (!string.IsNullOrWhiteSpace(token))
+            //errorMessage = "";
+            RetailerInfo retailerInfo = GetRetailerInfo(tokenInfo, out string retailerErrorMessage);
+            if (string.IsNullOrWhiteSpace(retailerErrorMessage))
             {
-                TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
-
-                if (string.IsNullOrWhiteSpace(tokenErrorMessage))
+                using (var context = new CreditAppContext())
                 {
-                    RetailerInfo retailerInfo = GetRetailerInfo(tokenInfo, out string retailerErrorMessage);
-                    if (string.IsNullOrWhiteSpace(retailerErrorMessage))
+
+                    var creditDataEntity = context.CreditData.SingleOrDefault(x =>
+                        x.RetailerId == Convert.ToInt32(tokenInfo.UserID) &&
+                        x.DistributorId.ToString() == tokenInfo.DistributorID);
+                    if (creditDataEntity == null)
                     {
-                        using (var context = new CreditAppContext())
+                        creditDataEntity = context.CreditData.Where(x =>
+                            x.RetailerId == Convert.ToInt32(tokenInfo.UserID)).OrderBy(o => o.Id).FirstOrDefault();
+                        if (creditDataEntity != null)
                         {
+                            // existing retailer from different distributor
+                            viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
+                            viewModel.CreditData.Id = null;
+                            viewModel.Token = tokenInfo.Token;
+                            viewModel.CreditData.Token = tokenInfo.Token;
+                            viewModel.CreditData.RetailerId = Convert.ToInt32(tokenInfo.UserID);
+                            viewModel.CreditData.DistributorId = tokenInfo.DistributorID;
+                            viewModel.CreditData.AdobeSignAgreementId = null;
+                            //don't import dataFiles yet
 
-                            var creditDataEntity = context.CreditData.SingleOrDefault(x =>
-                                x.RetailerId == Convert.ToInt32(tokenInfo.UserID) &&
-                                x.DistributorId.ToString() == tokenInfo.DistribuitorID);
-                            if (creditDataEntity == null)
+                            var creditDataFilesEntity =
+                                context.CreditDataFiles.SingleOrDefault(x =>
+                                    x.CreditDataId == creditDataEntity.Id);
+                            if (creditDataFilesEntity != null)
                             {
-                                creditDataEntity = context.CreditData.Where(x =>
-                                    x.RetailerId == Convert.ToInt32(tokenInfo.UserID)).OrderBy(o => o.Id).FirstOrDefault();
-                                if (creditDataEntity != null)
-                                {
-                                    // existing retailer from different distributor
-                                    viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
-                                    viewModel.CreditData.Id = null;
-                                    viewModel.Token = token;
-                                    viewModel.CreditData.Token = token;
-                                    viewModel.CreditData.RetailerId = Convert.ToInt32(tokenInfo.UserID);
-                                    viewModel.CreditData.DistributorId = tokenInfo.DistribuitorID;
-
-                                    //don't import dataFiles yet
-
-                                    var creditDataFilesEntity =
-                                        context.CreditDataFiles.SingleOrDefault(x =>
-                                            x.CreditDataId == creditDataEntity.Id);
-                                    if (creditDataFilesEntity != null)
-                                   {
-                                        creditDataFilesEntity.Id = null;
-                                        creditDataFilesEntity.CreditDataId = -1;
-                                        viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFilesEntity);
-                                    }
-                                }
-
-                                //this.FillRetailerInfoOnly();
+                                creditDataFilesEntity.Id = null;
+                                creditDataFilesEntity.CreditDataId = -1;
+                                viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFilesEntity);
                             }
-                            else
-                            {
-                                viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
-                                var creditDataFiles =
-                                    context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id);
-                                if (creditDataFiles != null)
-                                {
-                                    viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
-                                }
-                            }
-
-                            var distributorEntity =
-                                context.Distributors.SingleOrDefault(x => x.DistributorId == tokenInfo.DistribuitorID);
-                            if (distributorEntity != null)
-                                viewModel.Distributor = _mapper.Map<Distributor>(distributorEntity);
-
-                            if (creditDataEntity == null)
-                            {
-                                FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
-                                viewModel.CreditData.Status = CreditAppStatusEnum.CREATED.ToString();
-                                //creditDataEntity.Status= CreditAppStatusEnum.CREATED.ToString();
-                            }
-
-                            //if (!string.IsNullOrWhiteSpace(creditDataEntity.SigningUrl))
-                            //{
-                            //    return Redirect(creditDataEntity.SigningUrl);
-                            //}
                         }
 
-                        FillDistributorFromRetailerInfo(viewModel, retailerInfo);
+                        //this.FillRetailerInfoOnly();
                     }
+                    else
+                    {
+                        viewModel.CreditData = _mapper.Map<CreditData>(creditDataEntity);
+                        var creditDataFiles =
+                            context.CreditDataFiles.FirstOrDefault(x => x.CreditDataId == creditDataEntity.Id);
+                        if (creditDataFiles != null)
+                        {
+                            viewModel.CreditDataFiles = _mapper.Map<CreditDataFiles>(creditDataFiles);
+                        }
+                    }
+
+                    var distributorEntity =
+                        context.Distributors.SingleOrDefault(x => x.DistributorId == tokenInfo.DistributorID);
+                    if (distributorEntity != null)
+                        viewModel.Distributor = _mapper.Map<Distributor>(distributorEntity);
+
+                    if (creditDataEntity == null)
+                    {
+                        FillCreditDataFromRetailerInfo(viewModel, retailerInfo, tokenInfo);
+                        viewModel.CreditData.Status = CreditAppStatusEnum.CREATED.ToString();
+                        //creditDataEntity.Status= CreditAppStatusEnum.CREATED.ToString();
+                    }
+
+                    //if (!string.IsNullOrWhiteSpace(creditDataEntity.SigningUrl))
+                    //{
+                    //    return Redirect(creditDataEntity.SigningUrl);
+                    //}
                 }
+
+                FillDistributorFromRetailerInfo(viewModel, retailerInfo);
             }
 
+            errorMessage = retailerErrorMessage;
+            
             viewModel.StatesListItems = GetStatesListItems();
             viewModel.States = GetStates();
             return viewModel;
         }
 
         [HttpPost]
+        //[ValidateAntiForgeryToken]
         public IActionResult ClearForm([FromBody]CreditAppModel model)
         {
             if (model.CreditData.Id.HasValue)
@@ -1007,7 +1001,8 @@ namespace CreditAppBMG.Controllers
             }
             ModelState.Clear();
             //ModelState.Remove("CreditData_Id");
-            var viewModel = GetInitialValues(model.Token);
+            TokenInfo tokenInfo = VerifyToken(model.Token, out string tokenErrorMessage);
+            var viewModel = GetInitialValues(tokenInfo, out string errorMessage);
             viewModel.CreditData.Id = -1;
             var retUrl = Url.Action("Index", "Home", new { token = model.Token });
             return Json(new { url = retUrl });
@@ -1063,7 +1058,8 @@ namespace CreditAppBMG.Controllers
 
         public IActionResult ViewDocument(string token)
         {
-            var viewModel = GetInitialValues(token);
+            TokenInfo tokenInfo = VerifyToken(token, out string tokenErrorMessage);
+            var viewModel = GetInitialValues(tokenInfo, out string errorMessage);
             if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
             {
                 return this.ShowSignedDocument(viewModel.CreditData.Id.Value, viewModel.CreditData.AdobeSignAgreementId);

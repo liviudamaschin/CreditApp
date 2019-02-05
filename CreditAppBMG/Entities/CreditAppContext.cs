@@ -26,7 +26,9 @@ namespace CreditAppBMG.Entities
         public DbSet<DistributorEntity> Distributors { get; set; }
         public DbSet<ApplicationConfigurationEntity> ApplicationConfigurations { get; set; }
         public DbSet<AdobeSignLogEntity> AdobeSignLogs { get; set; }
+        public DbSet<DistributorLogEntity> DistributorLogs { get; set; }
         
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

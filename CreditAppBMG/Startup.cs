@@ -51,7 +51,7 @@ namespace CreditAppBMG
             services.AddMvc().AddMvcOptions(opts => {
 
                 opts.ModelMetadataDetailsProviders.Add(new CustomMetadataProvider());
-                opts.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+                //opts.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
         }
 
@@ -84,6 +84,7 @@ namespace CreditAppBMG
 
             CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
             CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
         }
     }
 }
