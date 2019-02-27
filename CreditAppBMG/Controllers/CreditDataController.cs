@@ -35,10 +35,9 @@ namespace CreditAppBMG.Controllers
         {
             var creditDataEntity = _context.CreditData
                     .Where(x => x.Id == creditDataId).SingleOrDefault();
-            //if (creditDataEntity != null)
-            //{ }
+
             var creditDataModel = _mapper.Map<CreditDataEntity, CreditData>(creditDataEntity);
-            creditDataModel.Status = creditDataEntity.Status== "DECLINED"|| creditDataEntity.Status == "APPROVED"? creditDataEntity.Status : "";
+            creditDataModel.Status = creditDataEntity.Status == CreditAppStatusEnum.DENIED.ToString() || creditDataEntity.Status == CreditAppStatusEnum.APPROVED.ToString() ? creditDataEntity.Status : "";
             return Ok(creditDataModel);
         }
 
@@ -49,7 +48,7 @@ namespace CreditAppBMG.Controllers
             string baseUrl = repository.GetKeyValue("BMGBaseUrl");// "https://webservice.bevmedia.com/BMGOrderWebService/api";
             ErrorModel errorModel = new ErrorModel();
             BevMediaService bevMediaService = new BevMediaService(baseUrl);
-            TokenInfo tokenInfo= bevMediaService.VerifyToken(token, out var err);
+            TokenInfo tokenInfo = bevMediaService.VerifyToken(token, out var err);
             if (string.IsNullOrWhiteSpace(err))
             {
                 DistributorInfo distributor = bevMediaService.GetDistributorInfo(tokenInfo, out var errMsg);
@@ -74,6 +73,32 @@ namespace CreditAppBMG.Controllers
                         }
                     }
                     var creditDataListModel = _mapper.Map<List<CreditData>>(creditDataList);
+                    List<string> acceptedStatuses = new List<string> {
+                        CreditAppStatusEnum.OUT_FOR_SIGNATURE.ToString(),
+                        CreditAppStatusEnum.SIGNED.ToString(),
+                        CreditAppStatusEnum.APPROVED.ToString(),
+                        CreditAppStatusEnum.DENIED.ToString(),
+                    };
+                    List<string> editStatuses = new List<string> {
+                        CreditAppStatusEnum.SIGNED.ToString(),
+                        CreditAppStatusEnum.APPROVED.ToString(),
+                        CreditAppStatusEnum.DENIED.ToString(),
+                    };
+                    foreach (var item in creditDataListModel)
+                    {
+                        if (acceptedStatuses.Contains(item.Status))
+                        {
+                            item.DistributorStatus = item.Status;
+                        }
+                        else
+                        {
+                            item.DistributorStatus = CreditAppStatusEnum.IN_PROGRESS.ToString();
+                        }
+                        if (editStatuses.Contains(item.Status))
+                        {
+                            item.CanAddComments = true;
+                        }
+                    }
                     var distributorViewModel = new DistributorViewModel();
                     distributorViewModel.CreditDataList = creditDataListModel;
 
@@ -111,19 +136,20 @@ namespace CreditAppBMG.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddComment([FromBody]AddCommentModel model)
         {
-            if (!string.IsNullOrWhiteSpace(model.CreditDataStatus))
+            var creditDataEntity = _context.CreditData
+                   .Where(x => x.Id == model.CreditDataId).SingleOrDefault();
+            if (creditDataEntity != null)
             {
-                var creditDataEntity = _context.CreditData
-                    .Where(x => x.Id == model.CreditDataId).SingleOrDefault();
-                if (creditDataEntity != null)
+                if (!string.IsNullOrWhiteSpace(model.CreditDataStatus))
                 {
                     creditDataEntity.Status = model.CreditDataStatus;
-                    //creditDataEntity.Comments = model.Comments;
-                    _context.SaveChanges();
-
-                    repository.AddDistributorLogWithComments(model.CreditDataId, model.CreditDataStatus, model.Comments);
                 }
+                //creditDataEntity.Comments = model.Comments;
+                _context.SaveChanges();
+
+                repository.AddDistributorLogWithComments(model.CreditDataId, model.CreditDataStatus, model.Comments);
             }
+
             var retUrl = Url.Action("GetDistributorView", "CreditData", new { token = model.Token });
             return Json(new { url = retUrl });
         }

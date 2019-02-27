@@ -7,6 +7,7 @@
         SIGNED = 2,
         CANCELLED = 3,
         APPROVED = 4,
-        DECLINED = 5
+        DENIED = 5,
+        IN_PROGRESS = 6
     }
 }

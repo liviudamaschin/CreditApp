@@ -5,6 +5,7 @@ namespace CreditAppBMG.Models
     public class RetailerInfo
     {
         public int DistributorId { get; set; }
+        public int Business_Organization_ID { get; set; }
         public string DistributorName { get; set; }
         public string DistributorAddress { get; set; }
         public string DistributorCity { get; set; }

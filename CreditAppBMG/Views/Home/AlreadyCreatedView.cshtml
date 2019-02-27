@@ -1,0 +1,29 @@
+﻿@model CreditAppBMG.ViewModels.Distributor
+@{
+    ViewData["Title"] = "AlreadySignedView";
+    Layout = "~/Views/Shared/_CreditAppLayout.cshtml";
+}
+
+<div class="main-module">
+    <div class="header-top-spacer"></div>
+
+    <div class="header-logo-color">
+        <img src="~/images/header-object.png" style="max-height: 122px; position:absolute" />
+        <img src="@Model.DistributorLogoURL" style="padding-left: 174px; padding-top: 2px; max-height: 100px" />
+        <label class="control-label" style="padding-left: 20px; color: white; font-size: 1.5em;">@Model.DistributorName</label>
+
+    </div>
+
+    <div class="header-bottom-spacer middle" align="center">
+        <label class="middle" style="font-size:1.5em">CREDIT APPLICATION FORM</label>
+
+
+    </div>
+    <div class="module-body">
+
+        <div>
+            <label>Another user has already created an application!</label>
+        </div>
+
+    </div>
+</div>

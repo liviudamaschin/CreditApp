@@ -16,6 +16,7 @@ namespace CreditAppBMG.Entities
         public int? Id { get; set; }
         public string DistributorId { get; set; }
         public int? RetailerId { get; set; }
+        public int? UserId { get; set; }
         public string Token { get; set; }
         [MaxLength(100)]
         public string BusinessName { get; set; }

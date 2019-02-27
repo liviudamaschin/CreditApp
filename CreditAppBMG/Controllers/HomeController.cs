@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using RestSharp;
+using CreditAppBMG.Extensions;
 
 namespace CreditAppBMG.Controllers
 {
@@ -36,6 +37,14 @@ namespace CreditAppBMG.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
+        public IActionResult test()
+        {
+            var templateLocation = Path.Combine(_hostingEnvironment.WebRootPath, $"PdfTemplate/BMG_Credit_Application_Form_BLANK.pdf");
+                     
+            PdfGenerator pdfGenerator = new PdfGenerator();
+            var fileGenerated = pdfGenerator.GeneratePdf2(templateLocation,@"D:\tmp\testPdf.pdf");
+            return Ok();
+        }
         public IActionResult Index(string token)
         {
             ErrorModel errorModel = new ErrorModel();
@@ -49,6 +58,16 @@ namespace CreditAppBMG.Controllers
                     if (string.IsNullOrWhiteSpace(errorMessage))
                     {
                         // if an agreement was created check agreement status
+                        if (viewModel.CreditData.Status == CreditAppStatusEnum.APPROVED.ToString())
+                        {
+                            //return approved view
+                            return View("ApprovedView", viewModel.Distributor);
+                        }
+                        if (viewModel.CreditData.Status == CreditAppStatusEnum.DENIED.ToString())
+                        {
+                            //return denied view
+                            return View("DeniedView", viewModel.Distributor);
+                        }
                         if (!string.IsNullOrWhiteSpace(viewModel.CreditData.AdobeSignAgreementId))
                         {
                             var agreementResponse = ws.GetAgreement(viewModel.CreditData.AdobeSignAgreementId, viewModel.CreditData.Id.Value);
@@ -88,6 +107,29 @@ namespace CreditAppBMG.Controllers
                                     }
                                 }
                             }
+                        }
+                        if (viewModel.CreditData.Id > 0)
+                        {
+                            List<object> err = new List<object>();
+                            Dictionary<string, string> previousErrors = new Dictionary<string, string>();
+                            var isModelValid = TryValidateModel(viewModel.CreditData);
+                            foreach (KeyValuePair<string, ModelStateEntry> modelStateItem in ModelState)
+                            {
+                                if (modelStateItem.Value.Errors.Any())
+                                {
+                                    previousErrors.Add(modelStateItem.Key, modelStateItem.Value.Errors[0].ErrorMessage);
+                                    //err.Add(new { prop = modelStateItem.Key, msg = modelStateItem.Value.Errors[0].ErrorMessage });
+                                }
+                            }
+                            this.ValidateCreditData(viewModel.CreditData, previousErrors);
+                            foreach (KeyValuePair<string, ModelStateEntry> modelStateItem in ModelState)
+                            {
+                                if (modelStateItem.Value.Errors.Any())
+                                {
+                                    err.Add(new { PropertyName = $"CreditData.{modelStateItem.Key}", msg = modelStateItem.Value.Errors[0].ErrorMessage });
+                                }
+                            }
+                            ViewBag.errors = err;
                         }
                         return View(viewModel);
                     }
@@ -151,7 +193,8 @@ namespace CreditAppBMG.Controllers
 
             viewModel.CreditData = new CreditData();
             viewModel.CreditData.DistributorId = retailerInfo.DistributorId.ToString();
-            viewModel.CreditData.RetailerId = Convert.ToInt32(tokenInfo.UserID);
+            viewModel.CreditData.UserId = Convert.ToInt32(tokenInfo.UserID);
+            viewModel.CreditData.RetailerId = retailerInfo.Business_Organization_ID;
             viewModel.CreditData.Token = tokenInfo.Token;
             viewModel.CreditData.BusinessName = retailerInfo.Business_Information_BusinessName;
             viewModel.CreditData.TradeName = retailerInfo.Business_Information_TradeName;
@@ -257,7 +300,8 @@ namespace CreditAppBMG.Controllers
             //RetailerBo retailer = new RetailerBo();
             // business
             //retailerInfo.DistributorId
-            viewModel.CreditData.RetailerId = Convert.ToInt32(userId);
+            viewModel.CreditData.UserId = Convert.ToInt32(userId);
+            viewModel.CreditData.RetailerId = retailerInfo.Business_Organization_ID;
             viewModel.CreditData.BusinessName = retailerInfo.Business_Information_BusinessName;
             viewModel.CreditData.TradeName = retailerInfo.Business_Information_TradeName;
             viewModel.CreditData.LicenseNumber = retailerInfo.Business_Information_LicenseNumber;
@@ -419,6 +463,18 @@ namespace CreditAppBMG.Controllers
                             context.SaveChanges();
                             return View("AlreadySignedView", model.Distributor);
                         }
+                    }
+                }
+            }
+            else
+            {
+                // check if someone else already created the aplication for
+                using (var context = new CreditAppContext())
+                {
+                    var crdDataEntity = context.CreditData.SingleOrDefault(x => x.DistributorId == model.CreditData.DistributorId && x.RetailerId == model.CreditData.RetailerId);
+                    if (crdDataEntity != null)
+                    {
+                        return View("AlreadyCreatedView", model.Distributor);
                     }
                 }
             }
@@ -810,6 +866,11 @@ namespace CreditAppBMG.Controllers
 
 
             //-----------------
+            if (creditDataModel.DeliveryTime == "--" || creditDataModel.DeliveryTime == null)
+            {
+                ModelState.AddModelError("CreditData.DeliveryTime", "Please select Delivery time");
+            }
+
             if (creditDataModel.CompanyType == "--" || creditDataModel.CompanyType == null)
             {
                 ModelState.AddModelError("CreditData.CompanyType", "Please select Company type");
@@ -872,13 +933,87 @@ namespace CreditAppBMG.Controllers
         }
 
         [HttpPost]
-        public void ValidateZipCodeServer2([FromBody]string model, [FromBody] string propName)
+        public ActionResult ValidateZipCodeServer([FromQuery] string propName, [FromBody]CreditData model)
         {
+            var message = string.Empty;
+            var returnStatus = true;
+            switch (propName)
+            {
+                case "CreditData.ZipCode":
+                    message = this.ValidateZipCode(model.ZipCode, model.State);
+                    break;
+                case "CreditData.BankReferenceZipCode":
+                    message = this.ValidateZipCode(model.BankReferenceZipCode, model.BankReferenceState);
+                    break;
+                case "CreditData.BillingContactZipCode":
+                    message = this.ValidateZipCode(model.BillingContactZipCode, model.BillingContactState);
+                    break;
+                case "CreditData.PrincipalZipCode":
+                    message = this.ValidateZipCode(model.PrincipalZipCode, model.PrincipalState);
+                    break;
+                default:
+                    break;
+            }
+            if (message != null)
+            {
+                returnStatus = false;
+            }
+            return Json(new { success = returnStatus, message = message });
         }
 
         [HttpPost]
-        public void ValidateZipCodeServer([FromQuery]string propName, [FromBody]CreditAppModel model)
+        public ActionResult ValidateZipCodeByStateServer([FromQuery] string propName, [FromBody]CreditData model)
         {
+            var message = string.Empty;
+            var returnStatus = true;
+            var zipProperty = string.Empty;
+            switch (propName)
+            {
+                case "CreditData.State":
+                    message = this.ValidateZipCode(model.ZipCode, model.State);
+                    zipProperty = "CreditData.ZipCode";
+                    break;
+                case "CreditData.BankReferenceState":
+                    message = this.ValidateZipCode(model.BankReferenceZipCode, model.BankReferenceState);
+                    zipProperty = "CreditData.BankReferenceZipCode";
+                    break;
+                case "CreditData.BillingContactState":
+                    message = this.ValidateZipCode(model.BillingContactZipCode, model.BillingContactState);
+                    zipProperty = "CreditData.BillingContactZipCode";
+                    break;
+                case "CreditData.PrincipalState":
+                    message = this.ValidateZipCode(model.PrincipalZipCode, model.PrincipalState);
+                    zipProperty = "CreditData.PrincipalZipCode";
+                    break;
+                default:
+                    break;
+            }
+            if (message != null)
+            {
+                returnStatus = false;
+            }
+            return Json(new { success = returnStatus, property= zipProperty, message = message });
+        }
+
+        private void ValidateZip(string zipProperty, string zipCode)
+        {
+
+
+            //errorMessage = ValidateZipCode(creditDataModel.ZipCode, creditDataModel.State);
+            //if (!string.IsNullOrWhiteSpace(errorMessage))
+            //    ModelState.AddModelError("CreditData.ZipCode", errorMessage);
+
+            //errorMessage = ValidateZipCode(creditDataModel.BankReferenceZipCode, creditDataModel.BankReferenceState);
+            //if (!string.IsNullOrWhiteSpace(errorMessage))
+            //    ModelState.AddModelError("CreditData.BankReferenceZipCode", errorMessage);
+
+            //errorMessage = ValidateZipCode(creditDataModel.BillingContactZipCode, creditDataModel.BillingContactState);
+            //if (!string.IsNullOrWhiteSpace(errorMessage))
+            //    ModelState.AddModelError("CreditData.BillingContactZipCode", errorMessage);
+
+            //errorMessage = ValidateZipCode(creditDataModel.PrincipalZipCode, creditDataModel.PrincipalState);
+            //if (!string.IsNullOrWhiteSpace(errorMessage))
+            //    ModelState.AddModelError("CreditData.PrincipalZipCode", errorMessage);
         }
 
         [HttpGet]
@@ -909,12 +1044,12 @@ namespace CreditAppBMG.Controllers
                 {
 
                     var creditDataEntity = context.CreditData.SingleOrDefault(x =>
-                        x.RetailerId == Convert.ToInt32(tokenInfo.UserID) &&
+                        x.RetailerId == retailerInfo.Business_Organization_ID &&
                         x.DistributorId.ToString() == tokenInfo.DistributorID);
                     if (creditDataEntity == null)
                     {
                         creditDataEntity = context.CreditData.Where(x =>
-                            x.RetailerId == Convert.ToInt32(tokenInfo.UserID)).OrderBy(o => o.Id).FirstOrDefault();
+                            x.RetailerId == retailerInfo.Business_Organization_ID).OrderBy(o => o.Id).FirstOrDefault();
                         if (creditDataEntity != null)
                         {
                             // existing retailer from different distributor
@@ -922,7 +1057,8 @@ namespace CreditAppBMG.Controllers
                             viewModel.CreditData.Id = null;
                             viewModel.Token = tokenInfo.Token;
                             viewModel.CreditData.Token = tokenInfo.Token;
-                            viewModel.CreditData.RetailerId = Convert.ToInt32(tokenInfo.UserID);
+                            viewModel.CreditData.UserId= Convert.ToInt32(tokenInfo.UserID);
+                            viewModel.CreditData.RetailerId = retailerInfo.Business_Organization_ID;
                             viewModel.CreditData.DistributorId = tokenInfo.DistributorID;
                             viewModel.CreditData.AdobeSignAgreementId = null;
                             //don't import dataFiles yet

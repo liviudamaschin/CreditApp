@@ -17,6 +17,9 @@ namespace CreditAppBMG.ViewModels
         public int RetailerId { get; set; }
 
         [Required(ErrorMessage = "Required field")]
+        public int UserId { get; set; }
+
+        [Required(ErrorMessage = "Required field")]
         public string Token { get; set; }
 
         [ScaffoldColumn(false)]
@@ -54,6 +57,7 @@ namespace CreditAppBMG.ViewModels
         public string NYStateTaxId { get; set; }
 
         [Display(Name = "Delivery time:")]
+        [Required(ErrorMessage = "Required field")]
         public string DeliveryTime { get; set; }
 
         [Required(ErrorMessage = "Required field")]
@@ -314,6 +318,10 @@ namespace CreditAppBMG.ViewModels
         public string Status { get; set; }
 
         public string Comments => this.GetComments(this.Id);
+
+        public bool CanAddComments { get; set; }
+
+        public string DistributorStatus { get; set; }
 
         public ICollection<CreditDataFiles> CreditFiles { get; set; }
 

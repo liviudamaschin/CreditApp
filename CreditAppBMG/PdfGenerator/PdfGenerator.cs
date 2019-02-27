@@ -12,14 +12,40 @@ namespace CreditAppBMG.Pdf
         private CreditAppModel obj;
         private string FontPath;
 
-        public PdfGenerator(CreditAppModel creditAppModel)
+        public PdfGenerator()
+        {
+           
+        }
+            public PdfGenerator(CreditAppModel creditAppModel)
         {
             this.obj = creditAppModel;
-
         }
 
         public bool GeneratePdf2(string templatePath, string outputFile)
         {
+
+            //Document document = new Document();
+            //PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(outputFile, FileMode.Create, FileAccess.Write));
+            //document.Open();
+
+            //document.Add(new Paragraph("Hello World!"));
+            //PdfFormField field = PdfFormField.CreateSignature(writer);
+            //field.FieldName="SIGNAME";
+            //field.SetPage();
+            //field.SetWidget(new iTextSharp.text.Rectangle(72, 732, 144, 780), PdfAnnotation.HIGHLIGHT_INVERT);
+            //field.SetFieldFlags(PdfAnnotation.FLAGS_PRINT);
+            //writer.AddAnnotation(field);
+            //PdfAppearance tp = PdfAppearance.CreateAppearance(writer, 72, 48);
+            //tp.SetColorStroke(BaseColor.BLUE);
+            //tp.SetColorFill(BaseColor.LIGHT_GRAY);
+            //tp.Rectangle(0.5f, 0.5f, 71.5f, 47.5f);
+            //tp.FillStroke();
+            //tp.SetColorFill(BaseColor.BLUE);
+            //ColumnText.ShowTextAligned(tp, Element.ALIGN_CENTER,
+            //new Phrase("SIGN HERE"), 36, 24, 25);
+            //field.SetAppearance(PdfAnnotation.APPEARANCE_NORMAL, tp);
+            //document.Close();
+
             PdfReader reader = new PdfReader(templatePath);
 
             using (var fileStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
@@ -31,6 +57,7 @@ namespace CreditAppBMG.Pdf
                 // add the field here, the second param is the page you want it on         
                 //stamp.AddAnnotation(field.GetTextField(), 1);
 
+
                 var content = stamp.GetOverContent(1);
 
                 var baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
@@ -40,9 +67,28 @@ namespace CreditAppBMG.Pdf
                 content.ShowTextAligned(PdfContentByte.ALIGN_LEFT, "QQQQQQQQQQQQQQQQQQQ", 45, 557, 0);
                 content.EndText();
 
+                //PdfFormField field = PdfFormField.CreateSignature(stamp.Writer);
+
+                //field.FieldName = "SIGNAME";
+                //field.SetPage();
+                //field.SetWidget(new iTextSharp.text.Rectangle(72, 732, 144, 780), PdfAnnotation.HIGHLIGHT_INVERT);
+                //field.SetFieldFlags(PdfAnnotation.FLAGS_PRINT);
+
+
+                //PdfAppearance tp = PdfAppearance.CreateAppearance(stamp.Writer, 72, 48);
+                //tp.SetColorStroke(BaseColor.BLUE);
+                //tp.SetColorFill(BaseColor.LIGHT_GRAY);
+                //tp.Rectangle(0.5f, 0.5f, 71.5f, 47.5f);
+                //tp.FillStroke();
+                //tp.SetColorFill(BaseColor.BLUE);
+                //ColumnText.ShowTextAligned(tp, Element.ALIGN_CENTER,
+                //new Phrase("SIGN HERE"), 36, 24, 25);
+                //field.SetAppearance(PdfAnnotation.APPEARANCE_NORMAL, tp);
+
 
                 stamp.FormFlattening = true; // lock fields and prevent further edits.
-
+                //stamp.AddSignature("SIG_NAME", 1, 73, 705, 149, 759);
+                stamp.AddSignature("SIGNATURE_NAME", 1, 75, 30, 275, 50);
                 stamp.Close();
             }
 
@@ -207,6 +253,11 @@ namespace CreditAppBMG.Pdf
 
                     //contentByte.AddTemplate(importedPage, 0, 0);
                     stamper.FormFlattening = true;
+
+                    stamper.FormFlattening = true; // lock fields and prevent further edits.
+                    stamper.AddSignature("SIGNATURE_NAME", 1, 75, 30, 275, 50);
+                    stamper.Close();
+
                     stamper.Close();
 
                 }
@@ -346,6 +397,7 @@ namespace CreditAppBMG.Pdf
                 contentByte.SetFontAndSize(baseFont, 9);
 
                 contentByte.ShowTextAligned(PdfContentByte.ALIGN_LEFT, string.IsNullOrWhiteSpace(content) ? string.Empty : content, left, top, 0);
+                //contentByte.
                 contentByte.EndText();
 
                 success = true;

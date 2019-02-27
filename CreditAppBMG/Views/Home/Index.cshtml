@@ -725,6 +725,7 @@
     @Html.HiddenFor(m => m.CreditData.DistributorId)
     @Html.HiddenFor(m => m.CreditData.SigningUrl)
     @Html.HiddenFor(m => m.CreditData.Status)
+    @Html.HiddenFor(m => m.CreditData.UserId)
     @Html.HiddenFor(m => m.CreditData.RetailerId)
     @Html.HiddenFor(m => m.CreditData.Token)
     @Html.HiddenFor(m => m.CreditData.Id)
@@ -785,6 +786,7 @@
 </form>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
 <script type="text/javascript">
 
     function DisplayProgressMessage() {
@@ -844,6 +846,7 @@
     }
 
     $(document).ready(function () {
+
         $("#TaxCertificateFileName").removeClass("fileuploadError");
         $("#LicenseFileName").removeClass("fileuploadError");
         var taxFileUploadVal = $("#CreditDataFiles_TaxCertificateFileName").val();
@@ -868,32 +871,6 @@
         });
 
 
-
-
-
-
-        //$('#GeneratePDF').click(function() {
-        //    $.blockUI({ overlayCSS: { backgroundColor: '#00f' } });
-
-        //    //setTimeout($.unblockUI, 2000);
-        //});
-
-        //$('#frmCreditApp').submit(function() {
-        //    $.blockUI({ overlayCSS: { backgroundColor: '#00f' } });
-        //});
-        // Hide the "busy" Gif at load:
-        //$("#divProcessing").dialog('open');
-
-        // Attach click handler to the submit button:
-        //$('#GeneratePDF').click(function () {
-        //    skm_LockScreen("Please wait...");
-        //    $('#frmCreditApp').submit(function() {
-        //        $(".submit-progress").hide();
-        //    });
-        //});
-
-
-
         $(".input-validation-error:first").focus();
         // animated top scrolling
         $('body, html').animate({ scrollTop: $(".input-validation-error:first :input").offset.top});
@@ -908,7 +885,24 @@
             forceParse: true
         });
     });
+
     $(function () {
+        if ('@Model.CreditData.Id') {
+            //if (@Model.CreditData.Id> 0) {
+
+                //var modelErrors = '@ViewData["errors"]';
+                var array = jQuery.parseJSON('@Html.Raw(Json.Serialize(@ViewBag.errors))');
+                displayValidationErrors(array)
+
+                //  var form = $('#frmCreditApp');
+                //  var vd = $('#frmCreditApp').validate();
+                //  vd.showErrors();
+                //var validator = $.data($('form')[0], 'validator');
+                //  validator.showErrors();
+                //$.validator.unobtrusive.parse(form);
+                var a = 0;
+           // }
+        }
 
         $.fn.datepicker.noConflict;
         bs_input_file();
@@ -936,19 +930,7 @@
         $('.validate-zip').mask('?99999');
         //$('.validate-zip').setCursorToTextEnd();
 
-        @*$('.phone-mask').blur(function () {
-            var controlValue = $(this).val();
-            $.ajax({
-                url:'@Url.Action("EIN_Validation", "Home")',
-                type: "GET",
-                dataType: "json",
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(jsonModel),
-                success: function (response) {
-                    alert(response);
-                }
-            });
-        });*@
+
 
         $('#CreditData_BusinessName2').change(function () {
             //Content to send
@@ -968,33 +950,62 @@
 
         $('.validate-zip').change(function () {
             var propName = $(this).attr('name');
-            //var zipCode = $(this).val();
-            //alert(state);
-            //alert(zipCode);
-            var jsonModel = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
-            var formModel = $('#frmCreditApp').serializeArray();
-
-            var data = {
-                model: jsonModel,
-                propName: propName
-            };
+            var jsonModel = GetModel();
             $.ajax({
                 //url: '@Url.Action("ValidateZipCodeServer", "Home")',
                 url: '/Home/ValidateZipCodeServer/?propName=' + propName,
                 type: "POST",
                 dataType: "JSON",
                 contentType: "application/json; charset=utf-8",
-                data: JSON.stringify(formModel.toString),
-                //data: JSON.stringify($('#frmCreditApp').serializeArray()),
-                //data: JSON.stringify(jsonModel),
-                //data: { model: JSON.stringify(jsonModel).toString(), propName: propName },
-                //data: JSON.stringify( { 'propName': propName }),
+                data: JSON.stringify(jsonModel),
                 success: function (response) {
-                    alert(response);
+                    if (!response.success) {
+                        var container = $('span[data-valmsg-for="' + propName + '"]');
+                        container.removeClass("field-validation-valid").addClass("field-validation-error");
+                        container.html(response.message);
+                        var container2 = $('input[name="' + propName + '"]');
+                        container2.addClass("input-validation-error");
+                    }
+                    else {
+                        var container = $('span[data-valmsg-for="' + propName + '"]');
+                        container.removeClass("field-validation-error").addClass("field-validation-valid");
+                        container.html(response.message);
+                        var container2 = $('input[name="' + propName + '"]');
+                        container2.removeClass("input-validation-error");
+                    }
                 }
             });
         });
 
+        $('.state').change(function () {
+            var propName = $(this).attr('name');
+            var jsonModel = GetModel();
+            $.ajax({
+                //url: '@Url.Action("ValidateZipCodeByStateServer", "Home")',
+                url: '/Home/ValidateZipCodeByStateServer/?propName=' + propName,
+                type: "POST",
+                dataType: "JSON",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(jsonModel),
+                success: function (response) {
+                    if (!response.success) {
+                        var container = $('span[data-valmsg-for="' + response.property + '"]');
+                        container.removeClass("field-validation-valid").addClass("field-validation-error");
+                        container.html(response.message);
+                        var container2 = $('input[name="' + response.property + '"]');
+                        container2.addClass("input-validation-error");
+                    }
+                    else {
+                        var container = $('span[data-valmsg-for="' + response.property + '"]');
+                        container.removeClass("field-validation-error").addClass("field-validation-valid");
+                        container.html(response.message);
+                        var container2 = $('input[name="' + response.property + '"]');
+                        container2.removeClass("input-validation-error");
+                    }
+                }
+            });
+        });
+        
         $('#DistributorState').change(function () {
             //Content to send
             var formData = $(this).serialize();
@@ -1036,4 +1047,99 @@
             return true;
         });
     });
+    function displayValidationErrors(errors) {
+        $.each(errors, function (idx, validationError) {
+
+            //$("span[data-valmsg-for='" + validationError.propertyName + "']").text(validationError.msg);
+            var container = $('span[data-valmsg-for="' + validationError.propertyName + '"]');
+            container.removeClass("field-validation-valid").addClass("field-validation-error");
+            container.html(validationError.msg);
+            var container2 = $('input[name="' + validationError.propertyName + '"]');
+            container2.addClass("input-validation-error");
+
+        });
+    }
+    function GetModel() {
+        var model = {
+            Id: $("#CreditData_Id").val(),
+            DistributorId: $("#CreditData_DistributorId").val(),
+            RetailerId: $("#CreditData_RetailerId").val(),
+            UserIdId: $("#CreditData_UserId").val(),
+            Token: $("#CreditData_Token").val(),
+            BusinessName: $("#CreditData_BusinessName").val(),
+            TradeName: $("#CreditData_TradeName").val(),
+            LicenseNumber: $("#CreditData_LicenseNumber").val(),
+            LicenseExpirationDate: $("#CreditData_LicenseExpirationDate").val(),
+            NystateTaxId: $("#CreditData_NystateTaxId").val(),
+            DeliveryTime: $("#CreditData_DeliveryTime").val(),
+            CompanyType: $("#CreditData_CompanyType").val(),
+            Phone: $("#CreditData_Phone").val(),
+            Address1: $("#CreditData_Address1").val(),
+            Address2: $("#CreditData_Address2").val(),
+            City: $("#CreditData_City").val(),
+            State: $("#CreditData_State").val(),
+            ZipCode: $("#CreditData_ZipCode").val(),
+            PrincipalTitle: $("#CreditData_PrincipalTitle").val(),
+            PrincipalEmail: $("#CreditData_PrincipalEmail").val(),
+            PrincipalAddress1: $("#CreditData_PrincipalAddress1").val(),
+            PrincipalAddress2: $("#CreditData_PrincipalAddress2").val(),
+            PrincipalCity: $("#CreditData_PrincipalCity").val(),
+            PrincipalState: $("#CreditData_PrincipalState").val(),
+            PrincipalZipCode: $("#CreditData_PrincipalZipCode").val(),
+            PropertyOwned: $("#CreditData_PropertyOwned").val(),
+            PropertyType: $("#CreditData_PropertyType").val(),
+            PropertyAddress1: $("#CreditData_PropertyAddress1").val(),
+            PropertyAddress2: $("#CreditData_PropertyAddress2").val(),
+            PropertyCity: $("#CreditData_PropertyCity").val(),
+            PropertyState: $("#CreditData_PropertyState").val(),
+            PropertyZipCode: $("#CreditData_PropertyZipCode").val(),
+            PriorBusiness: $("#CreditData_PriorBusiness").val(),
+            PriorBusinessAddress1: $("#CreditData_PriorBusinessAddress1").val(),
+            PriorBusinessAddress2: $("#CreditData_PriorBusinessAddress2").val(),
+            PriorBusinessCity: $("#CreditData_PriorBusinessCity").val(),
+            PriorBusinessState: $("#CreditData_PriorBusinessState").val(),
+            PriorBusinessZipCode: $("#CreditData_PriorBusinessZipCode").val(),
+            BillingContactName: $("#CreditData_BillingContactName").val(),
+            BillingContactEmail: $("#CreditData_BillingContactEmail").val(),
+            BillingContactPhone: $("#CreditData_BillingContactPhone").val(),
+            BillingContactAddress1: $("#CreditData_BillingContactAddress1").val(),
+            BillingContactAddress2: $("#CreditData_BillingContactAddress2").val(),
+            BillingContactCity: $("#CreditData_BillingContactCity").val(),
+            BillingContactState: $("#CreditData_BillingContactState").val(),
+            BillingContactZipCode: $("#CreditData_BillingContactZipCode").val(),
+            BankReferenceName: $("#CreditData_BankReferenceName").val(),
+            BankReferencePhone: $("#CreditData_BankReferencePhone").val(),
+            BankReferenceAccountType: $("#CreditData_BankReferenceAccountType").val(),
+            BankReferenceAccountNumber: $("#CreditData_BankReferenceAccountNumber").val(),
+            BankReferenceRoutingNumber: $("#CreditData_BankReferenceRoutingNumber").val(),
+            BankReferenceAddress1: $("#CreditData_BankReferenceAddress1").val(),
+            BankReferenceAddress2: $("#CreditData_BankReferenceAddress2").val(),
+            BankReferenceCity: $("#CreditData_BankReferenceCity").val(),
+            BankReferenceState: $("#CreditData_BankReferenceState").val(),
+            BankReferenceZipCode: $("#CreditData_BankReferenceZipCode").val(),
+            TradeReference1Name: $("#CreditData_TradeReference1Name").val(),
+            TradeReference1Phone: $("#CreditData_TradeReference1Phone").val(),
+            TradeReference1Address1: $("#CreditData_TradeReference1Address1").val(),
+            TradeReference1Address2: $("#CreditData_TradeReference1Address2").val(),
+            TradeReference1City: $("#CreditData_TradeReference1City").val(),
+            TradeReference1State: $("#CreditData_TradeReference1State").val(),
+            TradeReference1ZipCode: $("#CreditData_TradeReference1ZipCode").val(),
+            TradeReference2Name: $("#CreditData_TradeReference2Name").val(),
+            TradeReference2Phone: $("#CreditData_TradeReference2Phone").val(),
+            TradeReference2AccountNumber: $("#CreditData_TradeReference2AccountNumber").val(),
+            TradeReference2Address1: $("#CreditData_TradeReference2Address1").val(),
+            TradeReference2Address2: $("#CreditData_TradeReference2Address2").val(),
+            TradeReference2City: $("#CreditData_TradeReference2City").val(),
+            TradeReference2State: $("#CreditData_TradeReference2State").val(),
+            TradeReference2ZipCode: $("#CreditData_TradeReference2ZipCode").val(),
+            CreatedDate: $("#CreditData_CreatedDate").val(),
+            LastUpdate: $("#CreditData_LastUpdate").val(),
+            Status: $("#CreditData_Status").val(),
+            SigningUrl: $("#CreditData_SigningUrl").val(),
+            AdobeSignAgreementId: $("#CreditData_AdobeSignAgreementId").val()
+
+
+        }
+        return model;
+    };
 </script>

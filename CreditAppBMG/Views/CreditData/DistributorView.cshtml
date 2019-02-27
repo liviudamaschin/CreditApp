@@ -126,22 +126,25 @@
                     </td>
                     <td>
                         @*@Html.ActionLink(d.Status, "ShowDocument", "CreditData", new { creditDataId = model.Id, agreementId = model.AdobeSignAgreementId })*@
-                        @if (!string.IsNullOrWhiteSpace(d.AdobeSignAgreementId))
+                        @if (d.DistributorStatus != "IN_PROGRESS")
                         {
-                            @Html.ActionLink(d.Status, "ShowDocument", "CreditData", new { creditDataId = d.Id, agreementId = d.AdobeSignAgreementId }, new { target = "_self" })
+                            @Html.ActionLink(d.DistributorStatus, "ShowDocument", "CreditData", new { creditDataId = d.Id, agreementId = d.AdobeSignAgreementId }, new { target = "_self" })
                         }
                         else
                         {
-                            @d.Status
+                            @d.DistributorStatus
                         }
                         <br>
                         @d.LastUpdate
                     </td>
                     <td>
-                        @d.Status <br />
+                        @d.DistributorStatus<br />
                         @*@d.Comments <br />*@
                         @Html.TextArea("txtComments", d.Comments, new { @readonly = "readonly", @rows = 5, @cols = 40, @style = "height:100% ", @class = "ui-widget-content ui-corner-all" }) <br>
-                        <button id="add-comment" class="btn-add-comments" data-creditdata-id="@d.Id">Update</button>
+                        @if (d.CanAddComments)
+                        {
+                            <button id="add-comment" class="btn-add-comments" data-creditdata-id="@d.Id">Update</button>
+                        }
 
                     </td>
 
@@ -153,7 +156,7 @@
 </div>
 @*<button id="add-comment">Create new user</button>*@
 
-<div id="dialog-form" title="Select Status and add comment" data-creditdata-id="">
+<div id="dialog-form" title="Update Status" data-creditdata-id="">
     @*<p class="validateTips">All form fields are required.</p>*@
 
     <form id="frmAddMessage" asp-controller="CreditData" asp-action="AddComment" method="post" role="form">
@@ -166,7 +169,7 @@
                 <select id="CreditDataStatusList" class="form-control" autocomplete="off">
                     <option value="">Please select...</option>
                     <option value="APPROVED">APPROVED</option>
-                    <option value="DECLINED">DECLINED</option>
+                    <option value="DENIED">DENIED</option>
                 </select>
                 @*@Html.DropDownList("CreditDataStatusList",
                     new SelectList(new string[] { "APPROVED", "DECLINED" }),
@@ -213,6 +216,7 @@
         $(function () {
             $("#dialog-form").dialog();
             $("#dialog-form").dialog("close");
+
         });
 
         function gettoken() {
@@ -245,10 +249,10 @@
 
             $("#dialog-form").data("creditdata-id", creditdataid);
             $("#dialog-form").dialog({
-                //dialogClass: "no-close",
+                dialogClass: "no-close",
                 //hide: { effect: "explode", duration: 1000 },
                 //closeText: "hide",
-                //closeOnEscape: true,
+                closeOnEscape: true,
                 resizable: true,
                 //autoOpen: false,
                 height: 346,
